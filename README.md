@@ -2,6 +2,8 @@
 
 A web-based Teaching Assistant recruitment and management system built with Java Servlets, JSP, and CSV data storage.
 
+**Version**: 1.0 - Base Edition
+
 ## 📋 Features
 
 ### For Teaching Assistants (TA)
