@@ -156,9 +156,7 @@ public class AuthServlet extends HttpServlet {
             HttpSession session = request.getSession(true);
             session.setAttribute("user", user);
             
-            // 根据用户角色重定向到相应的dashboard
-            String redirectUrl = getDashboardUrl(user.getRole());
-            response.sendRedirect(request.getContextPath() + redirectUrl);
+            
             
         } catch (IllegalArgumentException e) {
             // 登录失败（凭证错误）
@@ -182,21 +180,5 @@ public class AuthServlet extends HttpServlet {
         // 重定向到登录页面
         response.sendRedirect(request.getContextPath() + "/auth/login");
     }
-    
-    /**
-     * 根据用户角色获取对应的dashboard URL
-     * 
-     * @param role 用户角色
-     * @return dashboard URL
-     */
-    private String getDashboardUrl(UserRole role) {
-        switch (role) {
-            case TA:
-                return "/ta/dashboard";
-            case MO:
-                return "/mo/dashboard";
-            default:
-                return "/auth/login";
-        }
-    }
-}
+} 
+   

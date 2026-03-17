@@ -1,205 +1,148 @@
-# TA Recruitment System (助教招聘系统)
+# TA招聘系统 - 申请管理版
 
-A web-based Teaching Assistant recruitment and management system built with Java Servlets, JSP, and CSV data storage.
+基于Java Servlet的助教招聘管理系统。
 
-**Version**: 1.0 - Base Edition
+## 功能说明
 
-## 📋 Features
-
-### For Teaching Assistants (TA)
-- Browse available positions
-- Apply for positions
-- View application status
-- Withdraw applications
-- Manage personal profile
-
-### For Module Owners (MO)
-- Create and manage positions
-- View applications for positions
-- Select applicants
-- Delete positions
-
-### For Administrators
-- View workload reports
-- Monitor system usage
-- Manage overall system
-
-## 🛠️ Technology Stack
-
-- **Backend**: Java 21, Jakarta Servlet 5.0
-- **Frontend**: JSP, HTML5, CSS3, JavaScript
-- **Server**: Apache Tomcat 10.1.28
-- **Data Storage**: CSV files
-- **Architecture**: MVC pattern with layered architecture
-
-## 📁 Project Structure
-
-```
-TARecruitmentSystem/
-├── src/                          # Java source code
-│   └── com/bupt/tarecruitment/
-│       ├── model/                # Data models
-│       ├── dao/                  # Data access layer
-│       ├── service/              # Business logic layer
-│       ├── filter/               # Servlet filters
-│       └── servlet/              # Controllers
-├── WEB-INF/
-│   ├── classes/                  # Compiled .class files (not in Git)
-│   ├── jsp/                      # JSP view files
-│   │   ├── ta/                   # TA role pages
-│   │   ├── mo/                   # MO role pages
-│   │   └── admin/                # Admin role pages
-│   └── web.xml                   # Web application configuration
-├── css/                          # Stylesheets
-├── js/                           # JavaScript files
-├── data/                         # CSV data files
-├── build.bat                     # Build script
-├── clean.bat                     # Clean script
-└── README.md                     # This file
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Java Development Kit (JDK) 21 or higher
-- Apache Tomcat 10.1.x
-- Git (optional, for version control)
-
-### Installation
-
-1. **Clone or download this repository**
-   ```bash
-   git clone https://github.com/404lonewolf404/software-engineering.git
-   cd software-engineering
-   ```
-
-2. **Copy to Tomcat webapps directory**
-   ```
-   Copy the entire project folder to:
-   [TOMCAT_HOME]/webapps/TARecruitmentSystem
-   ```
-
-3. **Compile the source code**
-   ```cmd
-   cd [TOMCAT_HOME]/webapps/TARecruitmentSystem
-   build.bat
-   ```
-
-4. **Start Tomcat**
-   ```cmd
-   cd [TOMCAT_HOME]/bin
-   startup.bat
-   ```
-
-5. **Access the application**
-   ```
-   Open browser and visit:
-   http://localhost:8080/TARecruitmentSystem/
-   ```
-
-## 👥 Default Users
-
-You can register new users or manually create users in `data/users.csv`:
-
-### Example Admin User
-- Email: admin@bupt.edu.cn
-- Password: admin123
-- Role: ADMIN
-
-### Example MO User
-- Email: prof.li@bupt.edu.cn
-- Password: password123
-- Role: MO
-
-### Example TA User
-- Email: zhangsan@bupt.edu.cn
-- Password: password123
-- Role: TA
-
-## 🔧 Development
-
-### Build the project
-```cmd
-build.bat
-```
-
-### Clean compiled files
-```cmd
-clean.bat
-```
-
-### Restart Tomcat
-You need to manually restart Tomcat after code changes:
-```cmd
-cd [TOMCAT_HOME]/bin
-shutdown.bat
-startup.bat
-```
-
-## 📝 Key Features Implementation
-
-### Authentication & Authorization
-- Session-based authentication
-- Role-based access control (RBAC)
-- Filter-based security
-
-### Data Persistence
-- CSV-based storage for simplicity
-- Thread-safe file operations
-- Automatic data synchronization
-
-### User Interface
-- Responsive design
-- Client-side form validation
-- Real-time feedback
-- Intuitive navigation
-
-## 🏗️ Architecture
-
-### Layered Architecture
-```
-Presentation Layer (JSP)
-         ↓
-Controller Layer (Servlet)
-         ↓
-Service Layer (Business Logic)
-         ↓
-DAO Layer (Data Access)
-         ↓
-Data Storage (CSV Files)
-```
-
-### Design Patterns
-- MVC (Model-View-Controller)
-- DAO (Data Access Object)
-- Filter Chain
-- Singleton (for data stores)
-
-## 📚 Documentation
-
-- [Project Structure](PROJECT_STRUCTURE.md) - Detailed project structure explanation
-- [Quick Start Guide](QUICK_START.md) - Quick start for testing (if available)
-- [Testing Guide](TESTING_GUIDE.md) - Comprehensive testing guide (if available)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is for educational purposes.
-
-## 👨‍💻 Author
-
-Developed as a course project for BUPT (Beijing University of Posts and Telecommunications)
-
-## 🙏 Acknowledgments
-
-- Apache Tomcat team for the excellent servlet container
-- Jakarta EE for the servlet specifications
-- All contributors and testers
+本配置在基础版上新增了完整的申请管理功能，支持TA申请职位和MO审核申请。
 
 ---
 
-**Note**: This project uses CSV files for data storage, which is suitable for learning and small-scale applications. For production use, consider migrating to a proper database system.
+## 功能说明
+
+### 用户管理
+- **注册**：支持TA和MO两种角色注册，邮箱唯一性验证
+- **登录**：SHA-256密码加密，登录后根据角色跳转
+- **登出**：清除会话
+- **权限控制**：AuthFilter拦截未登录访问，RoleFilter实现严格的角色隔离
+
+### 职位管理
+- **MO功能**：创建职位、查看我的职位列表、删除职位
+- **TA功能**：浏览所有开放状态的职位及详细信息
+
+### 申请管理
+- **TA功能**：
+  - 申请职位
+  - 查看我的申请列表
+  - 撤回申请（仅PENDING状态可撤回）
+- **MO功能**：
+  - 查看职位的申请列表
+  - 选择申请者（自动拒绝该职位的其他申请）
+- **状态管理**：
+  - PENDING（待审核）
+  - SELECTED（已选中）
+  - REJECTED（已拒绝）
+  - WITHDRAWN（已撤回）
+
+### 数据存储
+- **CSV文件**：users.csv、positions.csv、applications.csv
+- **自动创建**：首次运行自动创建数据文件和目录
+
+---
+
+## 技术架构
+
+### 后端（Java）
+- **Model**：User, Position, Application, UserRole(TA/MO), PositionStatus(OPEN/CLOSED), ApplicationStatus
+- **DAO**：UserDAO, PositionDAO, ApplicationDAO（CSV读写、CRUD操作）
+- **Service**：AuthService（注册/登录/认证）、PositionService（职位管理）、ApplicationService（申请管理）
+- **Servlet**：AuthServlet（/auth/*）、PositionServlet（/ta/*, /mo/*）、ApplicationServlet（/ta/applications/*, /mo/applications/*）
+- **Filter**：AuthFilter（登录验证）、RoleFilter（角色权限验证）
+
+### 前端（JSP）
+- **公共页面**：login.jsp, register.jsp, error.jsp
+- **TA页面**：ta/positions.jsp（职位列表）、ta/applications.jsp（我的申请）
+- **MO页面**：mo/positions.jsp（我的职位）、mo/create-position.jsp（创建职位）、mo/applications.jsp（申请审核）
+
+---
+
+## 快速开始
+
+### 环境要求
+- JDK 11+
+- Apache Tomcat 10.x
+
+### 部署步骤
+
+1. **添加依赖**
+```bash
+mkdir lib
+# 下载 jakarta.servlet-api-5.0.0.jar 到 lib 目录
+```
+
+2. **编译**
+```bash
+javac -encoding UTF-8 -d WEB-INF/classes -cp "lib/*;WEB-INF/classes" src/com/bupt/tarecruitment/model/*.java src/com/bupt/tarecruitment/dao/*.java src/com/bupt/tarecruitment/service/*.java src/com/bupt/tarecruitment/filter/*.java src/com/bupt/tarecruitment/servlet/*.java
+```
+
+3. **部署**
+```bash
+# 复制项目到 Tomcat/webapps/TARecruitmentSystem
+# 启动Tomcat
+# 访问 http://localhost:8080/TARecruitmentSystem/
+```
+
+---
+
+## 测试账号
+
+| 角色 | 邮箱 | 密码 |
+|------|------|------|
+| TA | ta@test.com | 123456 |
+| MO | mo@test.com | 123456 |
+
+---
+
+## 访问路径
+
+### 公共
+- `/auth/login` - 登录
+- `/auth/register` - 注册
+- `/auth/logout` - 登出
+
+### TA
+- `/ta/positions` - 浏览职位
+- `/ta/applications` - 我的申请
+- `/ta/applications/apply` - 申请职位（POST）
+- `/ta/applications/withdraw` - 撤回申请（POST）
+
+### MO
+- `/mo/positions` - 我的职位
+- `/mo/positions/create` - 创建职位（POST）
+- `/mo/positions/delete` - 删除职位（POST）
+- `/mo/applications` - 查看申请
+- `/mo/applications/select` - 选择申请者（POST）
+
+---
+
+## 项目结构
+
+```
+TARecruitmentSystem/
+├── src/com/bupt/tarecruitment/    # Java源码
+│   ├── model/                      # 实体类
+│   ├── dao/                        # 数据访问
+│   ├── service/                    # 业务逻辑
+│   ├── filter/                     # 过滤器
+│   └── servlet/                    # 控制器
+├── WEB-INF/
+│   ├── jsp/                        # 视图
+│   ├── classes/                    # 编译文件（不提交到Git）
+│   └── web.xml                     # 配置
+├── data/                           # CSV数据
+├── css/                            # 样式
+├── js/                             # 脚本
+├── .gitignore                      # Git忽略配置
+└── README.md                       # 本文件
+```
+
+---
+
+## 相关文档
+
+- [CODE_GUIDE.md](CODE_GUIDE.md) - 代码文件详细说明
+- [GIT_TUTORIAL.md](GIT_TUTORIAL.md) - Git使用教程
+
+---
+
+**维护者**：TA Recruitment System Team

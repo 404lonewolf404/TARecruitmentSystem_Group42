@@ -21,17 +21,17 @@
     <!-- Error pages -->
     <error-page>
         <error-code>404</error-code>
-        <location>/error.jsp</location>
+        <location>/WEB-INF/jsp/error.jsp</location>
     </error-page>
     
     <error-page>
         <error-code>403</error-code>
-        <location>/error.jsp</location>
+        <location>/WEB-INF/jsp/error.jsp</location>
     </error-page>
     
     <error-page>
         <error-code>500</error-code>
-        <location>/error.jsp</location>
+        <location>/WEB-INF/jsp/error.jsp</location>
     </error-page>
     
     <!-- Filters -->
@@ -57,11 +57,6 @@
     </filter-mapping>
     
     <filter-mapping>
-        <filter-name>AuthFilter</filter-name>
-        <url-pattern>/admin/*</url-pattern>
-    </filter-mapping>
-    
-    <filter-mapping>
         <filter-name>RoleFilter</filter-name>
         <url-pattern>/ta/*</url-pattern>
     </filter-mapping>
@@ -71,20 +66,10 @@
         <url-pattern>/mo/*</url-pattern>
     </filter-mapping>
     
-    <filter-mapping>
-        <filter-name>RoleFilter</filter-name>
-        <url-pattern>/admin/*</url-pattern>
-    </filter-mapping>
-    
     <!-- Servlets -->
     <servlet>
         <servlet-name>AuthServlet</servlet-name>
         <servlet-class>com.bupt.tarecruitment.servlet.AuthServlet</servlet-class>
-    </servlet>
-    
-    <servlet>
-        <servlet-name>ProfileServlet</servlet-name>
-        <servlet-class>com.bupt.tarecruitment.servlet.ProfileServlet</servlet-class>
     </servlet>
     
     <servlet>
@@ -98,18 +83,8 @@
     </servlet>
     
     <servlet>
-        <servlet-name>AdminServlet</servlet-name>
-        <servlet-class>com.bupt.tarecruitment.servlet.AdminServlet</servlet-class>
-    </servlet>
-    
-    <servlet>
-        <servlet-name>DashboardServlet</servlet-name>
-        <servlet-class>com.bupt.tarecruitment.servlet.DashboardServlet</servlet-class>
-    </servlet>
-    
-    <servlet>
-        <servlet-name>CVServlet</servlet-name>
-        <servlet-class>com.bupt.tarecruitment.servlet.CVServlet</servlet-class>
+        <servlet-name>IndexServlet</servlet-name>
+        <servlet-class>com.bupt.tarecruitment.servlet.IndexServlet</servlet-class>
     </servlet>
     
     <!-- Servlet Mappings -->
@@ -118,17 +93,12 @@
         <url-pattern>/auth/*</url-pattern>
     </servlet-mapping>
     
+    <servlet-mapping>
+        <servlet-name>IndexServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    
     <!-- TA role mappings -->
-    <servlet-mapping>
-        <servlet-name>ProfileServlet</servlet-name>
-        <url-pattern>/ta/profile</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>ProfileServlet</servlet-name>
-        <url-pattern>/ta/profile/*</url-pattern>
-    </servlet-mapping>
-    
     <servlet-mapping>
         <servlet-name>PositionServlet</servlet-name>
         <url-pattern>/ta/positions</url-pattern>
@@ -141,25 +111,15 @@
     
     <servlet-mapping>
         <servlet-name>ApplicationServlet</servlet-name>
+        <url-pattern>/ta/applications</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>ApplicationServlet</servlet-name>
         <url-pattern>/ta/applications/*</url-pattern>
     </servlet-mapping>
     
-    <servlet-mapping>
-        <servlet-name>DashboardServlet</servlet-name>
-        <url-pattern>/ta/dashboard</url-pattern>
-    </servlet-mapping>
-    
     <!-- MO role mappings -->
-    <servlet-mapping>
-        <servlet-name>ProfileServlet</servlet-name>
-        <url-pattern>/mo/profile</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>ProfileServlet</servlet-name>
-        <url-pattern>/mo/profile/*</url-pattern>
-    </servlet-mapping>
-    
     <servlet-mapping>
         <servlet-name>PositionServlet</servlet-name>
         <url-pattern>/mo/positions</url-pattern>
@@ -172,38 +132,12 @@
     
     <servlet-mapping>
         <servlet-name>ApplicationServlet</servlet-name>
+        <url-pattern>/mo/applications</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>ApplicationServlet</servlet-name>
         <url-pattern>/mo/applications/*</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>DashboardServlet</servlet-name>
-        <url-pattern>/mo/dashboard</url-pattern>
-    </servlet-mapping>
-    
-    <!-- Admin role mappings -->
-    <servlet-mapping>
-        <servlet-name>ProfileServlet</servlet-name>
-        <url-pattern>/admin/profile</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>ProfileServlet</servlet-name>
-        <url-pattern>/admin/profile/*</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>AdminServlet</servlet-name>
-        <url-pattern>/admin/*</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>DashboardServlet</servlet-name>
-        <url-pattern>/admin/dashboard</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>CVServlet</servlet-name>
-        <url-pattern>/cv/download</url-pattern>
     </servlet-mapping>
     
 </web-app>
