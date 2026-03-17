@@ -310,23 +310,7 @@ function filterTable(tableId, searchInputId) {
     });
 }
 
-// Highlight workload levels
-function highlightWorkload() {
-    const workloadCells = document.querySelectorAll('.workload-cell');
-    
-    workloadCells.forEach(cell => {
-        const hours = parseInt(cell.textContent);
-        const row = cell.parentElement;
-        
-        if (hours >= 20) {
-            row.classList.add('high-workload');
-        } else if (hours >= 10) {
-            row.classList.add('medium-workload');
-        } else {
-            row.classList.add('low-workload');
-        }
-    });
-}
+
 
 // Auto-save form data to localStorage
 function setupAutoSave(formId) {
@@ -438,11 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Highlight workload if on workload page
-    if (document.querySelector('.workload-cell')) {
-        highlightWorkload();
-    }
-    
+  
     // Setup character counters for textareas
     const textareas = document.querySelectorAll('textarea');
     textareas.forEach(textarea => {

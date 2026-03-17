@@ -156,9 +156,7 @@ public class AuthServlet extends HttpServlet {
             HttpSession session = request.getSession(true);
             session.setAttribute("user", user);
             
-            // 根据用户角色重定向到相应的dashboard
-            String redirectUrl = getDashboardUrl(user.getRole());
-            response.sendRedirect(request.getContextPath() + redirectUrl);
+            
             
         } catch (IllegalArgumentException e) {
             // 登录失败（凭证错误）

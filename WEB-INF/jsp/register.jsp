@@ -63,7 +63,6 @@
                         <option value="">请选择角色</option>
                         <option value="TA" <%= "TA".equals(request.getParameter("role")) ? "selected" : "" %>>助教 (TA)</option>
                         <option value="MO" <%= "MO".equals(request.getParameter("role")) ? "selected" : "" %>>模块负责人 (MO)</option>
-                        <option value="ADMIN" <%= "ADMIN".equals(request.getParameter("role")) ? "selected" : "" %>>管理员 (Admin)</option>
                     </select>
                 </div>
                 
