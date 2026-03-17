@@ -180,5 +180,23 @@ public class AuthServlet extends HttpServlet {
         // 重定向到登录页面
         response.sendRedirect(request.getContextPath() + "/auth/login");
     }
-} 
-   
+    
+    /**
+     * 根据用户角色获取对应的dashboard URL
+     * 
+     * @param role 用户角色
+     * @return dashboard URL
+     */
+    private String getDashboardUrl(UserRole role) {
+        switch (role) {
+            case TA:
+                return "/ta/dashboard";
+            case MO:
+                return "/mo/dashboard";
+            case ADMIN:
+                return "/admin/dashboard";
+            default:
+                return "/auth/login";
+        }
+    }
+}

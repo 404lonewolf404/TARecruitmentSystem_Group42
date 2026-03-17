@@ -1,20 +1,22 @@
-# TA招聘系统 - 申请管理版
+
+# TA招聘系统 - 管理员版
+
 
 基于Java Servlet的助教招聘管理系统。
 
 ## 功能说明
 
-本配置在基础版上新增了完整的申请管理功能，支持TA申请职位和MO审核申请。
+本配置在申请管理版基础上新增了Admin角色、Dashboard仪表板和工作量报告功能。
 
 ---
 
 ## 功能说明
 
 ### 用户管理
-- **注册**：支持TA和MO两种角色注册，邮箱唯一性验证
-- **登录**：SHA-256密码加密，登录后根据角色跳转
+- **注册**：支持TA、MO和ADMIN三种角色注册，邮箱唯一性验证
+- **登录**：SHA-256密码加密，登录后根据角色跳转到对应Dashboard
 - **登出**：清除会话
-- **权限控制**：AuthFilter拦截未登录访问，RoleFilter实现严格的角色隔离
+- **权限控制**：AuthFilter拦截未登录访问，RoleFilter实现三角色严格隔离
 
 ### 职位管理
 - **MO功能**：创建职位、查看我的职位列表、删除职位
@@ -34,8 +36,19 @@
   - REJECTED（已拒绝）
   - WITHDRAWN（已撤回）
 
+### Dashboard功能
+- **TA Dashboard**：显示我的申请统计、最新职位
+- **MO Dashboard**：显示我的职位统计、待处理申请
+- **Admin Dashboard**：显示系统统计信息、快捷操作
+
+### Admin功能
+- **工作量报告**：统计所有TA的工作时长
+- **系统监控**：查看系统使用情况
+- **数据统计**：用户数、职位数、申请数统计
+
 ### 数据存储
 - **CSV文件**：users.csv、positions.csv、applications.csv
+- **文件存储**：data/cv/目录（预留功能）
 - **自动创建**：首次运行自动创建数据文件和目录
 
 ---
@@ -43,16 +56,22 @@
 ## 技术架构
 
 ### 后端（Java）
-- **Model**：User, Position, Application, UserRole(TA/MO), PositionStatus(OPEN/CLOSED), ApplicationStatus
+- **Model**：User, Position, Application, UserRole(TA/MO/ADMIN), PositionStatus(OPEN/CLOSED), ApplicationStatus
 - **DAO**：UserDAO, PositionDAO, ApplicationDAO（CSV读写、CRUD操作）
 - **Service**：AuthService（注册/登录/认证）、PositionService（职位管理）、ApplicationService（申请管理）
-- **Servlet**：AuthServlet（/auth/*）、PositionServlet（/ta/*, /mo/*）、ApplicationServlet（/ta/applications/*, /mo/applications/*）
-- **Filter**：AuthFilter（登录验证）、RoleFilter（角色权限验证）
+- **Servlet**：
+  - AuthServlet（/auth/*）
+  - DashboardServlet（/dashboard）
+  - PositionServlet（/ta/*, /mo/*）
+  - ApplicationServlet（/ta/applications/*, /mo/applications/*）
+  - AdminServlet（/admin/*）
+- **Filter**：AuthFilter（登录验证）、RoleFilter（三角色权限验证）
 
 ### 前端（JSP）
 - **公共页面**：login.jsp, register.jsp, error.jsp
-- **TA页面**：ta/positions.jsp（职位列表）、ta/applications.jsp（我的申请）
-- **MO页面**：mo/positions.jsp（我的职位）、mo/create-position.jsp（创建职位）、mo/applications.jsp（申请审核）
+- **TA页面**：ta/dashboard.jsp（仪表板）、ta/positions.jsp（职位列表）、ta/applications.jsp（我的申请）
+- **MO页面**：mo/dashboard.jsp（仪表板）、mo/positions.jsp（我的职位）、mo/create-position.jsp（创建职位）、mo/applications.jsp（申请审核）
+- **Admin页面**：admin/dashboard.jsp（仪表板）、admin/workload.jsp（工作量报告）
 
 ---
 
@@ -90,28 +109,37 @@ javac -encoding UTF-8 -d WEB-INF/classes -cp "lib/*;WEB-INF/classes" src/com/bup
 |------|------|------|
 | TA | ta@test.com | 123456 |
 | MO | mo@test.com | 123456 |
+| ADMIN | admin@test.com | 123456 |
 
 ---
 
 ## 访问路径
 
 ### 公共
+- `/` - 首页（重定向到登录或Dashboard）
 - `/auth/login` - 登录
 - `/auth/register` - 注册
 - `/auth/logout` - 登出
 
 ### TA
+- `/dashboard` - TA仪表板
 - `/ta/positions` - 浏览职位
 - `/ta/applications` - 我的申请
 - `/ta/applications/apply` - 申请职位（POST）
 - `/ta/applications/withdraw` - 撤回申请（POST）
 
 ### MO
+- `/dashboard` - MO仪表板
+
 - `/mo/positions` - 我的职位
 - `/mo/positions/create` - 创建职位（POST）
 - `/mo/positions/delete` - 删除职位（POST）
 - `/mo/applications` - 查看申请
 - `/mo/applications/select` - 选择申请者（POST）
+
+### Admin
+- `/dashboard` - Admin仪表板
+- `/admin/workload` - 工作量报告
 
 ---
 
@@ -127,9 +155,13 @@ TARecruitmentSystem/
 │   └── servlet/                    # 控制器
 ├── WEB-INF/
 │   ├── jsp/                        # 视图
+│   │   ├── ta/                     # TA页面
+│   │   ├── mo/                     # MO页面
+│   │   └── admin/                  # Admin页面
 │   ├── classes/                    # 编译文件（不提交到Git）
 │   └── web.xml                     # 配置
 ├── data/                           # CSV数据
+│   └── cv/                         # CV文件目录
 ├── css/                            # 样式
 ├── js/                             # 脚本
 ├── .gitignore                      # Git忽略配置

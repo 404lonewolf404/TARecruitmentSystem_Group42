@@ -44,6 +44,8 @@ public class DashboardServlet extends HttpServlet {
                 return "/WEB-INF/jsp/ta/dashboard.jsp";
             case MO:
                 return "/WEB-INF/jsp/mo/dashboard.jsp";
+            case ADMIN:
+                return "/WEB-INF/jsp/admin/dashboard.jsp";
             default:
                 return "/WEB-INF/jsp/login.jsp";
         }

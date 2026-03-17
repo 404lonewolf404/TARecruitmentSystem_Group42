@@ -5,14 +5,14 @@ import java.util.Objects;
 
 /**
  * 用户实体类
- * 表示系统中的用户（TA或MO）
+ * 表示系统中的用户（TA、MO或Admin）
  */
 public class User {
     private String userId;        // 唯一标识符（UUID）
     private String name;          // 用户姓名
     private String email;         // 邮箱（唯一）
     private String password;      // 密码（应加密存储）
-    private UserRole role;        // 角色：TA, MO
+    private UserRole role;        // 角色：TA, MO, ADMIN
     private Date createdAt;       // 创建时间
 
     /**
