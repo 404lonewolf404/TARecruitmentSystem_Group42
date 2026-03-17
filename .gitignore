@@ -2,23 +2,29 @@
 *.class
 WEB-INF/classes/
 
-# IDE配置
-.idea/
-.vscode/
-.kiro/
-*.iml
-
-# 系统文件
-.DS_Store
-Thumbs.db
-
 # 日志文件
 *.log
 
 # 临时文件
 *.tmp
-*.bak
+*.temp
+*.swp
 *~
 
-# 数据文件（可选，如果不想提交测试数据）
-# data/*.csv
+# IDE文件
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 构建输出
+target/
+build/
+dist/
+out/

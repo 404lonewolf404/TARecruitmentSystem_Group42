@@ -195,6 +195,8 @@ public class AuthServlet extends HttpServlet {
                 return "/ta/dashboard";
             case MO:
                 return "/mo/dashboard";
+            case ADMIN:
+                return "/admin/dashboard";
             default:
                 return "/auth/login";
         }

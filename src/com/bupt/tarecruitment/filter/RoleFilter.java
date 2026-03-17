@@ -69,6 +69,11 @@ public class RoleFilter implements Filter {
             return role == UserRole.MO;
         }
         
+        // Admin角色只能访问/admin/*路径
+        if (requestURI.contains("/admin/")) {
+            return role == UserRole.ADMIN;
+        }
+        
         // 默认拒绝访问
         return false;
     }
