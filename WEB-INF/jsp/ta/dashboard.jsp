@@ -23,6 +23,7 @@
     <nav>
         <ul>
             <li><a href="<%= request.getContextPath() %>/ta/dashboard">仪表板</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
@@ -36,6 +37,12 @@
         </div>
         
         <div class="dashboard">
+            <div class="dashboard-card">
+                <h3>个人资料</h3>
+                <p>查看和编辑您的个人信息和技能</p>
+                <a href="<%= request.getContextPath() %>/ta/profile" class="btn btn-primary">查看个人资料</a>
+            </div>
+            
             <div class="dashboard-card">
                 <h3>浏览职位</h3>
                 <p>查看所有可申请的助教职位</p>

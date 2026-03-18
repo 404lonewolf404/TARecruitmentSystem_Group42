@@ -23,8 +23,8 @@
     <nav>
         <ul>
             <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/positions">我的职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/applications">查看申请</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/my">我的职位</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>
@@ -39,13 +39,13 @@
             <div class="dashboard-card">
                 <h3>我的职位</h3>
                 <p>查看和管理您发布的助教职位</p>
-                <a href="<%= request.getContextPath() %>/mo/positions" class="btn btn-primary">查看我的职位</a>
+                <a href="<%= request.getContextPath() %>/mo/positions/my" class="btn btn-primary">查看我的职位</a>
             </div>
             
             <div class="dashboard-card">
-                <h3>查看申请</h3>
-                <p>查看和处理助教申请</p>
-                <a href="<%= request.getContextPath() %>/mo/applications" class="btn btn-primary">查看申请</a>
+                <h3>创建职位</h3>
+                <p>发布新的助教职位招聘信息</p>
+                <a href="<%= request.getContextPath() %>/mo/positions/create" class="btn btn-primary">创建职位</a>
             </div>
         </div>
     </div>

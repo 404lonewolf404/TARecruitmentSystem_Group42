@@ -94,6 +94,7 @@ public class AuthServlet extends HttpServlet {
             String email = request.getParameter("email");
             String password = request.getParameter("password");
             String roleStr = request.getParameter("role");
+            String skills = request.getParameter("skills");
             
             // 验证必填参数
             if (name == null || email == null || password == null || roleStr == null) {
@@ -113,7 +114,7 @@ public class AuthServlet extends HttpServlet {
             }
             
             // 调用服务层进行注册
-            User user = authService.register(name, email, password, role);
+            User user = authService.register(name, email, password, role, skills);
             
             // 注册成功，重定向到登录页面
             request.setAttribute("successMessage", "注册成功！请登录");
@@ -156,7 +157,9 @@ public class AuthServlet extends HttpServlet {
             HttpSession session = request.getSession(true);
             session.setAttribute("user", user);
             
-            
+            // 根据用户角色重定向到相应的dashboard
+            String redirectUrl = getDashboardUrl(user.getRole());
+            response.sendRedirect(request.getContextPath() + redirectUrl);
             
         } catch (IllegalArgumentException e) {
             // 登录失败（凭证错误）

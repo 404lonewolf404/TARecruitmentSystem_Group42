@@ -11,15 +11,18 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-@WebServlet("/admin/*")
+/**
+ * 管理员Servlet
+ * 处理管理员相关的请求，包括工作量报告
+ */
 public class AdminServlet extends HttpServlet {
     
-   
+    private WorkloadService workloadService;
     
     @Override
     public void init() throws ServletException {
         super.init();
-        
+        this.workloadService = new WorkloadService();
     }
     
     @Override
@@ -42,5 +45,28 @@ public class AdminServlet extends HttpServlet {
                 break;
         }
     }
-
+    
+    /**
+     * 处理工作量报告请求
+     * 获取所有TA的工作量统计并转发到JSP页面显示
+     */
+    private void handleWorkloadReport(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        try {
+            // 调用WorkloadService获取工作量数据
+            Map<User, Integer> workloads = workloadService.calculateAllWorkloads();
+            
+            // 将数据设置为请求属性
+            request.setAttribute("workloads", workloads);
+            
+            // 转发到工作量报告JSP页面
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/workload.jsp").forward(request, response);
+            
+        } catch (Exception e) {
+            // 处理错误
+            request.setAttribute("errorMessage", "获取工作量报告失败：" + e.getMessage());
+            request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
+        }
+    }
 }

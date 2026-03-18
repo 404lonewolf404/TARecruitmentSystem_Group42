@@ -1,12 +1,10 @@
-
-# TA招聘系统 - 管理员版
-
+# TA招聘系统 - 个人资料版
 
 基于Java Servlet的助教招聘管理系统。
 
 ## 功能说明
 
-本配置在申请管理版基础上新增了Admin角色、Dashboard仪表板和工作量报告功能。
+本配置在管理员版基础上新增了个人资料管理和简历上传功能。
 
 ---
 
@@ -46,9 +44,19 @@
 - **系统监控**：查看系统使用情况
 - **数据统计**：用户数、职位数、申请数统计
 
+### 个人资料管理
+- **查看资料**：所有用户可以查看自己的个人资料
+- **编辑资料**：修改姓名、邮箱、技能等信息
+- **角色专属页面**：TA、MO、Admin各有专属的profile页面
+
+### 简历上传功能
+- **TA上传简历**：支持PDF、DOC、DOCX格式
+- **文件管理**：简历存储在data/cv/目录
+- **MO查看简历**：查看申请者的简历信息
+
 ### 数据存储
 - **CSV文件**：users.csv、positions.csv、applications.csv
-- **文件存储**：data/cv/目录（预留功能）
+- **文件存储**：data/cv/目录存储简历文件
 - **自动创建**：首次运行自动创建数据文件和目录
 
 ---
@@ -58,20 +66,22 @@
 ### 后端（Java）
 - **Model**：User, Position, Application, UserRole(TA/MO/ADMIN), PositionStatus(OPEN/CLOSED), ApplicationStatus
 - **DAO**：UserDAO, PositionDAO, ApplicationDAO（CSV读写、CRUD操作）
-- **Service**：AuthService（注册/登录/认证）、PositionService（职位管理）、ApplicationService（申请管理）
+- **Service**：AuthService（注册/登录/认证）、PositionService（职位管理）、ApplicationService（申请管理）、WorkloadService（工作量统计）
 - **Servlet**：
   - AuthServlet（/auth/*）
   - DashboardServlet（/dashboard）
   - PositionServlet（/ta/*, /mo/*）
   - ApplicationServlet（/ta/applications/*, /mo/applications/*）
   - AdminServlet（/admin/*）
+  - ProfileServlet（/profile）
+  - CVServlet（/cv/*）
 - **Filter**：AuthFilter（登录验证）、RoleFilter（三角色权限验证）
 
 ### 前端（JSP）
 - **公共页面**：login.jsp, register.jsp, error.jsp
-- **TA页面**：ta/dashboard.jsp（仪表板）、ta/positions.jsp（职位列表）、ta/applications.jsp（我的申请）
-- **MO页面**：mo/dashboard.jsp（仪表板）、mo/positions.jsp（我的职位）、mo/create-position.jsp（创建职位）、mo/applications.jsp（申请审核）
-- **Admin页面**：admin/dashboard.jsp（仪表板）、admin/workload.jsp（工作量报告）
+- **TA页面**：ta/dashboard.jsp（仪表板）、ta/positions.jsp（职位列表）、ta/applications.jsp（我的申请）、ta/profile.jsp（个人资料）
+- **MO页面**：mo/dashboard.jsp（仪表板）、mo/positions.jsp（我的职位）、mo/create-position.jsp（创建职位）、mo/applications.jsp（申请审核）、mo/profile.jsp（个人资料）
+- **Admin页面**：admin/dashboard.jsp（仪表板）、admin/workload.jsp（工作量报告）、admin/profile.jsp（个人资料）
 
 ---
 
@@ -127,19 +137,22 @@ javac -encoding UTF-8 -d WEB-INF/classes -cp "lib/*;WEB-INF/classes" src/com/bup
 - `/ta/applications` - 我的申请
 - `/ta/applications/apply` - 申请职位（POST）
 - `/ta/applications/withdraw` - 撤回申请（POST）
+- `/profile` - 个人资料
+- `/cv/upload` - 上传简历（POST）
 
 ### MO
 - `/dashboard` - MO仪表板
-
 - `/mo/positions` - 我的职位
 - `/mo/positions/create` - 创建职位（POST）
 - `/mo/positions/delete` - 删除职位（POST）
 - `/mo/applications` - 查看申请
 - `/mo/applications/select` - 选择申请者（POST）
+- `/profile` - 个人资料
 
 ### Admin
 - `/dashboard` - Admin仪表板
 - `/admin/workload` - 工作量报告
+- `/profile` - 个人资料
 
 ---
 
