@@ -102,12 +102,28 @@
                             <% if (applicant.getSkills() != null && !applicant.getSkills().trim().isEmpty()) { %>
                                 <p><strong>技能：</strong><%= applicant.getSkills() %></p>
                             <% } %>
-                            <% if (applicant.getCvPath() != null && !applicant.getCvPath().trim().isEmpty()) { %>
+                            <% 
+                            // 优先显示申请时提交的简历，如果没有则显示用户默认简历
+                            String resumePath = app.getResumePath();
+                            boolean hasApplicationResume = resumePath != null && !resumePath.trim().isEmpty();
+                            boolean hasUserResume = applicant.getCvPath() != null && !applicant.getCvPath().trim().isEmpty();
+                            
+                            if (hasApplicationResume) { 
+                            %>
+                                <p><strong>简历：</strong> 
+                                    <a href="<%= request.getContextPath() %>/cv/download?applicationId=<%= app.getApplicationId() %>" 
+                                       class="btn btn-sm btn-secondary" target="_blank">
+                                        下载申请简历
+                                    </a>
+                                    <span style="color: #27ae60; font-size: 0.9em;">(申请时提交)</span>
+                                </p>
+                            <% } else if (hasUserResume) { %>
                                 <p><strong>简历：</strong> 
                                     <a href="<%= request.getContextPath() %>/cv/download?userId=<%= applicant.getUserId() %>" 
                                        class="btn btn-sm btn-secondary" target="_blank">
                                         下载简历
                                     </a>
+                                    <span style="color: #7f8c8d; font-size: 0.9em;">(用户默认简历)</span>
                                 </p>
                             <% } else { %>
                                 <p><strong>简历：</strong> <span style="color: #95a5a6;">未上传</span></p>

@@ -93,13 +93,85 @@
                             已申请
                         </button>
                     <% } else { %>
-                        <form action="<%= request.getContextPath() %>/ta/applications/apply" method="post" style="display: inline;">
+                        <form action="<%= request.getContextPath() %>/ta/applications/apply" method="post" enctype="multipart/form-data" style="margin-top: 15px;">
                             <input type="hidden" name="positionId" value="<%= position.getPositionId() %>">
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">选择简历：</label>
+                                
+                                <div style="margin-bottom: 10px;">
+                                    <label style="display: block; cursor: pointer;">
+                                        <input type="radio" name="resumeChoice" value="existing" checked onchange="toggleResumeUpload(this)">
+                                        使用已上传的简历
+                                        <% if (currentUser.getCvPath() == null || currentUser.getCvPath().trim().isEmpty()) { %>
+                                            <span style="color: #e74c3c; font-size: 0.9em;">(您还没有上传简历)</span>
+                                        <% } %>
+                                    </label>
+                                </div>
+                                
+                                <div style="margin-bottom: 10px;">
+                                    <label style="display: block; cursor: pointer;">
+                                        <input type="radio" name="resumeChoice" value="new" onchange="toggleResumeUpload(this)">
+                                        上传新简历
+                                    </label>
+                                </div>
+                                
+                                <div id="newResumeUpload_<%= position.getPositionId() %>" style="display: none; margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                                    <label style="display: block; margin-bottom: 5px;">选择PDF文件：</label>
+                                    <input type="file" name="newResume" accept=".pdf" style="display: block;">
+                                    <small style="color: #666; display: block; margin-top: 5px;">仅支持PDF格式，最大10MB</small>
+                                </div>
+                            </div>
+                            
                             <button type="submit" class="btn btn-success" 
-                                    onclick="return confirm('确定要申请这个职位吗？');">
+                                    onclick="return validateResumeSelection(this.form);">
                                 申请此职位
                             </button>
                         </form>
+                        
+                        <script>
+                        function toggleResumeUpload(radio) {
+                            var form = radio.form;
+                            var positionId = form.querySelector('input[name="positionId"]').value;
+                            var uploadDiv = document.getElementById('newResumeUpload_' + positionId);
+                            
+                            if (radio.value === 'new') {
+                                uploadDiv.style.display = 'block';
+                            } else {
+                                uploadDiv.style.display = 'none';
+                            }
+                        }
+                        
+                        function validateResumeSelection(form) {
+                            var resumeChoice = form.querySelector('input[name="resumeChoice"]:checked').value;
+                            
+                            if (resumeChoice === 'existing') {
+                                <% if (currentUser.getCvPath() == null || currentUser.getCvPath().trim().isEmpty()) { %>
+                                    alert('您还没有上传简历，请先在个人资料中上传简历或选择上传新简历');
+                                    return false;
+                                <% } %>
+                            } else if (resumeChoice === 'new') {
+                                var fileInput = form.querySelector('input[name="newResume"]');
+                                if (!fileInput.files || fileInput.files.length === 0) {
+                                    alert('请选择要上传的简历文件');
+                                    return false;
+                                }
+                                
+                                var file = fileInput.files[0];
+                                if (!file.name.toLowerCase().endsWith('.pdf')) {
+                                    alert('只支持PDF格式的简历文件');
+                                    return false;
+                                }
+                                
+                                if (file.size > 10 * 1024 * 1024) {
+                                    alert('文件大小不能超过10MB');
+                                    return false;
+                                }
+                            }
+                            
+                            return confirm('确定要申请这个职位吗？');
+                        }
+                        </script>
                     <% } %>
                 </div>
             <% } %>

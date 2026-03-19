@@ -13,6 +13,7 @@ public class Application {
     private String positionId;    // 申请的职位ID
     private ApplicationStatus status; // 状态：PENDING, SELECTED, REJECTED, WITHDRAWN
     private Date appliedAt;       // 申请时间
+    private String resumePath;    // 简历文件路径
 
     /**
      * 默认构造函数
@@ -24,12 +25,13 @@ public class Application {
      * 完整构造函数
      */
     public Application(String applicationId, String taId, String positionId,
-                      ApplicationStatus status, Date appliedAt) {
+                      ApplicationStatus status, Date appliedAt, String resumePath) {
         this.applicationId = applicationId;
         this.taId = taId;
         this.positionId = positionId;
         this.status = status;
         this.appliedAt = appliedAt;
+        this.resumePath = resumePath;
     }
 
     // Getter和Setter方法
@@ -74,6 +76,14 @@ public class Application {
         this.appliedAt = appliedAt;
     }
 
+    public String getResumePath() {
+        return resumePath;
+    }
+
+    public void setResumePath(String resumePath) {
+        this.resumePath = resumePath;
+    }
+
     /**
      * equals方法 - 基于所有字段比较
      */
@@ -86,7 +96,8 @@ public class Application {
                Objects.equals(taId, that.taId) &&
                Objects.equals(positionId, that.positionId) &&
                status == that.status &&
-               Objects.equals(appliedAt, that.appliedAt);
+               Objects.equals(appliedAt, that.appliedAt) &&
+               Objects.equals(resumePath, that.resumePath);
     }
 
     /**
@@ -94,7 +105,7 @@ public class Application {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(applicationId, taId, positionId, status, appliedAt);
+        return Objects.hash(applicationId, taId, positionId, status, appliedAt, resumePath);
     }
 
     /**
@@ -108,6 +119,7 @@ public class Application {
                 ", positionId='" + positionId + '\'' +
                 ", status=" + status +
                 ", appliedAt=" + appliedAt +
+                ", resumePath='" + resumePath + '\'' +
                 '}';
     }
 }

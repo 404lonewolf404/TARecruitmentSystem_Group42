@@ -7,19 +7,28 @@ import com.bupt.tarecruitment.model.UserRole;
 import com.bupt.tarecruitment.service.ApplicationService;
 import com.bupt.tarecruitment.service.PositionService;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
  * 申请Servlet
  * 处理申请相关的请求：申请职位、撤回申请、查看申请列表、选择申请者
  */
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
+    maxFileSize = 1024 * 1024 * 10,       // 10MB
+    maxRequestSize = 1024 * 1024 * 50     // 50MB
+)
 public class ApplicationServlet extends HttpServlet {
     
     private ApplicationService applicationService;
@@ -137,8 +146,23 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 获取职位ID参数
-            String positionId = request.getParameter("positionId");
+            // 对于 multipart/form-data 请求，需要先获取所有 parts
+            // 然后从 parts 中提取参数
+            String positionId = null;
+            String resumeChoice = null;
+            Part filePart = null;
+            
+            // 遍历所有 parts 来获取表单字段
+            for (Part part : request.getParts()) {
+                String partName = part.getName();
+                if ("positionId".equals(partName)) {
+                    positionId = getValue(part);
+                } else if ("resumeChoice".equals(partName)) {
+                    resumeChoice = getValue(part);
+                } else if ("newResume".equals(partName) && part.getSize() > 0) {
+                    filePart = part;
+                }
+            }
             
             if (positionId == null || positionId.trim().isEmpty()) {
                 session.setAttribute("errorMessage", "职位ID不能为空");
@@ -146,8 +170,51 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
+            String resumePath = null;
+            
+            if ("new".equals(resumeChoice)) {
+                // 上传新简历
+                if (filePart != null && filePart.getSize() > 0) {
+                    String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                    
+                    // 验证文件类型
+                    if (!fileName.toLowerCase().endsWith(".pdf")) {
+                        session.setAttribute("errorMessage", "只支持PDF格式的简历文件");
+                        response.sendRedirect(request.getContextPath() + "/ta/positions");
+                        return;
+                    }
+                    
+                    // 生成唯一文件名
+                    String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
+                    String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
+                    File uploadDir = new File(uploadPath);
+                    if (!uploadDir.exists()) {
+                        uploadDir.mkdirs();
+                    }
+                    
+                    String filePath = uploadPath + File.separator + uniqueFileName;
+                    filePart.write(filePath);
+                    
+                    // 保存相对路径
+                    resumePath = "uploads/" + uniqueFileName;
+                } else {
+                    session.setAttribute("errorMessage", "请选择要上传的简历文件");
+                    response.sendRedirect(request.getContextPath() + "/ta/positions");
+                    return;
+                }
+            } else {
+                // 使用现有简历
+                resumePath = currentUser.getCvPath();
+                
+                if (resumePath == null || resumePath.trim().isEmpty()) {
+                    session.setAttribute("errorMessage", "您还没有上传简历，请先在个人资料中上传简历或选择上传新简历");
+                    response.sendRedirect(request.getContextPath() + "/ta/positions");
+                    return;
+                }
+            }
+            
             // 调用服务层申请职位
-            applicationService.applyForPosition(currentUser.getUserId(), positionId.trim());
+            applicationService.applyForPosition(currentUser.getUserId(), positionId.trim(), resumePath);
             
             // 申请成功，设置成功消息到session
             session.setAttribute("successMessage", "申请提交成功！");
@@ -169,6 +236,21 @@ public class ApplicationServlet extends HttpServlet {
             }
             response.sendRedirect(request.getContextPath() + "/ta/positions");
         }
+    }
+    
+    /**
+     * 从 Part 中获取文本值（用于 multipart/form-data 表单字段）
+     */
+    private String getValue(Part part) throws IOException {
+        java.io.BufferedReader reader = new java.io.BufferedReader(
+            new java.io.InputStreamReader(part.getInputStream(), "UTF-8"));
+        StringBuilder value = new StringBuilder();
+        char[] buffer = new char[1024];
+        int length;
+        while ((length = reader.read(buffer)) > 0) {
+            value.append(buffer, 0, length);
+        }
+        return value.toString();
     }
     
     /**
