@@ -1,4 +1,1 @@
-positionId,moId,title,description,requirements,hours,status,createdAt
-fd469f75-616c-4f50-8d5d-960f0e3120e6,365536ed-6487-413a-bfb9-bd8f6c079dd5,数据结构,000,111,5,OPEN,2026-03-06T23:16:42
-881a3bb3-fdf5-4664-b996-c36d33d467e0,56b5684e-78e6-4435-89dc-6c5a5ecf6df3,数据库,维护,,2,OPEN,2026-03-07T19:04:40
-83a82ef2-b4f7-45b0-b6a6-7a5d146779a2,365536ed-6487-413a-bfb9-bd8f6c079dd5,软件工程,协助验收,,6,OPEN,2026-03-08T20:34:02
+positionId,moId,title,description,requirements,hours,maxPositions,status,createdAt

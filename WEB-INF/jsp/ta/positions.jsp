@@ -78,6 +78,7 @@
                     
                     <div style="margin: 15px 0;">
                         <p><strong>工作时长：</strong> <%= position.getHours() %> 小时/周</p>
+                        <p><strong>招聘名额：</strong> <%= position.getMaxPositions() %> 人</p>
                         <p><strong>状态：</strong> 
                             <span class="badge badge-<%= position.getStatus().toString().toLowerCase() %>">
                                 <%= position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.OPEN ? "开放" : "关闭" %>

@@ -5,16 +5,17 @@ A web-based Teaching Assistant recruitment and management system built with Java
 ## 📋 Features
 
 ### For Teaching Assistants (TA)
-- Browse available positions
-- Apply for positions
+- Browse available positions with recruitment quota information
+- Apply for positions with resume upload options
 - View application status
 - Withdraw applications
-- Manage personal profile
+- Manage personal profile and upload resume
 
 ### For Module Owners (MO)
-- Create and manage positions
+- Create and manage positions with recruitment quotas
 - View applications for positions
 - Select applicants
+- View selected TA information on position list
 - Delete positions
 
 ### For Administrators
@@ -51,8 +52,8 @@ TARecruitmentSystem/
 ├── css/                          # Stylesheets
 ├── js/                           # JavaScript files
 ├── data/                         # CSV data files
-├── build.bat                     # Build script
-├── clean.bat                     # Clean script
+│   └── cv/                       # Resume files
+├── uploads/                      # Application-specific resume uploads
 └── README.md                     # This file
 ```
 
@@ -142,6 +143,16 @@ startup.bat
 - Role-based access control (RBAC)
 - Filter-based security
 
+### Position Management with Recruitment Quotas
+- MO can specify how many TAs to recruit for each position
+- System displays recruitment quota on position listings
+- MO can view selected TA information directly on position list
+
+### Resume Management
+- TA can upload default resume in profile
+- TA can upload new resume when applying for positions
+- MO can download resumes from applications
+
 ### Data Persistence
 - CSV-based storage for simplicity
 - Thread-safe file operations
@@ -173,12 +184,6 @@ Data Storage (CSV Files)
 - DAO (Data Access Object)
 - Filter Chain
 - Singleton (for data stores)
-
-## 📚 Documentation
-
-- [Project Structure](PROJECT_STRUCTURE.md) - Detailed project structure explanation
-- [Quick Start Guide](QUICK_START.md) - Quick start for testing (if available)
-- [Testing Guide](TESTING_GUIDE.md) - Comprehensive testing guide (if available)
 
 ## 🤝 Contributing
 
