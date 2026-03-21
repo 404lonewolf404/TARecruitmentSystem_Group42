@@ -6,17 +6,17 @@ package com.bupt.tarecruitment.model;
  */
 public enum UserRole {
     /**
-     * 助教 - 申请助教职位的学生
+     * 助教 - 申请助教职位的学�?
      */
     TA,
     
     /**
-     * 模块组织者 - 发布TA职位并选择申请者的教师
+     * 模块组织�?- 发布TA职位并选择申请者的教师
      */
     MO,
     
     /**
-     * 管理员 - 监控整体TA工作量的系统管理员
+     * 管理�?- 监控整体TA工作量的系统管理�?
      */
     ADMIN
 }

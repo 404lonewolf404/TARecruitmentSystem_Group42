@@ -4,25 +4,25 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * 申请实体类
+ * 申请实体�?
  * 表示TA对特定职位的申请请求
  */
 public class Application {
-    private String applicationId; // 唯一标识符（UUID）
+    private String applicationId; // 唯一标识符（UUID�?
     private String taId;          // 申请者TA的userId
     private String positionId;    // 申请的职位ID
     private ApplicationStatus status; // 状态：PENDING, SELECTED, REJECTED, WITHDRAWN
     private Date appliedAt;       // 申请时间
-    private String resumePath;    // 简历文件路径
+    private String resumePath;    // 简历文件路�?
 
     /**
-     * 默认构造函数
+     * 默认构造函�?
      */
     public Application() {
     }
 
     /**
-     * 完整构造函数
+     * 完整构造函�?
      */
     public Application(String applicationId, String taId, String positionId,
                       ApplicationStatus status, Date appliedAt, String resumePath) {
@@ -85,7 +85,7 @@ public class Application {
     }
 
     /**
-     * equals方法 - 基于所有字段比较
+     * equals方法 - 基于所有字段比�?
      */
     @Override
     public boolean equals(Object o) {
@@ -101,7 +101,7 @@ public class Application {
     }
 
     /**
-     * hashCode方法 - 基于所有字段生成
+     * hashCode方法 - 基于所有字段生�?
      */
     @Override
     public int hashCode() {

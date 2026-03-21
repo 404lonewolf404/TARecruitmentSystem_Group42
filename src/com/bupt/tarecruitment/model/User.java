@@ -4,27 +4,27 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * 用户实体类
- * 表示系统中的用户（TA、MO或Admin）
+ * 用户实体�?
+ * 表示系统中的用户（TA、MO或Admin�?
  */
 public class User {
-    private String userId;        // 唯一标识符（UUID）
+    private String userId;        // 唯一标识符（UUID�?
     private String name;          // 用户姓名
-    private String email;         // 邮箱（唯一）
-    private String password;      // 密码（应加密存储）
+    private String email;         // 邮箱（唯一�?
+    private String password;      // 密码（应加密存储�?
     private UserRole role;        // 角色：TA, MO, ADMIN
-    private String skills;        // TA技能（仅TA角色使用）
-    private String cvPath;        // CV文件路径（仅TA角色使用）
+    private String skills;        // TA技能（仅TA角色使用�?
+    private String cvPath;        // CV文件路径（仅TA角色使用�?
     private Date createdAt;       // 创建时间
 
     /**
-     * 默认构造函数
+     * 默认构造函�?
      */
     public User() {
     }
 
     /**
-     * 完整构造函数
+     * 完整构造函�?
      */
     public User(String userId, String name, String email, String password, 
                 UserRole role, String skills, String cvPath, Date createdAt) {

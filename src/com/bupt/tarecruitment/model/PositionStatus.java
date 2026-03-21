@@ -1,12 +1,12 @@
 package com.bupt.tarecruitment.model;
 
 /**
- * 职位状态枚举
- * 定义职位的两种状态
+ * 职位状态枚�?
+ * 定义职位的两种状�?
  */
 public enum PositionStatus {
     /**
-     * 开放 - 职位可以接受申请
+     * 开�?- 职位可以接受申请
      */
     OPEN,
     

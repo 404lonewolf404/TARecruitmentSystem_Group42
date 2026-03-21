@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * 申请Servlet
- * 处理申请相关的请求：申请职位、撤回申请、查看申请列表、选择申请者
+ * 处理申请相关的请求：申请职位、撤回申请、查看申请列表、选择申请�?
  */
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
@@ -55,11 +55,11 @@ public class ApplicationServlet extends HttpServlet {
         System.out.println("Path Info: " + pathInfo);
         
         if (pathInfo == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路径");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路�?);
             return;
         }
         
-        // 移除尾部斜杠（如果有）
+        // 移除尾部斜杠（如果有�?
         if (pathInfo.endsWith("/") && pathInfo.length() > 1) {
             pathInfo = pathInfo.substring(0, pathInfo.length() - 1);
         }
@@ -68,12 +68,12 @@ public class ApplicationServlet extends HttpServlet {
         
         switch (pathInfo) {
             case "/my":
-                // 查看我的申请（TA视图）
+                // 查看我的申请（TA视图�?
                 System.out.println("Handling /my request");
                 handleViewMyApplications(request, response);
                 break;
             case "/position":
-                // 查看职位的申请列表（MO视图）
+                // 查看职位的申请列表（MO视图�?
                 System.out.println("Handling /position request");
                 handleViewPositionApplications(request, response);
                 break;
@@ -94,21 +94,21 @@ public class ApplicationServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
         
         if (pathInfo == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路径");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路�?);
             return;
         }
         
         switch (pathInfo) {
             case "/apply":
-                // 申请职位（TA操作）
+                // 申请职位（TA操作�?
                 handleApplyForPosition(request, response);
                 break;
             case "/withdraw":
-                // 撤回申请（TA操作）
+                // 撤回申请（TA操作�?
                 handleWithdrawApplication(request, response);
                 break;
             case "/select":
-                // 选择申请者（MO操作）
+                // 选择申请者（MO操作�?
                 handleSelectApplicant(request, response);
                 break;
             default:
@@ -118,8 +118,8 @@ public class ApplicationServlet extends HttpServlet {
     }
     
     /**
-     * 处理申请职位请求（TA操作）
-     * 需求：4.2 - 当TA申请职位时，系统应创建申请记录并关联TA和职位
+     * 处理申请职位请求（TA操作�?
+     * 需求：4.2 - 当TA申请职位时，系统应创建申请记录并关联TA和职�?
      * 需求：4.3 - 当TA尝试重复申请同一职位时，系统应拒绝该申请
      */
     private void handleApplyForPosition(HttpServletRequest request, HttpServletResponse response) 
@@ -146,13 +146,13 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 对于 multipart/form-data 请求，需要先获取所有 parts
-            // 然后从 parts 中提取参数
+            // 对于 multipart/form-data 请求，需要先获取所�?parts
+            // 然后�?parts 中提取参�?
             String positionId = null;
             String resumeChoice = null;
             Part filePart = null;
             
-            // 遍历所有 parts 来获取表单字段
+            // 遍历所�?parts 来获取表单字�?
             for (Part part : request.getParts()) {
                 String partName = part.getName();
                 if ("positionId".equals(partName)) {
@@ -173,18 +173,18 @@ public class ApplicationServlet extends HttpServlet {
             String resumePath = null;
             
             if ("new".equals(resumeChoice)) {
-                // 上传新简历
+                // 上传新简�?
                 if (filePart != null && filePart.getSize() > 0) {
                     String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
                     
                     // 验证文件类型
                     if (!fileName.toLowerCase().endsWith(".pdf")) {
-                        session.setAttribute("errorMessage", "只支持PDF格式的简历文件");
+                        session.setAttribute("errorMessage", "只支持PDF格式的简历文�?);
                         response.sendRedirect(request.getContextPath() + "/ta/positions");
                         return;
                     }
                     
-                    // 生成唯一文件名
+                    // 生成唯一文件�?
                     String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
                     String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
                     File uploadDir = new File(uploadPath);
@@ -198,32 +198,32 @@ public class ApplicationServlet extends HttpServlet {
                     // 保存相对路径
                     resumePath = "uploads/" + uniqueFileName;
                 } else {
-                    session.setAttribute("errorMessage", "请选择要上传的简历文件");
+                    session.setAttribute("errorMessage", "请选择要上传的简历文�?);
                     response.sendRedirect(request.getContextPath() + "/ta/positions");
                     return;
                 }
             } else {
-                // 使用现有简历
+                // 使用现有简�?
                 resumePath = currentUser.getCvPath();
                 
                 if (resumePath == null || resumePath.trim().isEmpty()) {
-                    session.setAttribute("errorMessage", "您还没有上传简历，请先在个人资料中上传简历或选择上传新简历");
+                    session.setAttribute("errorMessage", "您还没有上传简历，请先在个人资料中上传简历或选择上传新简�?);
                     response.sendRedirect(request.getContextPath() + "/ta/positions");
                     return;
                 }
             }
             
-            // 调用服务层申请职位
+            // 调用服务层申请职�?
             applicationService.applyForPosition(currentUser.getUserId(), positionId.trim(), resumePath);
             
             // 申请成功，设置成功消息到session
-            session.setAttribute("successMessage", "申请提交成功！");
+            session.setAttribute("successMessage", "申请提交成功�?);
             
             // 重定向到我的申请页面
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
             
         } catch (IllegalArgumentException e) {
-            // 业务逻辑错误（如重复申请、职位不存在）
+            // 业务逻辑错误（如重复申请、职位不存在�?
             if (session != null) {
                 session.setAttribute("errorMessage", e.getMessage());
             }
@@ -232,14 +232,14 @@ public class ApplicationServlet extends HttpServlet {
         } catch (IOException e) {
             // 数据访问错误
             if (session != null) {
-                session.setAttribute("errorMessage", "申请职位失败：" + e.getMessage());
+                session.setAttribute("errorMessage", "申请职位失败�? + e.getMessage());
             }
             response.sendRedirect(request.getContextPath() + "/ta/positions");
         }
     }
     
     /**
-     * 从 Part 中获取文本值（用于 multipart/form-data 表单字段）
+     * �?Part 中获取文本值（用于 multipart/form-data 表单字段�?
      */
     private String getValue(Part part) throws IOException {
         java.io.BufferedReader reader = new java.io.BufferedReader(
@@ -254,7 +254,7 @@ public class ApplicationServlet extends HttpServlet {
     }
     
     /**
-     * 处理撤回申请请求（TA操作）
+     * 处理撤回申请请求（TA操作�?
      * 需求：4.5 - 当TA撤回申请时，系统应移除该申请记录
      */
     private void handleWithdrawApplication(HttpServletRequest request, HttpServletResponse response) 
@@ -289,10 +289,10 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 调用服务层撤回申请
+            // 调用服务层撤回申�?
             applicationService.withdrawApplication(applicationId.trim());
             
-            // 撤回成功，重定向到我的申请页面
+            // 撤回成功，重定向到我的申请页�?
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
             
         } catch (IllegalArgumentException e) {
@@ -302,14 +302,14 @@ public class ApplicationServlet extends HttpServlet {
             
         } catch (IOException e) {
             // 数据访问错误
-            request.setAttribute("errorMessage", "撤回申请失败：" + e.getMessage());
+            request.setAttribute("errorMessage", "撤回申请失败�? + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
         }
     }
     
     /**
-     * 处理查看我的申请请求（TA视图）
-     * 需求：4.4 - 当TA查看其申请时，系统应显示该TA提交的所有申请及其状态
+     * 处理查看我的申请请求（TA视图�?
+     * 需求：4.4 - 当TA查看其申请时，系统应显示该TA提交的所有申请及其状�?
      */
     private void handleViewMyApplications(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -340,16 +340,16 @@ public class ApplicationServlet extends HttpServlet {
             System.out.println("User role: " + currentUser.getRole());
             if (currentUser.getRole() != UserRole.TA) {
                 System.out.println("User is not TA, sending 403");
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有TA可以查看自己的申请");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有TA可以查看自己的申�?);
                 return;
             }
             
-            // 获取该TA的所有申请
+            // 获取该TA的所有申�?
             System.out.println("Calling applicationService.getApplicationsByTA()");
             List<Application> applications = applicationService.getApplicationsByTA(currentUser.getUserId());
             System.out.println("Retrieved " + (applications != null ? applications.size() : "null") + " applications");
             
-            // 将申请列表设置到request中
+            // 将申请列表设置到request�?
             request.setAttribute("applications", applications);
             System.out.println("Set applications attribute");
             
@@ -364,14 +364,14 @@ public class ApplicationServlet extends HttpServlet {
             System.out.println("Exception type: " + e.getClass().getName());
             System.out.println("Exception message: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("errorMessage", "获取申请列表失败：" + e.getMessage());
+            request.setAttribute("errorMessage", "获取申请列表失败�? + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
         }
     }
     
     /**
-     * 处理查看职位申请列表请求（MO视图）
-     * 需求：5.1 - 当MO查看职位申请时，系统应显示该职位的所有申请者及其信息
+     * 处理查看职位申请列表请求（MO视图�?
+     * 需求：5.1 - 当MO查看职位申请时，系统应显示该职位的所有申请者及其信�?
      */
     private void handleViewPositionApplications(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -408,15 +408,15 @@ public class ApplicationServlet extends HttpServlet {
             // 获取职位信息
             Position position = positionService.getPositionById(positionId.trim());
             if (position == null) {
-                request.setAttribute("errorMessage", "职位不存在");
+                request.setAttribute("errorMessage", "职位不存�?);
                 response.sendRedirect(request.getContextPath() + "/mo/positions/my");
                 return;
             }
             
-            // 获取该职位的所有申请
+            // 获取该职位的所有申�?
             List<Application> applications = applicationService.getApplicationsByPosition(positionId.trim());
             
-            // 将职位和申请列表设置到request中
+            // 将职位和申请列表设置到request�?
             request.setAttribute("position", position);
             request.setAttribute("applications", applications);
             
@@ -424,13 +424,13 @@ public class ApplicationServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/jsp/mo/applications.jsp").forward(request, response);
             
         } catch (Exception e) {
-            request.setAttribute("errorMessage", "获取申请列表失败：" + e.getMessage());
+            request.setAttribute("errorMessage", "获取申请列表失败�? + e.getMessage());
             request.getRequestDispatcher("/error.jsp").forward(request, response);
         }
     }
     
     /**
-     * 处理选择申请者请求（MO操作）
+     * 处理选择申请者请求（MO操作�?
      * 需求：5.2 - 当MO选择申请者时，系统应将该申请状态更新为SELECTED
      * 需求：5.3 - 当MO选择申请者时，系统应将同一职位的其他申请状态更新为REJECTED
      */
@@ -453,7 +453,7 @@ public class ApplicationServlet extends HttpServlet {
             
             // 验证用户角色为MO
             if (currentUser.getRole() != UserRole.MO) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有MO可以选择申请者");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有MO可以选择申请�?);
                 return;
             }
             
@@ -471,10 +471,10 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 调用服务层选择申请者
+            // 调用服务层选择申请�?
             applicationService.selectApplicant(applicationId.trim());
             
-            // 选择成功，重定向回职位申请列表页面
+            // 选择成功，重定向回职位申请列表页�?
             if (positionId != null && !positionId.trim().isEmpty()) {
                 response.sendRedirect(request.getContextPath() + "/mo/applications/position?positionId=" + positionId);
             } else {

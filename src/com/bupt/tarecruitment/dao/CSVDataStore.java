@@ -12,7 +12,7 @@ import java.util.List;
 public interface CSVDataStore<T> {
     
     /**
-     * 从CSV文件加载所有数据
+     * 从CSV文件加载所有数�?
      * 
      * @return 所有数据实体的列表
      * @throws IOException 如果文件读取失败
@@ -36,7 +36,7 @@ public interface CSVDataStore<T> {
     void add(T item) throws IOException;
     
     /**
-     * 更新现有的数据实体
+     * 更新现有的数据实�?
      * 
      * @param item 要更新的数据实体
      * @throws IOException 如果文件操作失败

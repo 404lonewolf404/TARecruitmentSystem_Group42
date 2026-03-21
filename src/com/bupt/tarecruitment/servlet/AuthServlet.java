@@ -33,7 +33,7 @@ public class AuthServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
         
         if (pathInfo == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路径");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路�?);
             return;
         }
         
@@ -65,7 +65,7 @@ public class AuthServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
         
         if (pathInfo == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路径");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路�?);
             return;
         }
         
@@ -98,7 +98,7 @@ public class AuthServlet extends HttpServlet {
             
             // 验证必填参数
             if (name == null || email == null || password == null || roleStr == null) {
-                request.setAttribute("errorMessage", "请填写所有必填字段");
+                request.setAttribute("errorMessage", "请填写所有必填字�?);
                 request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
                 return;
             }
@@ -108,15 +108,15 @@ public class AuthServlet extends HttpServlet {
             try {
                 role = UserRole.valueOf(roleStr.toUpperCase());
             } catch (IllegalArgumentException e) {
-                request.setAttribute("errorMessage", "无效的用户角色");
+                request.setAttribute("errorMessage", "无效的用户角�?);
                 request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
                 return;
             }
             
-            // 调用服务层进行注册
+            // 调用服务层进行注�?
             User user = authService.register(name, email, password, role, skills);
             
-            // 注册成功，重定向到登录页面
+            // 注册成功，重定向到登录页�?
             request.setAttribute("successMessage", "注册成功！请登录");
             request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
             
@@ -127,7 +127,7 @@ public class AuthServlet extends HttpServlet {
             
         } catch (IOException e) {
             // 数据访问错误
-            request.setAttribute("errorMessage", "注册失败：" + e.getMessage());
+            request.setAttribute("errorMessage", "注册失败�? + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
         }
     }
@@ -150,10 +150,10 @@ public class AuthServlet extends HttpServlet {
                 return;
             }
             
-            // 调用服务层进行登录验证
+            // 调用服务层进行登录验�?
             User user = authService.login(email, password);
             
-            // 登录成功，创建会话
+            // 登录成功，创建会�?
             HttpSession session = request.getSession(true);
             session.setAttribute("user", user);
             
@@ -177,7 +177,7 @@ public class AuthServlet extends HttpServlet {
         // 获取当前会话
         HttpSession session = request.getSession(false);
         
-        // 调用服务层进行登出
+        // 调用服务层进行登�?
         authService.logout(session);
         
         // 重定向到登录页面

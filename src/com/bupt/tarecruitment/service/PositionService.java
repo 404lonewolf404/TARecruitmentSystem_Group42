@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 职位服务类
+ * 职位服务�?
  * 处理职位相关的业务逻辑
  */
 public class PositionService {
@@ -21,7 +21,7 @@ public class PositionService {
     private ApplicationDAO applicationDAO;
     
     /**
-     * 构造函数
+     * 构造函�?
      */
     public PositionService() {
         this.positionDAO = new PositionDAO();
@@ -29,15 +29,15 @@ public class PositionService {
     }
     
     /**
-     * 创建新职位
+     * 创建新职�?
      * 
      * @param moId MO的用户ID
      * @param title 职位标题
      * @param description 职位描述
      * @param requirements 职位要求
-     * @param hours 工作时长（小时/周）
+     * @param hours 工作时长（小�?周）
      * @param maxPositions 招聘名额
-     * @return 创建的职位对象
+     * @return 创建的职位对�?
      * @throws IllegalArgumentException 如果参数无效
      * @throws IOException 如果数据保存失败
      */
@@ -66,7 +66,7 @@ public class PositionService {
             throw new IllegalArgumentException("招聘名额必须大于0");
         }
         
-        // 创建新职位
+        // 创建新职�?
         Position position = new Position();
         position.setPositionId(UUID.randomUUID().toString());
         position.setMoId(moId.trim());
@@ -85,10 +85,10 @@ public class PositionService {
     }
     
     /**
-     * 获取MO创建的所有职位
+     * 获取MO创建的所有职�?
      * 
      * @param moId MO的用户ID
-     * @return 该MO创建的所有职位列表
+     * @return 该MO创建的所有职位列�?
      */
     public List<Position> getPositionsByMO(String moId) {
         if (moId == null || moId.trim().isEmpty()) {
@@ -101,7 +101,7 @@ public class PositionService {
     /**
      * 获取所有开放的职位
      * 
-     * @return 所有状态为OPEN的职位列表
+     * @return 所有状态为OPEN的职位列�?
      */
     public List<Position> getAllOpenPositions() {
         return positionDAO.findAllOpen();
@@ -125,7 +125,7 @@ public class PositionService {
      * 删除职位（级联删除相关申请）
      * 
      * @param positionId 职位ID
-     * @throws IllegalArgumentException 如果职位不存在
+     * @throws IllegalArgumentException 如果职位不存�?
      * @throws IOException 如果数据删除失败
      */
     public void deletePosition(String positionId) throws IllegalArgumentException, IOException {
@@ -134,13 +134,13 @@ public class PositionService {
             throw new IllegalArgumentException("职位ID不能为空");
         }
         
-        // 检查职位是否存在
+        // 检查职位是否存�?
         Position position = positionDAO.findById(positionId.trim());
         if (position == null) {
-            throw new IllegalArgumentException("职位不存在");
+            throw new IllegalArgumentException("职位不存�?);
         }
         
-        // 级联删除：先删除所有相关申请
+        // 级联删除：先删除所有相关申�?
         List<Application> applications = applicationDAO.findByPositionId(positionId.trim());
         for (Application application : applications) {
             applicationDAO.delete(application.getApplicationId());

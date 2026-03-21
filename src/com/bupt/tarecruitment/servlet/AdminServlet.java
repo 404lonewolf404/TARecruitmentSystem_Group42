@@ -32,7 +32,7 @@ public class AdminServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
         
         if (pathInfo == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路径");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路�?);
             return;
         }
         
@@ -47,17 +47,17 @@ public class AdminServlet extends HttpServlet {
     }
     
     /**
-     * 处理工作量报告请求
+     * 处理工作量报告请�?
      * 获取所有TA的工作量统计并转发到JSP页面显示
      */
     private void handleWorkloadReport(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
         try {
-            // 调用WorkloadService获取工作量数据
+            // 调用WorkloadService获取工作量数�?
             Map<User, Integer> workloads = workloadService.calculateAllWorkloads();
             
-            // 将数据设置为请求属性
+            // 将数据设置为请求属�?
             request.setAttribute("workloads", workloads);
             
             // 转发到工作量报告JSP页面

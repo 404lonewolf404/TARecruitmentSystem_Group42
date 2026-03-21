@@ -62,8 +62,8 @@
                     <select id="role" name="role" required>
                         <option value="">请选择角色</option>
                         <option value="TA" <%= "TA".equals(request.getParameter("role")) ? "selected" : "" %>>助教 (TA)</option>
-                        <option value="MO" <%= "MO".equals(request.getParameter("role")) ? "selected" : "" %>>模块负责人 (MO)</option>
-                        <option value="ADMIN" <%= "ADMIN".equals(request.getParameter("role")) ? "selected" : "" %>>管理员 (Admin)</option>
+                        <option value="MO" <%= "MO".equals(request.getParameter("role")) ? "selected" : "" %>>模块负责人(MO)</option>
+                        <option value="ADMIN" <%= "ADMIN".equals(request.getParameter("role")) ? "selected" : "" %>>管理员(Admin)</option>
                     </select>
                 </div>
                 
@@ -80,14 +80,14 @@
             </form>
             
             <div class="form-footer">
-                <p>已有账号？ <a href="<%= request.getContextPath() %>/auth/login">立即登录</a></p>
+                <p>已有账号？<a href="<%= request.getContextPath() %>/auth/login">立即登录</a></p>
             </div>
         </div>
     </div>
     
     <script src="<%= request.getContextPath() %>/js/main.js"></script>
     <script>
-        // 客户端密码确认验证
+        // 客户端密码确认验�?
         document.querySelector('.register-form').addEventListener('submit', function(e) {
             var password = document.getElementById('password').value;
             var confirmPassword = document.getElementById('confirmPassword').value;

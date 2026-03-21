@@ -25,7 +25,7 @@ public class ApplicationDAO implements CSVDataStore<Application> {
     private List<Application> applications;
     
     /**
-     * 构造函数 - 初始化时加载数据
+     * 构造函�?- 初始化时加载数据
      */
     public ApplicationDAO() {
         try {
@@ -36,14 +36,14 @@ public class ApplicationDAO implements CSVDataStore<Application> {
     }
     
     /**
-     * 从CSV文件加载所有申请
+     * 从CSV文件加载所有申�?
      */
     @Override
     public List<Application> loadAll() throws IOException {
         List<Application> applicationList = new ArrayList<>();
         File file = new File(FILE_PATH);
         
-        // 如果文件不存在，创建带标题的空文件
+        // 如果文件不存在，创建带标题的空文�?
         if (!file.exists()) {
             file.getParentFile().mkdirs();
             try (BufferedWriter writer = new BufferedWriter(
@@ -57,7 +57,7 @@ public class ApplicationDAO implements CSVDataStore<Application> {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             
-            String line = reader.readLine(); // 跳过标题行
+            String line = reader.readLine(); // 跳过标题�?
             
             while ((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty()) {
@@ -98,7 +98,7 @@ public class ApplicationDAO implements CSVDataStore<Application> {
     }
     
     /**
-     * 添加新申请
+     * 添加新申�?
      */
     @Override
     public void add(Application item) throws IOException {
@@ -134,11 +134,11 @@ public class ApplicationDAO implements CSVDataStore<Application> {
      */
     @Override
     public Application findById(String id) {
-        // 重新加载数据以确保获取最新数据
+        // 重新加载数据以确保获取最新数�?
         try {
             this.applications = loadAll();
         } catch (IOException e) {
-            // 如果加载失败，使用当前内存中的数据
+            // 如果加载失败，使用当前内存中的数�?
         }
         
         return applications.stream()
@@ -151,14 +151,14 @@ public class ApplicationDAO implements CSVDataStore<Application> {
      * 根据TA ID查找申请列表
      * 
      * @param taId TA的用户ID
-     * @return 该TA提交的所有申请列表
+     * @return 该TA提交的所有申请列�?
      */
     public List<Application> findByTaId(String taId) {
-        // 重新加载数据以确保获取最新数据
+        // 重新加载数据以确保获取最新数�?
         try {
             this.applications = loadAll();
         } catch (IOException e) {
-            // 如果加载失败，使用当前内存中的数据
+            // 如果加载失败，使用当前内存中的数�?
         }
         
         return applications.stream()
@@ -170,14 +170,14 @@ public class ApplicationDAO implements CSVDataStore<Application> {
      * 根据职位ID查找申请列表
      * 
      * @param positionId 职位ID
-     * @return 该职位的所有申请列表
+     * @return 该职位的所有申请列�?
      */
     public List<Application> findByPositionId(String positionId) {
-        // 重新加载数据以确保获取最新数据
+        // 重新加载数据以确保获取最新数�?
         try {
             this.applications = loadAll();
         } catch (IOException e) {
-            // 如果加载失败，使用当前内存中的数据
+            // 如果加载失败，使用当前内存中的数�?
         }
         
         return applications.stream()
@@ -193,11 +193,11 @@ public class ApplicationDAO implements CSVDataStore<Application> {
      * @return 找到的申请，如果不存在则返回null
      */
     public Application findByTaAndPosition(String taId, String positionId) {
-        // 重新加载数据以确保获取最新数据
+        // 重新加载数据以确保获取最新数�?
         try {
             this.applications = loadAll();
         } catch (IOException e) {
-            // 如果加载失败，使用当前内存中的数据
+            // 如果加载失败，使用当前内存中的数�?
         }
         
         return applications.stream()
@@ -219,7 +219,7 @@ public class ApplicationDAO implements CSVDataStore<Application> {
     }
     
     /**
-     * 从CSV行解析申请对象
+     * 从CSV行解析申请对�?
      */
     private Application parseApplicationFromCSV(String line) {
         try {
@@ -235,7 +235,7 @@ public class ApplicationDAO implements CSVDataStore<Application> {
             application.setStatus(ApplicationStatus.valueOf(parts[3]));
             application.setAppliedAt(DATE_FORMAT.parse(parts[4]));
             
-            // 处理resumePath字段（可能不存在于旧数据）
+            // 处理resumePath字段（可能不存在于旧数据�?
             if (parts.length >= 6) {
                 application.setResumePath(parts[5]);
             }
@@ -247,7 +247,7 @@ public class ApplicationDAO implements CSVDataStore<Application> {
     }
     
     /**
-     * 将申请对象格式化为CSV行
+     * 将申请对象格式化为CSV�?
      */
     private String formatApplicationToCSV(Application application) {
         return escapeCSV(application.getApplicationId()) + "," +

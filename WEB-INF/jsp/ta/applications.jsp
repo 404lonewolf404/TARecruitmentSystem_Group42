@@ -21,7 +21,7 @@
     String successMessage = (String) session.getAttribute("successMessage");
     String sessionErrorMessage = (String) session.getAttribute("errorMessage");
     
-    // 清除session中的消息（显示一次后删除）
+    // 清除session中的消息（显示一次后删除�?
     if (successMessage != null) {
         session.removeAttribute("successMessage");
     }
@@ -88,7 +88,7 @@
                     Position position = positionDAO.findById(app.getPositionId());
                     if (position == null) continue; // 如果职位不存在，跳过
                     
-                    // 确定状态的中文显示和样式
+                    // 确定状态的中文显示和样�?
                     String statusText = "";
                     String statusClass = "";
                     switch (app.getStatus()) {
@@ -114,7 +114,7 @@
                     <h3><%= position.getTitle() %></h3>
                     
                     <div style="margin: 15px 0;">
-                        <p><strong>职位描述：</strong></p>
+                        <p><strong>描述：</strong></p>
                         <p><%= position.getDescription() != null ? position.getDescription() : "无" %></p>
                     </div>
                     
