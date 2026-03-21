@@ -11,7 +11,7 @@
     <div class="container">
         <div class="error-container">
             <div class="error-icon">⚠️</div>
-            <h1>出错了</h1>
+            <h1>出错�?/h1>
             
             <% 
                 String errorMessage = (String) request.getAttribute("errorMessage");
@@ -19,7 +19,7 @@
                     errorMessage = (String) request.getAttribute("error");
                 }
                 if (errorMessage == null || errorMessage.isEmpty()) {
-                    errorMessage = "发生了一个未知错误，请稍后重试。";
+                    errorMessage = "发生了一个未知错误，请稍后重试�?;
                 }
             %>
             
@@ -37,7 +37,7 @@
             <% } %>
             
             <div class="error-actions">
-                <button onclick="history.back()" class="btn btn-secondary">返回上一页</button>
+                <button onclick="history.back()" class="btn btn-secondary">返回上一�?/button>
                 <a href="<%= request.getContextPath() %>/" class="btn btn-primary">返回首页</a>
             </div>
         </div>

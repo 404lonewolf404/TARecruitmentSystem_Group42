@@ -12,7 +12,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TA仪表板 - TA招聘系统</title>
+    <title>TA仪表�?- TA招聘系统</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
 </head>
 <body>
@@ -22,7 +22,7 @@
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/ta/dashboard">仪表板</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/dashboard">仪表�?/a></li>
             <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
@@ -32,26 +32,26 @@
     
     <div class="container">
         <div class="card">
-            <h2>欢迎，<%= currentUser.getName() %>！</h2>
-            <p>您已登录为助教（TA）。</p>
+            <h2>欢迎�?%= currentUser.getName() %>�?/h2>
+            <p>您已登录为助教（TA）�?/p>
         </div>
         
         <div class="dashboard">
             <div class="dashboard-card">
                 <h3>个人资料</h3>
-                <p>查看和编辑您的个人信息和技能</p>
+                <p>查看和编辑您的个人信息和技�?/p>
                 <a href="<%= request.getContextPath() %>/ta/profile" class="btn btn-primary">查看个人资料</a>
             </div>
             
             <div class="dashboard-card">
                 <h3>浏览职位</h3>
-                <p>查看所有可申请的助教职位</p>
+                <p>查看所有可申请的助教职�?/p>
                 <a href="<%= request.getContextPath() %>/ta/positions" class="btn btn-primary">浏览职位</a>
             </div>
             
             <div class="dashboard-card">
                 <h3>我的申请</h3>
-                <p>查看您已提交的申请及其状态</p>
+                <p>查看您已提交的申请及其状�?/p>
                 <a href="<%= request.getContextPath() %>/ta/applications/my" class="btn btn-primary">查看申请</a>
             </div>
         </div>

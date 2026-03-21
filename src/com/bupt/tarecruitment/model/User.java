@@ -4,33 +4,37 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * 用户实体类
- * 表示系统中的用户（TA、MO或Admin）
+ * 用户实体�?
+ * 表示系统中的用户（TA、MO或Admin�?
  */
 public class User {
-    private String userId;        // 唯一标识符（UUID）
+    private String userId;        // 唯一标识符（UUID�?
     private String name;          // 用户姓名
-    private String email;         // 邮箱（唯一）
-    private String password;      // 密码（应加密存储）
+    private String email;         // 邮箱（唯一�?
+    private String password;      // 密码（应加密存储�?
     private UserRole role;        // 角色：TA, MO, ADMIN
+    private String skills;        // TA技能（仅TA角色使用�?
+    private String cvPath;        // CV文件路径（仅TA角色使用�?
     private Date createdAt;       // 创建时间
 
     /**
-     * 默认构造函数
+     * 默认构造函�?
      */
     public User() {
     }
 
     /**
-     * 完整构造函数
+     * 完整构造函�?
      */
     public User(String userId, String name, String email, String password, 
-                UserRole role, Date createdAt) {
+                UserRole role, String skills, String cvPath, Date createdAt) {
         this.userId = userId;
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.skills = skills;
+        this.cvPath = cvPath;
         this.createdAt = createdAt;
     }
 
@@ -76,6 +80,22 @@ public class User {
         this.role = role;
     }
 
+    public String getSkills() {
+        return skills;
+    }
+
+    public void setSkills(String skills) {
+        this.skills = skills;
+    }
+
+    public String getCvPath() {
+        return cvPath;
+    }
+
+    public void setCvPath(String cvPath) {
+        this.cvPath = cvPath;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -97,6 +117,8 @@ public class User {
                Objects.equals(email, user.email) &&
                Objects.equals(password, user.password) &&
                role == user.role &&
+               Objects.equals(skills, user.skills) &&
+               Objects.equals(cvPath, user.cvPath) &&
                Objects.equals(createdAt, user.createdAt);
     }
 
@@ -105,7 +127,7 @@ public class User {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(userId, name, email, password, role, createdAt);
+        return Objects.hash(userId, name, email, password, role, skills, cvPath, createdAt);
     }
 
     /**
@@ -118,6 +140,7 @@ public class User {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", role=" + role +
+                ", skills='" + skills + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
     }
