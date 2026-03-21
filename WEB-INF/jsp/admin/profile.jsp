@@ -22,8 +22,8 @@
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/admin/dashboard">仪表�?/a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/workload">工作量报�?/a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/dashboard">仪表板</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/workload">工作量报告</a></li>
             <li><a href="<%= request.getContextPath() %>/admin/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
@@ -50,18 +50,18 @@
             
             <form action="<%= request.getContextPath() %>/profile" method="post" class="profile-form">
                 <div class="form-group">
-                    <label for="name">姓名�?/label>
+                    <label for="name">姓名：</label>
                     <input type="text" id="name" name="name" value="<%= currentUser.getName() %>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">邮箱�?/label>
+                    <label for="email">邮箱：</label>
                     <input type="email" id="email" name="email" value="<%= currentUser.getEmail() %>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>角色�?/label>
-                    <input type="text" value="管理�?(Admin)" readonly disabled>
+                    <label>角色：</label>
+                    <input type="text" value="管理员(Admin)" readonly disabled>
                 </div>
                 
                 <div class="form-group">

@@ -30,16 +30,16 @@
             
             <form action="<%= request.getContextPath() %>/auth/login" method="post" class="login-form">
                 <div class="form-group">
-                    <label for="email">邮箱�?/label>
+                    <label for="email">邮箱：</label>
                     <input type="email" id="email" name="email" required 
                            placeholder="请输入邮箱地址"
                            value="<%= request.getParameter("email") != null ? request.getParameter("email") : "" %>">
                 </div>
                 
                 <div class="form-group">
-                    <label for="password">密码�?/label>
+                    <label for="password">密码：</label>
                     <input type="password" id="password" name="password" required 
-                           placeholder="请输入密�?>
+                           placeholder="请输入密码">
                 </div>
                 
                 <div class="form-group">

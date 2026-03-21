@@ -22,7 +22,7 @@
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表�?/a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions">我的职位</a></li>
             <li><a href="<%= request.getContextPath() %>/positions/create">创建职位</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
@@ -51,18 +51,18 @@
             
             <form action="<%= request.getContextPath() %>/profile" method="post" class="profile-form">
                 <div class="form-group">
-                    <label for="name">姓名�?/label>
+                    <label for="name">姓名：</label>
                     <input type="text" id="name" name="name" value="<%= currentUser.getName() %>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">邮箱�?/label>
+                    <label for="email">邮箱：</label>
                     <input type="email" id="email" name="email" value="<%= currentUser.getEmail() %>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>角色�?/label>
-                    <input type="text" value="模块负责�?(MO)" readonly disabled>
+                    <label>角色：</label>
+                    <input type="text" value="模块负责人(MO)" readonly disabled>
                 </div>
                 
                 <div class="form-group">

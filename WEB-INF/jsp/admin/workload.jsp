@@ -12,7 +12,7 @@
         return;
     }
     
-    // 获取工作量数�?
+    // 获取工作量数�?
     @SuppressWarnings("unchecked")
     Map<User, Integer> workloads = (Map<User, Integer>) request.getAttribute("workloads");
     
@@ -20,7 +20,7 @@
     List<Map.Entry<User, Integer>> workloadList = new ArrayList<>();
     if (workloads != null) {
         workloadList.addAll(workloads.entrySet());
-        // 按工时降序排�?
+        // 按工时降序排�?
         Collections.sort(workloadList, new Comparator<Map.Entry<User, Integer>>() {
             @Override
             public int compare(Map.Entry<User, Integer> e1, Map.Entry<User, Integer> e2) {
@@ -34,7 +34,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工作量报�?- TA招聘系统</title>
+    <title>工作量报告 - TA招聘系统</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
 </head>
 <body>
@@ -44,16 +44,16 @@
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/admin/dashboard">仪表�?/a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/workload">工作量报�?/a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/dashboard">仪表板</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/workload">工作量报告</a></li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>
     
     <div class="container">
         <div class="card">
-            <h2>助教工作量报�?/h2>
-            <p>显示所有助教的工作量统计，按总工时降序排�?/p>
+            <h2>助教工作量报告</h2>
+            <p>显示所有助教的工作量统计，按总工时降序排列</p>
         </div>
         
         <div class="card">
@@ -64,7 +64,7 @@
                             <th>序号</th>
                             <th>姓名</th>
                             <th>邮箱</th>
-                            <th>总工�?/th>
+                            <th>总工时</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -84,12 +84,12 @@
                     </tbody>
                 </table>
             <% } else { %>
-                <p class="no-data">暂无工作量数�?/p>
+                <p class="no-data">暂无工作量数据</p>
             <% } %>
         </div>
         
         <div class="actions">
-            <a href="<%= request.getContextPath() %>/admin/dashboard" class="btn btn-secondary">返回仪表�?/a>
+            <a href="<%= request.getContextPath() %>/admin/dashboard" class="btn btn-secondary">返回仪表板</a>
         </div>
     </div>
     
