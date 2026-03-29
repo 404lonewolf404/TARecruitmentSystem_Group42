@@ -7,8 +7,8 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 
 /**
- * 角色过滤�?
- * 验证用户是否有权限访问特定资�?
+ * 角色过滤器
+ * 验证用户是否有权限访问特定资源
  * 需求：8.2, 8.4
  */
 public class RoleFilter implements Filter {
@@ -57,7 +57,7 @@ public class RoleFilter implements Filter {
      * @return 如果有权限返回true，否则返回false
      */
     private boolean hasPermission(UserRole role, String requestURI) {
-        // 定义角色到URL的映射规�?
+        // 定义角色到URL的映射规则
         
         // TA角色只能访问/ta/*路径
         if (requestURI.contains("/ta/")) {

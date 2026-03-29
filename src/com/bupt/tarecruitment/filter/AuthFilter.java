@@ -5,8 +5,8 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 
 /**
- * 认证过滤�?
- * 拦截所有受保护的请求，验证用户是否已登�?
+ * 认证过滤器
+ * 拦截所有受保护的请求，验证用户是否已登录
  * 需求：1.6, 8.1, 8.3
  */
 public class AuthFilter implements Filter {
@@ -26,9 +26,9 @@ public class AuthFilter implements Filter {
         // 获取会话（不创建新会话）
         HttpSession session = httpRequest.getSession(false);
         
-        // 检查会话是否存在以及会话中是否有用户信�?
+        // 检查会话是否存在以及会话中是否有用户信息
         if (session == null || session.getAttribute("user") == null) {
-            // 未认证用户重定向到登录页�?
+            // 未认证用户重定向到登录页面
             String contextPath = httpRequest.getContextPath();
             httpResponse.sendRedirect(contextPath + "/auth/login");
         } else {

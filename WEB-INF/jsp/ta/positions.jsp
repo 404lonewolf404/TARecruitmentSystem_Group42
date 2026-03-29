@@ -120,7 +120,7 @@
                                 <div id="newResumeUpload_<%= position.getPositionId() %>" style="display: none; margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
                                     <label style="display: block; margin-bottom: 5px;">选择PDF文件：</label>
                                     <input type="file" name="newResume" accept=".pdf" style="display: block;">
-                                    <small style="color: #666; display: block; margin-top: 5px;">仅支持PDF格式，最�?0MB</small>
+                                    <small style="color: #666; display: block; margin-top: 5px;">仅支持PDF格式，最大10MB</small>
                                 </div>
                             </div>
                             

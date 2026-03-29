@@ -62,7 +62,7 @@
                 
                 <div class="form-group">
                     <label>角色：</label>
-                    <input type="text" value="模块负责人(MO)" readonly disabled>
+                    <input type="text" value="模块负责人 (MO)" readonly disabled>
                 </div>
                 
                 <div class="form-group">

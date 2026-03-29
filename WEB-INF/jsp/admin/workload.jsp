@@ -12,7 +12,7 @@
         return;
     }
     
-    // 获取工作量数�?
+    // 获取工作量数据
     @SuppressWarnings("unchecked")
     Map<User, Integer> workloads = (Map<User, Integer>) request.getAttribute("workloads");
     
@@ -20,7 +20,7 @@
     List<Map.Entry<User, Integer>> workloadList = new ArrayList<>();
     if (workloads != null) {
         workloadList.addAll(workloads.entrySet());
-        // 按工时降序排�?
+        // 按工时降序排序
         Collections.sort(workloadList, new Comparator<Map.Entry<User, Integer>>() {
             @Override
             public int compare(Map.Entry<User, Integer> e1, Map.Entry<User, Integer> e2) {

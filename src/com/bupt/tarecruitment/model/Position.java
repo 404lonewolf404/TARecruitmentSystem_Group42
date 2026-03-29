@@ -4,28 +4,28 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * 职位实体�?
- * 表示MO创建的助教工作岗�?
+ * 职位实体类
+ * 表示MO创建的助教工作岗位
  */
 public class Position {
-    private String positionId;    // 唯一标识符（UUID�?
+    private String positionId;    // 唯一标识符（UUID）
     private String moId;          // 发布者MO的userId
     private String title;         // 职位标题
     private String description;   // 职位描述
     private String requirements;  // 职位要求
-    private int hours;            // 工作时长（小�?周）
-    private int maxPositions;     // 招聘名额（需要招聘的TA数量�?
+    private int hours;            // 工作时长（小时/周）
+    private int maxPositions;     // 招聘名额（需要招聘的TA数量）
     private PositionStatus status; // 状态：OPEN, CLOSED
     private Date createdAt;       // 创建时间
 
     /**
-     * 默认构造函�?
+     * 默认构造函数
      */
     public Position() {
     }
 
     /**
-     * 完整构造函�?
+     * 完整构造函数
      */
     public Position(String positionId, String moId, String title, String description,
                    String requirements, int hours, int maxPositions, PositionStatus status, Date createdAt) {
@@ -115,7 +115,7 @@ public class Position {
     }
 
     /**
-     * equals方法 - 基于所有字段比�?
+     * equals方法 - 基于所有字段比较
      */
     @Override
     public boolean equals(Object o) {
@@ -134,7 +134,7 @@ public class Position {
     }
 
     /**
-     * hashCode方法 - 基于所有字段生�?
+     * hashCode方法 - 基于所有字段生成
      */
     @Override
     public int hashCode() {

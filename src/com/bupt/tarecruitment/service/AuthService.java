@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * 认证服务�?
+ * 认证服务类
  * 处理用户注册、登录、登出等认证相关的业务逻辑
  */
 public class AuthService {
@@ -20,7 +20,7 @@ public class AuthService {
     private UserDAO userDAO;
     
     /**
-     * 构造函�?
+     * 构造函数
      */
     public AuthService() {
         this.userDAO = new UserDAO();
@@ -33,8 +33,8 @@ public class AuthService {
      * @param email 用户邮箱
      * @param password 用户密码（明文）
      * @param role 用户角色
-     * @param skills 用户技能（可选，仅TA使用�?
-     * @return 注册成功的用户对�?
+     * @param skills 用户技能（可选，仅TA使用）
+     * @return 注册成功的用户对象
      * @throws IllegalArgumentException 如果邮箱已存在或参数无效
      * @throws IOException 如果数据保存失败
      */
@@ -58,12 +58,12 @@ public class AuthService {
             throw new IllegalArgumentException("角色不能为空");
         }
         
-        // 检查邮箱唯一�?
+        // 检查邮箱唯一性
         if (userDAO.emailExists(email)) {
-            throw new IllegalArgumentException("该邮箱已被注�?);
+            throw new IllegalArgumentException("该邮箱已被注册");
         }
         
-        // 创建新用�?
+        // 创建新用户
         User user = new User();
         user.setUserId(UUID.randomUUID().toString());
         user.setName(name.trim());
@@ -84,7 +84,7 @@ public class AuthService {
      * 
      * @param email 用户邮箱
      * @param password 用户密码（明文）
-     * @return 登录成功的用户对�?
+     * @return 登录成功的用户对象
      * @throws IllegalArgumentException 如果凭证无效
      */
     public User login(String email, String password) throws IllegalArgumentException {
@@ -102,13 +102,13 @@ public class AuthService {
         User user = userDAO.findByEmail(email.trim());
         
         if (user == null) {
-            throw new IllegalArgumentException("邮箱或密码错�?);
+            throw new IllegalArgumentException("邮箱或密码错误");
         }
         
         // 验证密码
         String hashedPassword = hashPassword(password);
         if (!user.getPassword().equals(hashedPassword)) {
-            throw new IllegalArgumentException("邮箱或密码错�?);
+            throw new IllegalArgumentException("邮箱或密码错误");
         }
         
         return user;
@@ -155,10 +155,10 @@ public class AuthService {
     }
     
     /**
-     * 使用SHA-256算法对密码进行哈�?
+     * 使用SHA-256算法对密码进行哈希
      * 
      * @param password 明文密码
-     * @return 哈希后的密码（十六进制字符串�?
+     * @return 哈希后的密码（十六进制字符串）
      */
     private String hashPassword(String password) {
         try {
@@ -177,7 +177,7 @@ public class AuthService {
             
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-256算法不可�?, e);
+            throw new RuntimeException("SHA-256算法不可用", e);
         }
     }
 }
