@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * 职位Servlet
- * 处理职位相关的请求：查看、创建、删除职�?
+ * 处理职位相关的请求：查看、创建、删除职位
  */
 public class PositionServlet extends HttpServlet {
     
@@ -43,16 +43,16 @@ public class PositionServlet extends HttpServlet {
         System.out.println("Servlet Path: " + request.getServletPath());
         System.out.println("Path Info: " + pathInfo);
         
-        // 如果路径�?/positions �?/positions/，显示所有开放职位（TA视图�?
+        // 如果路径为 /positions 或 /positions/，显示所有开放职位（TA视图）
         if (pathInfo == null || pathInfo.equals("/")) {
             System.out.println("Handling: View all positions");
             handleViewAllPositions(request, response);
         } else if (pathInfo.equals("/my")) {
-            // /positions/my - 查看我的职位（MO视图�?
+            // /positions/my - 查看我的职位（MO视图）
             System.out.println("Handling: View my positions");
             handleViewMyPositions(request, response);
         } else if (pathInfo.equals("/create")) {
-            // /positions/create - 显示创建职位表单（MO视图�?
+            // /positions/create - 显示创建职位表单（MO视图）
             System.out.println("Handling: Create position form");
             request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
         } else {
@@ -71,7 +71,7 @@ public class PositionServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
         
         if (pathInfo == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路�?);
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路径");
             return;
         }
         
@@ -89,8 +89,8 @@ public class PositionServlet extends HttpServlet {
     }
     
     /**
-     * 处理查看所有开放职位请求（TA视图�?
-     * 需求：4.1 - 当TA查看职位列表时，系统应显示所有可用职位及其详细信�?
+     * 处理查看所有开放职位请求（TA视图）
+     * 需求：4.1 - 当TA查看职位列表时，系统应显示所有可用职位及其详细信息
      */
     private void handleViewAllPositions(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -109,10 +109,10 @@ public class PositionServlet extends HttpServlet {
                 return;
             }
             
-            // 获取所有开放职�?
+            // 获取所有开放职位
             List<Position> positions = positionService.getAllOpenPositions();
             
-            // 如果�?TA 用户，获取已申请的职�?ID 列表
+            // 如果是 TA 用户，获取已申请的职位 ID 列表
             if (currentUser.getRole() == UserRole.TA) {
                 List<com.bupt.tarecruitment.model.Application> myApplications = 
                     applicationService.getApplicationsByTA(currentUser.getUserId());
@@ -123,26 +123,26 @@ public class PositionServlet extends HttpServlet {
                 request.setAttribute("appliedPositionIds", appliedPositionIds);
             }
             
-            // 将职位列表设置到request�?
+            // 将职位列表设置到request中
             request.setAttribute("positions", positions);
             
             // 根据用户角色转发到相应的页面
             if (currentUser.getRole() == UserRole.TA) {
                 request.getRequestDispatcher("/WEB-INF/jsp/ta/positions.jsp").forward(request, response);
             } else {
-                // 如果不是TA角色，也可以查看所有职�?
+                // 如果不是TA角色，也可以查看所有职位
                 request.getRequestDispatcher("/WEB-INF/jsp/ta/positions.jsp").forward(request, response);
             }
             
         } catch (Exception e) {
-            request.setAttribute("errorMessage", "获取职位列表失败�? + e.getMessage());
+            request.setAttribute("errorMessage", "获取职位列表失败：" + e.getMessage());
             request.getRequestDispatcher("/error.jsp").forward(request, response);
         }
     }
     
     /**
-     * 处理查看我的职位请求（MO视图�?
-     * 需求：3.2 - 当MO查看其职位时，系统应显示该MO创建的所有职�?
+     * 处理查看我的职位请求（MO视图）
+     * 需求：3.2 - 当MO查看其职位时，系统应显示该MO创建的所有职位
      */
     private void handleViewMyPositions(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -163,11 +163,11 @@ public class PositionServlet extends HttpServlet {
             
             // 验证用户角色为MO
             if (currentUser.getRole() != UserRole.MO) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有MO可以查看自己的职�?);
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有MO可以查看自己的职位");
                 return;
             }
             
-            // 获取该MO创建的所有职�?
+            // 获取该MO创建的所有职位
             List<Position> positions = positionService.getPositionsByMO(currentUser.getUserId());
             
             // 为每个职位查找被选中的TA
@@ -182,7 +182,7 @@ public class PositionServlet extends HttpServlet {
                 
                 System.out.println("  Found " + applications.size() + " applications");
                 
-                // 查找状态为SELECTED的申�?
+                // 查找状态为SELECTED的申请
                 for (com.bupt.tarecruitment.model.Application app : applications) {
                     System.out.println("  Application: " + app.getApplicationId() + " - Status: " + app.getStatus());
                     if (app.getStatus() == com.bupt.tarecruitment.model.ApplicationStatus.SELECTED) {
@@ -199,7 +199,7 @@ public class PositionServlet extends HttpServlet {
             
             System.out.println("Total selected applications: " + selectedApplications.size());
             
-            // 将职位列表和选中的申请映射设置到request�?
+            // 将职位列表和选中的申请映射设置到request中
             request.setAttribute("positions", positions);
             request.setAttribute("selectedApplications", selectedApplications);
             
@@ -207,15 +207,15 @@ public class PositionServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/jsp/mo/positions.jsp").forward(request, response);
             
         } catch (Exception e) {
-            request.setAttribute("errorMessage", "获取职位列表失败�? + e.getMessage());
+            request.setAttribute("errorMessage", "获取职位列表失败：" + e.getMessage());
             request.getRequestDispatcher("/error.jsp").forward(request, response);
         }
     }
     
     /**
-     * 处理创建职位请求（MO操作�?
+     * 处理创建职位请求（MO操作）
      * 需求：3.1 - 当MO使用有效信息创建职位时，系统应存储该职位
-     * 需求：3.4 - 系统应验证必填的职位字段不为�?
+     * 需求：3.4 - 系统应验证必填的职位字段不为空
      */
     private void handleCreatePosition(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -247,7 +247,7 @@ public class PositionServlet extends HttpServlet {
             String hoursStr = request.getParameter("hours");
             String maxPositionsStr = request.getParameter("maxPositions");
             
-            // 验证必填字段不为�?
+            // 验证必填字段不为空
             if (title == null || title.trim().isEmpty()) {
                 request.setAttribute("errorMessage", "职位标题不能为空");
                 request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
@@ -302,7 +302,7 @@ public class PositionServlet extends HttpServlet {
                 return;
             }
             
-            // 调用服务层创建职�?
+            // 调用服务层创建职位
             Position position = positionService.createPosition(
                 currentUser.getUserId(),
                 title,
@@ -312,7 +312,7 @@ public class PositionServlet extends HttpServlet {
                 maxPositions
             );
             
-            // 创建成功，重定向到我的职位页�?
+            // 创建成功，重定向到我的职位页面
             response.sendRedirect(request.getContextPath() + "/mo/positions/my");
             
         } catch (IllegalArgumentException e) {
@@ -322,14 +322,14 @@ public class PositionServlet extends HttpServlet {
             
         } catch (IOException e) {
             // 数据访问错误
-            request.setAttribute("errorMessage", "创建职位失败�? + e.getMessage());
+            request.setAttribute("errorMessage", "创建职位失败：" + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
         }
     }
     
     /**
-     * 处理删除职位请求（MO操作�?
-     * 需求：3.3 - 当MO删除职位时，系统应移除该职位及所有相关申�?
+     * 处理删除职位请求（MO操作）
+     * 需求：3.3 - 当MO删除职位时，系统应移除该职位及所有相关申请
      */
     private void handleDeletePosition(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -363,10 +363,10 @@ public class PositionServlet extends HttpServlet {
                 return;
             }
             
-            // 调用服务层删除职位（级联删除相关申请�?
+            // 调用服务层删除职位（级联删除相关申请）
             positionService.deletePosition(positionId.trim());
             
-            // 删除成功，重定向到我的职位页�?
+            // 删除成功，重定向到我的职位页面
             response.sendRedirect(request.getContextPath() + "/mo/positions/my");
             
         } catch (IllegalArgumentException e) {
@@ -376,7 +376,7 @@ public class PositionServlet extends HttpServlet {
             
         } catch (IOException e) {
             // 数据访问错误
-            request.setAttribute("errorMessage", "删除职位失败�? + e.getMessage());
+            request.setAttribute("errorMessage", "删除职位失败：" + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/mo/positions/my");
         }
     }

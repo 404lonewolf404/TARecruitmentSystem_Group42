@@ -16,7 +16,7 @@
     @SuppressWarnings("unchecked")
     List<Application> applications = (List<Application>) request.getAttribute("applications");
     
-    // 创建UserDAO实例用于获取申请者信�?
+    // 创建UserDAO实例用于获取申请者信息
     UserDAO userDAO = new UserDAO();
 %>
 <!DOCTYPE html>
@@ -103,7 +103,7 @@
                                 <p><strong>技能：</strong><%= applicant.getSkills() %></p>
                             <% } %>
                             <% 
-                            // 优先显示申请时提交的简历，如果没有则显示用户默认简�?
+                            // 优先显示申请时提交的简历，如果没有则显示用户默认简历
                             String resumePath = app.getResumePath();
                             boolean hasApplicationResume = resumePath != null && !resumePath.trim().isEmpty();
                             boolean hasUserResume = applicant.getCvPath() != null && !applicant.getCvPath().trim().isEmpty();

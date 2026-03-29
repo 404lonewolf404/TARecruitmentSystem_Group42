@@ -25,7 +25,7 @@ public class PositionDAO implements CSVDataStore<Position> {
     private List<Position> positions;
     
     /**
-     * 构造函�?- 初始化时加载数据
+     * 构造函数 - 初始化时加载数据
      */
     public PositionDAO() {
         try {
@@ -36,14 +36,14 @@ public class PositionDAO implements CSVDataStore<Position> {
     }
     
     /**
-     * 从CSV文件加载所有职�?
+     * 从CSV文件加载所有职位
      */
     @Override
     public List<Position> loadAll() throws IOException {
         List<Position> positionList = new ArrayList<>();
         File file = new File(FILE_PATH);
         
-        // 如果文件不存在，创建带标题的空文�?
+        // 如果文件不存在，创建带标题的空文件
         if (!file.exists()) {
             file.getParentFile().mkdirs();
             try (BufferedWriter writer = new BufferedWriter(
@@ -57,7 +57,7 @@ public class PositionDAO implements CSVDataStore<Position> {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             
-            String line = reader.readLine(); // 跳过标题�?
+            String line = reader.readLine(); // 跳过标题行
             
             while ((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty()) {
@@ -98,7 +98,7 @@ public class PositionDAO implements CSVDataStore<Position> {
     }
     
     /**
-     * 添加新职�?
+     * 添加新职位
      */
     @Override
     public void add(Position item) throws IOException {
@@ -134,11 +134,11 @@ public class PositionDAO implements CSVDataStore<Position> {
      */
     @Override
     public Position findById(String id) {
-        // 重新加载数据以确保获取最新数�?
+        // 重新加载数据以确保获取最新数据
         try {
             this.positions = loadAll();
         } catch (IOException e) {
-            // 如果加载失败，使用当前内存中的数�?
+            // 如果加载失败，使用当前内存中的数据
         }
         
         return positions.stream()
@@ -151,14 +151,14 @@ public class PositionDAO implements CSVDataStore<Position> {
      * 根据MO ID查找职位列表
      * 
      * @param moId MO的用户ID
-     * @return 该MO创建的所有职位列�?
+     * @return 该MO创建的所有职位列表
      */
     public List<Position> findByMoId(String moId) {
-        // 重新加载数据以确保获取最新数�?
+        // 重新加载数据以确保获取最新数据
         try {
             this.positions = loadAll();
         } catch (IOException e) {
-            // 如果加载失败，使用当前内存中的数�?
+            // 如果加载失败，使用当前内存中的数据
         }
         
         return positions.stream()
@@ -169,14 +169,14 @@ public class PositionDAO implements CSVDataStore<Position> {
     /**
      * 查找所有开放的职位
      * 
-     * @return 所有状态为OPEN的职位列�?
+     * @return 所有状态为OPEN的职位列表
      */
     public List<Position> findAllOpen() {
-        // 重新加载数据以确保获取最新数�?
+        // 重新加载数据以确保获取最新数据
         try {
             this.positions = loadAll();
         } catch (IOException e) {
-            // 如果加载失败，使用当前内存中的数�?
+            // 如果加载失败，使用当前内存中的数据
         }
         
         return positions.stream()
@@ -185,7 +185,7 @@ public class PositionDAO implements CSVDataStore<Position> {
     }
     
     /**
-     * 从CSV行解析职位对�?
+     * 从CSV行解析职位对象
      */
     private Position parsePositionFromCSV(String line) {
         try {
@@ -202,13 +202,13 @@ public class PositionDAO implements CSVDataStore<Position> {
             position.setRequirements(parts[4]);
             position.setHours(Integer.parseInt(parts[5]));
             
-            // 兼容旧数据：如果有第7个字段（maxPositions），则读取，否则默认�?
+            // 兼容旧数据：如果有第7个字段（maxPositions），则读取，否则默认为1
             if (parts.length >= 9) {
                 position.setMaxPositions(Integer.parseInt(parts[6]));
                 position.setStatus(PositionStatus.valueOf(parts[7]));
                 position.setCreatedAt(DATE_FORMAT.parse(parts[8]));
             } else {
-                position.setMaxPositions(1); // 默认名额�?
+                position.setMaxPositions(1); // 默认名额为1
                 position.setStatus(PositionStatus.valueOf(parts[6]));
                 position.setCreatedAt(DATE_FORMAT.parse(parts[7]));
             }
@@ -220,7 +220,7 @@ public class PositionDAO implements CSVDataStore<Position> {
     }
     
     /**
-     * 将职位对象格式化为CSV�?
+     * 将职位对象格式化为CSV行
      */
     private String formatPositionToCSV(Position position) {
         return escapeCSV(position.getPositionId()) + "," +

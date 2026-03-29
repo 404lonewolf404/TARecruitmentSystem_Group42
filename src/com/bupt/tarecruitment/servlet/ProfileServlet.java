@@ -42,7 +42,7 @@ public class ProfileServlet extends HttpServlet {
         
         String pathInfo = request.getPathInfo();
         
-        // 如果路径�?/profile �?/profile/，显示个人资料页�?
+        // 如果路径为 /profile 或 /profile/，显示个人资料页面
         if (pathInfo == null || pathInfo.equals("/")) {
             handleViewProfile(request, response);
         } else {
@@ -59,7 +59,7 @@ public class ProfileServlet extends HttpServlet {
         
         String pathInfo = request.getPathInfo();
         
-        // 如果pathInfo为null或为"/"，也处理更新请求（兼容不同的URL格式�?
+        // 如果pathInfo为null或为"/"，也处理更新请求（兼容不同的URL格式）
         if (pathInfo == null || pathInfo.equals("/") || pathInfo.equals("/update")) {
             handleUpdateProfile(request, response);
         } else {
@@ -86,10 +86,10 @@ public class ProfileServlet extends HttpServlet {
             return;
         }
         
-        // 从数据库重新加载用户信息（确保是最新的�?
+        // 从数据库重新加载用户信息（确保是最新的）
         User user = userDAO.findById(currentUser.getUserId());
         if (user == null) {
-            request.setAttribute("errorMessage", "用户不存�?);
+            request.setAttribute("errorMessage", "用户不存在");
             request.getRequestDispatcher("/error.jsp").forward(request, response);
             return;
         }
@@ -127,7 +127,7 @@ public class ProfileServlet extends HttpServlet {
             String email = request.getParameter("email");
             String skills = request.getParameter("skills");
             
-            // 验证必填字段不为�?
+            // 验证必填字段不为空
             if (name == null || name.trim().isEmpty()) {
                 request.setAttribute("errorMessage", "姓名不能为空");
                 request.setAttribute("user", currentUser);
@@ -147,17 +147,17 @@ public class ProfileServlet extends HttpServlet {
             // 检查邮箱是否被其他用户使用
             User existingUser = userDAO.findByEmail(email.trim());
             if (existingUser != null && !existingUser.getUserId().equals(currentUser.getUserId())) {
-                request.setAttribute("errorMessage", "该邮箱已被其他用户使�?);
+                request.setAttribute("errorMessage", "该邮箱已被其他用户使用");
                 request.setAttribute("user", currentUser);
                 String profilePage = getProfilePage(currentUser);
                 request.getRequestDispatcher(profilePage).forward(request, response);
                 return;
             }
             
-            // 从数据库加载完整的用户信�?
+            // 从数据库加载完整的用户信息
             User user = userDAO.findById(currentUser.getUserId());
             if (user == null) {
-                request.setAttribute("errorMessage", "用户不存�?);
+                request.setAttribute("errorMessage", "用户不存在");
                 request.getRequestDispatcher("/error.jsp").forward(request, response);
                 return;
             }
@@ -166,12 +166,12 @@ public class ProfileServlet extends HttpServlet {
             user.setName(name.trim());
             user.setEmail(email.trim());
             
-            // 只有TA角色才更新技能字�?
+            // 只有TA角色才更新技能字段
             if (skills != null) {
                 user.setSkills(skills.trim());
             }
             
-            // 处理CV文件上传（仅TA角色�?
+            // 处理CV文件上传（仅TA角色）
             if (user.getRole().toString().equals("TA")) {
                 Part cvPart = request.getPart("cv");
                 if (cvPart != null && cvPart.getSize() > 0) {
@@ -179,7 +179,7 @@ public class ProfileServlet extends HttpServlet {
                     if (cvPath != null) {
                         user.setCvPath(cvPath);
                     } else {
-                        request.setAttribute("errorMessage", "CV上传失败，请检查文件格式（支持PDF、DOC、DOCX�?);
+                        request.setAttribute("errorMessage", "CV上传失败，请检查文件格式（支持PDF、DOC、DOCX）");
                         request.setAttribute("user", currentUser);
                         String profilePage = getProfilePage(currentUser);
                         request.getRequestDispatcher(profilePage).forward(request, response);
@@ -198,13 +198,13 @@ public class ProfileServlet extends HttpServlet {
             request.setAttribute("successMessage", "个人资料更新成功");
             request.setAttribute("user", user);
             
-            // 转发回个人资料页�?
+            // 转发回个人资料页面
             String profilePage = getProfilePage(user);
             request.getRequestDispatcher(profilePage).forward(request, response);
             
         } catch (IOException e) {
             // 数据访问错误
-            request.setAttribute("errorMessage", "更新失败�? + e.getMessage());
+            request.setAttribute("errorMessage", "更新失败：" + e.getMessage());
             HttpSession session = request.getSession(false);
             User currentUser = (User) session.getAttribute("user");
             request.setAttribute("user", currentUser);
@@ -214,7 +214,7 @@ public class ProfileServlet extends HttpServlet {
     }
     
     /**
-     * 根据用户角色获取对应的个人资料页�?
+     * 根据用户角色获取对应的个人资料页面
      * 
      * @param user 用户对象
      * @return 个人资料页面路径
@@ -241,7 +241,7 @@ public class ProfileServlet extends HttpServlet {
      */
     private String handleCVUpload(Part cvPart, String userId) {
         try {
-            // 获取文件�?
+            // 获取文件名
             String fileName = getFileName(cvPart);
             if (fileName == null || fileName.isEmpty()) {
                 return null;
@@ -295,7 +295,7 @@ public class ProfileServlet extends HttpServlet {
     }
     
     /**
-     * 获取文件扩展�?
+     * 获取文件扩展名
      */
     private String getFileExtension(String fileName) {
         int lastDotIndex = fileName.lastIndexOf('.');

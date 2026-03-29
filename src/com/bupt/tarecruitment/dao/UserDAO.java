@@ -24,7 +24,7 @@ public class UserDAO implements CSVDataStore<User> {
     private List<User> users;
     
     /**
-     * 构造函�?- 初始化时加载数据
+     * 构造函数 - 初始化时加载数据
      */
     public UserDAO() {
         try {
@@ -35,14 +35,14 @@ public class UserDAO implements CSVDataStore<User> {
     }
     
     /**
-     * 从CSV文件加载所有用�?
+     * 从CSV文件加载所有用户
      */
     @Override
     public List<User> loadAll() throws IOException {
         List<User> userList = new ArrayList<>();
         File file = new File(FILE_PATH);
         
-        // 如果文件不存在，创建带标题的空文�?
+        // 如果文件不存在，创建带标题的空文件
         if (!file.exists()) {
             file.getParentFile().mkdirs();
             try (BufferedWriter writer = new BufferedWriter(
@@ -56,7 +56,7 @@ public class UserDAO implements CSVDataStore<User> {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             
-            String line = reader.readLine(); // 跳过标题�?
+            String line = reader.readLine(); // 跳过标题行
             
             while ((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty()) {
@@ -97,7 +97,7 @@ public class UserDAO implements CSVDataStore<User> {
     }
     
     /**
-     * 添加新用�?
+     * 添加新用户
      */
     @Override
     public void add(User item) throws IOException {
@@ -178,7 +178,7 @@ public class UserDAO implements CSVDataStore<User> {
     }
     
     /**
-     * 从CSV行解析用户对�?
+     * 从CSV行解析用户对象
      */
     private User parseUserFromCSV(String line) {
         try {
@@ -194,7 +194,7 @@ public class UserDAO implements CSVDataStore<User> {
             user.setPassword(parts[3]);
             user.setRole(UserRole.valueOf(parts[4]));
             user.setSkills(parts[5]);
-            // 兼容旧数据：如果有第7个字段（cvPath），则读�?
+            // 兼容旧数据：如果有第7个字段（cvPath），则读取
             if (parts.length >= 8) {
                 user.setCvPath(parts[6]);
                 user.setCreatedAt(DATE_FORMAT.parse(parts[7]));
@@ -210,7 +210,7 @@ public class UserDAO implements CSVDataStore<User> {
     }
     
     /**
-     * 将用户对象格式化为CSV�?
+     * 将用户对象格式化为CSV行
      */
     private String formatUserToCSV(User user) {
         return escapeCSV(user.getUserId()) + "," +

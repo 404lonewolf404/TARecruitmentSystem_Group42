@@ -1,11 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruitment.model.User" %>
+<%@ page import="java.util.Map" %>
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
     }
+    
+    @SuppressWarnings("unchecked")
+    Map<String, Object> stats = (Map<String, Object>) request.getAttribute("stats");
 %>
 <!DOCTYPE html>
 <html>
@@ -33,6 +37,27 @@
             <h2>欢迎，<%= currentUser.getName() %>！</h2>
             <p>您已登录为系统管理员（Admin）。</p>
         </div>
+        
+        <% if (stats != null) { %>
+        <div class="stats-container">
+            <div class="stat-card total">
+                <div class="stat-number"><%= stats.get("totalUsers") %></div>
+                <div class="stat-label">总用户</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><%= stats.get("totalPositions") %></div>
+                <div class="stat-label">总职位</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><%= stats.get("totalApplications") %></div>
+                <div class="stat-label">总申请</div>
+            </div>
+            <div class="stat-card hours">
+                <div class="stat-number"><%= stats.get("avgHours") %></div>
+                <div class="stat-label">平均工时</div>
+            </div>
+        </div>
+        <% } %>
         
         <div class="dashboard">
             <div class="dashboard-card">

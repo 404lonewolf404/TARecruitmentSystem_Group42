@@ -23,7 +23,7 @@ public class WorkloadService {
     private UserDAO userDAO;
     
     /**
-     * 构造函�?
+     * 构造函数
      */
     public WorkloadService() {
         this.applicationDAO = new ApplicationDAO();
@@ -33,20 +33,20 @@ public class WorkloadService {
     
     /**
      * 计算所有TA的工作量
-     * 只计算状态为SELECTED的申�?
+     * 只计算状态为SELECTED的申请
      * 
-     * @return Map<User, Integer> 每个TA及其总工�?
+     * @return Map<User, Integer> 每个TA及其总工时
      */
     public Map<User, Integer> calculateAllWorkloads() {
         Map<User, Integer> workloads = new HashMap<>();
         
         try {
-            // 获取所有申�?
+            // 获取所有申请
             List<Application> allApplications = applicationDAO.loadAll();
             
-            // 遍历所有申�?
+            // 遍历所有申请
             for (Application application : allApplications) {
-                // 只处理状态为SELECTED的申�?
+                // 只处理状态为SELECTED的申请
                 if (application.getStatus() == ApplicationStatus.SELECTED) {
                     // 获取TA用户
                     User ta = userDAO.findById(application.getTaId());

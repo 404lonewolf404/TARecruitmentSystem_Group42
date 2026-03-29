@@ -59,23 +59,23 @@ public class CVServlet extends HttpServlet {
             // 通过applicationId下载
             Application application = applicationDAO.findById(applicationId.trim());
             if (application == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "申请不存�?);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "申请不存在");
                 return;
             }
             
             // 检查权限：只有MO可以通过applicationId下载
             boolean isMO = currentUser.getRole().toString().equals("MO");
             if (!isMO) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "您没有权限下载此简�?);
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "您没有权限下载此简历");
                 return;
             }
             
-            // 获取申请中的简历路�?
+            // 获取申请中的简历路径
             cvPath = application.getResumePath();
             targetUserId = application.getTaId();
             
             if (cvPath == null || cvPath.trim().isEmpty()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "该申请未关联简�?);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "该申请未关联简历");
                 return;
             }
             
@@ -83,25 +83,25 @@ public class CVServlet extends HttpServlet {
             // 通过userId下载
             User targetUser = userDAO.findById(userId.trim());
             if (targetUser == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "用户不存�?);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "用户不存在");
                 return;
             }
             
-            // 检查权限：只有本人或MO可以下载简�?
+            // 检查权限：只有本人或MO可以下载简历
             boolean isOwner = currentUser.getUserId().equals(targetUser.getUserId());
             boolean isMO = currentUser.getRole().toString().equals("MO");
             
             if (!isOwner && !isMO) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "您没有权限下载此简�?);
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "您没有权限下载此简历");
                 return;
             }
             
-            // 检查用户是否有简�?
+            // 检查用户是否有简历
             cvPath = targetUser.getCvPath();
             targetUserId = targetUser.getUserId();
             
             if (cvPath == null || cvPath.trim().isEmpty()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "该用户未上传简�?);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "该用户未上传简历");
                 return;
             }
             
@@ -110,7 +110,7 @@ public class CVServlet extends HttpServlet {
             return;
         }
         
-        // 构建完整的文件路�?
+        // 构建完整的文件路径
         String fullPath = "webapps/TARecruitmentSystem/" + cvPath;
         File cvFile = new File(fullPath);
         
@@ -119,7 +119,7 @@ public class CVServlet extends HttpServlet {
             return;
         }
         
-        // 设置响应�?
+        // 设置响应头
         String fileName = cvFile.getName();
         String mimeType = getServletContext().getMimeType(fileName);
         if (mimeType == null) {
@@ -130,7 +130,7 @@ public class CVServlet extends HttpServlet {
         response.setContentLength((int) cvFile.length());
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
         
-        // 读取文件并写入响�?
+        // 读取文件并写入响应
         try (FileInputStream fis = new FileInputStream(cvFile);
              OutputStream os = response.getOutputStream()) {
             
