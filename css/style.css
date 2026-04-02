@@ -748,3 +748,43 @@ textarea:focus {
         justify-content: space-between;
     }
 }
+
+/* 密码强度样式 */
+.password-strength {
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+.strength-very-weak {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.strength-weak {
+    color: #fd7e14;
+    font-weight: bold;
+}
+
+.strength-medium {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.strength-strong {
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* 验证错误样式 */
+.validation-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.form-group.error input,
+.form-group.error textarea,
+.form-group.error select {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
