@@ -51,6 +51,57 @@
     <div class="container">
         <h2>可申请的职位</h2>
         
+        <!-- 搜索面板 -->
+        <div class="search-panel">
+            <form method="get" action="<%= request.getContextPath() %>/ta/positions">
+                <div class="search-row">
+                    <input type="text" name="keyword" value="<%= request.getAttribute("keyword") != null ? request.getAttribute("keyword") : "" %>" 
+                           placeholder="搜索职位标题、描述或要求..." class="search-input">
+                    <button type="submit" class="btn btn-primary">搜索</button>
+                </div>
+                
+                <div class="filter-row">
+                    <label>
+                        工时范围: 
+                        <input type="number" name="minHours" value="<%= request.getAttribute("minHours") != null ? request.getAttribute("minHours") : "" %>" 
+                               min="0" max="40" placeholder="最少"> - 
+                        <input type="number" name="maxHours" value="<%= request.getAttribute("maxHours") != null ? request.getAttribute("maxHours") : "" %>" 
+                               min="0" max="40" placeholder="最多">
+                    </label>
+                    
+                    <label>
+                        排序: 
+                        <select name="sortBy">
+                            <option value="newest" <%= "newest".equals(request.getAttribute("sortBy")) ? "selected" : "" %>>最新发布</option>
+                            <option value="hours_asc" <%= "hours_asc".equals(request.getAttribute("sortBy")) ? "selected" : "" %>>工时从低到高</option>
+                            <option value="hours_desc" <%= "hours_desc".equals(request.getAttribute("sortBy")) ? "selected" : "" %>>工时从高到低</option>
+                        </select>
+                    </label>
+                    
+                    <a href="<%= request.getContextPath() %>/ta/positions" class="btn btn-secondary">清除</a>
+                </div>
+            </form>
+            
+            <% 
+            String keyword = (String) request.getAttribute("keyword");
+            Integer minHours = (Integer) request.getAttribute("minHours");
+            Integer maxHours = (Integer) request.getAttribute("maxHours");
+            boolean hasFilters = (keyword != null && !keyword.trim().isEmpty()) || minHours != null || maxHours != null;
+            
+            if (hasFilters && positions != null) { 
+            %>
+                <p class="search-result">
+                    找到 <%= positions.size() %> 个职位
+                    <% if (keyword != null && !keyword.trim().isEmpty()) { %>
+                        (关键词: "<%= keyword %>")
+                    <% } %>
+                    <% if (minHours != null || maxHours != null) { %>
+                        (工时: <%= minHours != null ? minHours : "0" %>-<%= maxHours != null ? maxHours : "∞" %>)
+                    <% } %>
+                </p>
+            <% } %>
+        </div>
+        
         <% if (errorMessage != null && !errorMessage.isEmpty()) { %>
             <div class="alert alert-error">
                 <%= errorMessage %>
@@ -78,6 +129,7 @@
                     
                     <div style="margin: 15px 0;">
                         <p><strong>工作时长：</strong> <%= position.getHours() %> 小时/周</p>
+                        <p><strong>招聘名额：</strong> <%= position.getMaxPositions() %> 人</p>
                         <p><strong>状态：</strong> 
                             <span class="badge badge-<%= position.getStatus().toString().toLowerCase() %>">
                                 <%= position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.OPEN ? "开放" : "关闭" %>
@@ -93,13 +145,85 @@
                             已申请
                         </button>
                     <% } else { %>
-                        <form action="<%= request.getContextPath() %>/ta/applications/apply" method="post" style="display: inline;">
+                        <form action="<%= request.getContextPath() %>/ta/applications/apply" method="post" enctype="multipart/form-data" style="margin-top: 15px;">
                             <input type="hidden" name="positionId" value="<%= position.getPositionId() %>">
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">选择简历：</label>
+                                
+                                <div style="margin-bottom: 10px;">
+                                    <label style="display: block; cursor: pointer;">
+                                        <input type="radio" name="resumeChoice" value="existing" checked onchange="toggleResumeUpload(this)">
+                                        使用已上传的简历
+                                        <% if (currentUser.getCvPath() == null || currentUser.getCvPath().trim().isEmpty()) { %>
+                                            <span style="color: #e74c3c; font-size: 0.9em;">(您还没有上传简历)</span>
+                                        <% } %>
+                                    </label>
+                                </div>
+                                
+                                <div style="margin-bottom: 10px;">
+                                    <label style="display: block; cursor: pointer;">
+                                        <input type="radio" name="resumeChoice" value="new" onchange="toggleResumeUpload(this)">
+                                        上传新简历
+                                    </label>
+                                </div>
+                                
+                                <div id="newResumeUpload_<%= position.getPositionId() %>" style="display: none; margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                                    <label style="display: block; margin-bottom: 5px;">选择PDF文件：</label>
+                                    <input type="file" name="newResume" accept=".pdf" style="display: block;">
+                                    <small style="color: #666; display: block; margin-top: 5px;">仅支持PDF格式，最大10MB</small>
+                                </div>
+                            </div>
+                            
                             <button type="submit" class="btn btn-success" 
-                                    onclick="return confirm('确定要申请这个职位吗？');">
+                                    onclick="return validateResumeSelection(this.form);">
                                 申请此职位
                             </button>
                         </form>
+                        
+                        <script>
+                        function toggleResumeUpload(radio) {
+                            var form = radio.form;
+                            var positionId = form.querySelector('input[name="positionId"]').value;
+                            var uploadDiv = document.getElementById('newResumeUpload_' + positionId);
+                            
+                            if (radio.value === 'new') {
+                                uploadDiv.style.display = 'block';
+                            } else {
+                                uploadDiv.style.display = 'none';
+                            }
+                        }
+                        
+                        function validateResumeSelection(form) {
+                            var resumeChoice = form.querySelector('input[name="resumeChoice"]:checked').value;
+                            
+                            if (resumeChoice === 'existing') {
+                                <% if (currentUser.getCvPath() == null || currentUser.getCvPath().trim().isEmpty()) { %>
+                                    alert('您还没有上传简历，请先在个人资料中上传简历或选择上传新简历');
+                                    return false;
+                                <% } %>
+                            } else if (resumeChoice === 'new') {
+                                var fileInput = form.querySelector('input[name="newResume"]');
+                                if (!fileInput.files || fileInput.files.length === 0) {
+                                    alert('请选择要上传的简历文件');
+                                    return false;
+                                }
+                                
+                                var file = fileInput.files[0];
+                                if (!file.name.toLowerCase().endsWith('.pdf')) {
+                                    alert('只支持PDF格式的简历文件');
+                                    return false;
+                                }
+                                
+                                if (file.size > 10 * 1024 * 1024) {
+                                    alert('文件大小不能超过10MB');
+                                    return false;
+                                }
+                            }
+                            
+                            return confirm('确定要申请这个职位吗？');
+                        }
+                        </script>
                     <% } %>
                 </div>
             <% } %>

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class ApplicationDAO implements CSVDataStore<Application> {
     
     private static final String FILE_PATH = "webapps/TARecruitmentSystem/data/applications.csv";
-    private static final String HEADER = "applicationId,taId,positionId,status,appliedAt";
+    private static final String HEADER = "applicationId,taId,positionId,status,appliedAt,resumePath";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     
     private List<Application> applications;
@@ -235,6 +235,11 @@ public class ApplicationDAO implements CSVDataStore<Application> {
             application.setStatus(ApplicationStatus.valueOf(parts[3]));
             application.setAppliedAt(DATE_FORMAT.parse(parts[4]));
             
+            // 处理resumePath字段（可能不存在于旧数据）
+            if (parts.length >= 6) {
+                application.setResumePath(parts[5]);
+            }
+            
             return application;
         } catch (ParseException | IllegalArgumentException e) {
             return null;
@@ -249,7 +254,8 @@ public class ApplicationDAO implements CSVDataStore<Application> {
                escapeCSV(application.getTaId()) + "," +
                escapeCSV(application.getPositionId()) + "," +
                escapeCSV(application.getStatus().toString()) + "," +
-               escapeCSV(DATE_FORMAT.format(application.getAppliedAt()));
+               escapeCSV(DATE_FORMAT.format(application.getAppliedAt())) + "," +
+               escapeCSV(application.getResumePath() != null ? application.getResumePath() : "");
     }
     
     /**
