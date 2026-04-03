@@ -51,6 +51,26 @@
                     <p><strong>描述：</strong><%= position.getDescription() %></p>
                     <p><strong>工作时长：</strong><%= position.getHours() %> 小时/周</p>
                 </div>
+                
+                <!-- 状态过滤按钮 -->
+                <div class="filter-tabs">
+                    <a href="?positionId=<%= position.getPositionId() %>&status=all" 
+                       class="filter-tab <%= "all".equals(request.getAttribute("statusFilter")) || request.getAttribute("statusFilter") == null ? "active" : "" %>">
+                        全部
+                    </a>
+                    <a href="?positionId=<%= position.getPositionId() %>&status=pending" 
+                       class="filter-tab <%= "pending".equals(request.getAttribute("statusFilter")) ? "active" : "" %>">
+                        待处理
+                    </a>
+                    <a href="?positionId=<%= position.getPositionId() %>&status=selected" 
+                       class="filter-tab <%= "selected".equals(request.getAttribute("statusFilter")) ? "active" : "" %>">
+                        已选中
+                    </a>
+                    <a href="?positionId=<%= position.getPositionId() %>&status=rejected" 
+                       class="filter-tab <%= "rejected".equals(request.getAttribute("statusFilter")) ? "active" : "" %>">
+                        已拒绝
+                    </a>
+                </div>
             <% } %>
         </div>
         
