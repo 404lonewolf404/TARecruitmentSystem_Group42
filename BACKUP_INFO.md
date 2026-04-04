@@ -1,21 +1,21 @@
-﻿# V2.1 Dashboard统计卡片
+﻿# V2.2 职位搜索功能
 
 ## 功能说明
-为各角色Dashboard添加统计卡片，直观显示关键数据�?
+为TA浏览职位页面添加搜索和过滤功能�?
 
 ## 主要更新
-- TA Dashboard：我的申请、待审核、已选中、当前工�?
-- MO Dashboard：我的职位、开放职位、收到申请、待处理
-- Admin Dashboard：基础统计信息
-- 新增StatisticsService服务�?
-- 统计卡片CSS样式
+- 关键词搜索（标题、描述、要求）
+- 工时范围过滤
+- 排序功能（最新发布、工时从低到高、工时从高到低）
+- 显示搜索结果数量
+- 清除过滤按钮
 
 ## 修改文件
-- 新增：StatisticsService.java
-- 修改：DashboardServlet.java, dashboard.jsp (3个版�?
+- 新增：SearchService.java
+- 修改：PositionServlet.java, ta/positions.jsp
 - 修改：style.css
 
 ## 技术要�?
-- 实时统计数据
-- 卡片式布局
-- 响应式设�?
+- 多条件组合搜�?
+- 实时结果统计
+- URL参数保持
