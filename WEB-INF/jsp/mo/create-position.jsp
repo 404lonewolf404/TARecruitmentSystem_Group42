@@ -86,6 +86,19 @@
                     <small>请输入每周工作小时数（1-40小时）</small>
                 </div>
                 
+                <div class="form-group">
+                    <label for="maxPositions">招聘名额 <span class="required">*</span></label>
+                    <input type="number" 
+                           id="maxPositions" 
+                           name="maxPositions" 
+                           required 
+                           min="1" 
+                           max="100"
+                           placeholder="例如：2"
+                           value="<%= request.getParameter("maxPositions") != null ? request.getParameter("maxPositions") : "1" %>">
+                    <small>请输入需要招聘的TA数量（1-100人）</small>
+                </div>
+                
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">创建职位</button>
                     <a href="<%= request.getContextPath() %>/mo/positions/my" class="btn btn-secondary">取消</a>

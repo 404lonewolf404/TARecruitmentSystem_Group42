@@ -2,7 +2,7 @@ package com.bupt.tarecruitment.model;
 
 /**
  * 用户角色枚举
- * 定义系统中的两种用户角色
+ * 定义系统中的三种用户角色
  */
 public enum UserRole {
     /**
@@ -13,5 +13,10 @@ public enum UserRole {
     /**
      * 模块组织者 - 发布TA职位并选择申请者的教师
      */
-    MO
+    MO,
+    
+    /**
+     * 管理员 - 监控整体TA工作量的系统管理员
+     */
+    ADMIN
 }

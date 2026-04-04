@@ -36,12 +36,13 @@ public class PositionService {
      * @param description 职位描述
      * @param requirements 职位要求
      * @param hours 工作时长（小时/周）
+     * @param maxPositions 招聘名额
      * @return 创建的职位对象
      * @throws IllegalArgumentException 如果参数无效
      * @throws IOException 如果数据保存失败
      */
     public Position createPosition(String moId, String title, String description, 
-                                   String requirements, int hours) 
+                                   String requirements, int hours, int maxPositions) 
             throws IllegalArgumentException, IOException {
         
         // 验证必填字段
@@ -61,6 +62,10 @@ public class PositionService {
             throw new IllegalArgumentException("工作时长必须大于0");
         }
         
+        if (maxPositions <= 0) {
+            throw new IllegalArgumentException("招聘名额必须大于0");
+        }
+        
         // 创建新职位
         Position position = new Position();
         position.setPositionId(UUID.randomUUID().toString());
@@ -69,6 +74,7 @@ public class PositionService {
         position.setDescription(description.trim());
         position.setRequirements(requirements != null ? requirements.trim() : "");
         position.setHours(hours);
+        position.setMaxPositions(maxPositions);
         position.setStatus(PositionStatus.OPEN);
         position.setCreatedAt(new Date());
         
