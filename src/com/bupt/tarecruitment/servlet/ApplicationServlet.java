@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 申请Servlet
@@ -416,9 +417,26 @@ public class ApplicationServlet extends HttpServlet {
             // 获取该职位的所有申请
             List<Application> applications = applicationService.getApplicationsByPosition(positionId.trim());
             
-            // 将职位和申请列表设置到request中
+            // 获取状态过滤参数
+            String statusFilter = request.getParameter("status");
+            
+            // 状态过滤
+            if (statusFilter != null && !statusFilter.equals("all") && !statusFilter.isEmpty()) {
+                try {
+                    com.bupt.tarecruitment.model.ApplicationStatus filterStatus = 
+                        com.bupt.tarecruitment.model.ApplicationStatus.valueOf(statusFilter.toUpperCase());
+                    applications = applications.stream()
+                        .filter(app -> app.getStatus() == filterStatus)
+                        .collect(java.util.stream.Collectors.toList());
+                } catch (IllegalArgumentException e) {
+                    // 无效的状态值，忽略过滤
+                }
+            }
+            
+            // 将职位、申请列表和过滤状态设置到request中
             request.setAttribute("position", position);
             request.setAttribute("applications", applications);
+            request.setAttribute("statusFilter", statusFilter != null ? statusFilter : "all");
             
             // 转发到MO申请页面
             request.getRequestDispatcher("/WEB-INF/jsp/mo/applications.jsp").forward(request, response);
