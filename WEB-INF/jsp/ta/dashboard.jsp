@@ -1,11 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruitment.model.User" %>
+<%@ page import="java.util.Map" %>
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
     }
+    
+    @SuppressWarnings("unchecked")
+    Map<String, Integer> stats = (Map<String, Integer>) request.getAttribute("stats");
 %>
 <!DOCTYPE html>
 <html>
@@ -35,6 +39,27 @@
             <h2>欢迎，<%= currentUser.getName() %>！</h2>
             <p>您已登录为助教（TA）。</p>
         </div>
+        
+        <% if (stats != null) { %>
+        <div class="stats-container">
+            <div class="stat-card total">
+                <div class="stat-number"><%= stats.get("total") %></div>
+                <div class="stat-label">我的申请</div>
+            </div>
+            <div class="stat-card pending">
+                <div class="stat-number"><%= stats.get("pending") %></div>
+                <div class="stat-label">待审核</div>
+            </div>
+            <div class="stat-card selected">
+                <div class="stat-number"><%= stats.get("selected") %></div>
+                <div class="stat-label">已选中</div>
+            </div>
+            <div class="stat-card hours">
+                <div class="stat-number"><%= stats.get("hours") %></div>
+                <div class="stat-label">当前工时</div>
+            </div>
+        </div>
+        <% } %>
         
         <div class="dashboard">
             <div class="dashboard-card">
