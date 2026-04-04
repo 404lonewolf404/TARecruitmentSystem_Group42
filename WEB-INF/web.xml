@@ -192,13 +192,13 @@
     </servlet-mapping>
     
     <servlet-mapping>
-        <servlet-name>AdminServlet</servlet-name>
-        <url-pattern>/admin/*</url-pattern>
+        <servlet-name>DashboardServlet</servlet-name>
+        <url-pattern>/admin/dashboard</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
-        <servlet-name>DashboardServlet</servlet-name>
-        <url-pattern>/admin/dashboard</url-pattern>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/admin/*</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
