@@ -18,7 +18,7 @@ import java.util.List;
 public class UserDAO implements CSVDataStore<User> {
     
     private static final String FILE_PATH = "webapps/TARecruitmentSystem/data/users.csv";
-    private static final String HEADER = "userId,name,email,password,role,createdAt";
+    private static final String HEADER = "userId,name,email,password,role,skills,cvPath,createdAt";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     
     private List<User> users;
@@ -183,7 +183,7 @@ public class UserDAO implements CSVDataStore<User> {
     private User parseUserFromCSV(String line) {
         try {
             String[] parts = splitCSVLine(line);
-            if (parts.length < 6) {
+            if (parts.length < 7) {
                 return null;
             }
             
@@ -193,7 +193,15 @@ public class UserDAO implements CSVDataStore<User> {
             user.setEmail(parts[2]);
             user.setPassword(parts[3]);
             user.setRole(UserRole.valueOf(parts[4]));
-            user.setCreatedAt(DATE_FORMAT.parse(parts[5]));
+            user.setSkills(parts[5]);
+            // 兼容旧数据：如果有第7个字段（cvPath），则读取
+            if (parts.length >= 8) {
+                user.setCvPath(parts[6]);
+                user.setCreatedAt(DATE_FORMAT.parse(parts[7]));
+            } else {
+                user.setCvPath(null);
+                user.setCreatedAt(DATE_FORMAT.parse(parts[6]));
+            }
             
             return user;
         } catch (ParseException | IllegalArgumentException e) {
@@ -210,6 +218,8 @@ public class UserDAO implements CSVDataStore<User> {
                escapeCSV(user.getEmail()) + "," +
                escapeCSV(user.getPassword()) + "," +
                escapeCSV(user.getRole().toString()) + "," +
+               escapeCSV(user.getSkills() != null ? user.getSkills() : "") + "," +
+               escapeCSV(user.getCvPath() != null ? user.getCvPath() : "") + "," +
                escapeCSV(DATE_FORMAT.format(user.getCreatedAt()));
     }
     

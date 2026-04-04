@@ -4,6 +4,7 @@ import com.bupt.tarecruitment.model.Position;
 import com.bupt.tarecruitment.model.User;
 import com.bupt.tarecruitment.model.UserRole;
 import com.bupt.tarecruitment.service.PositionService;
+import com.bupt.tarecruitment.service.SearchService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,12 +23,14 @@ public class PositionServlet extends HttpServlet {
     
     private PositionService positionService;
     private com.bupt.tarecruitment.service.ApplicationService applicationService;
+    private SearchService searchService;
     
     @Override
     public void init() throws ServletException {
         super.init();
         this.positionService = new PositionService();
         this.applicationService = new com.bupt.tarecruitment.service.ApplicationService();
+        this.searchService = new SearchService();
     }
     
     @Override
@@ -109,8 +112,56 @@ public class PositionServlet extends HttpServlet {
                 return;
             }
             
-            // 获取所有开放职位
-            List<Position> positions = positionService.getAllOpenPositions();
+            // 获取搜索参数
+            String keyword = request.getParameter("keyword");
+            String minHoursStr = request.getParameter("minHours");
+            String maxHoursStr = request.getParameter("maxHours");
+            String sortBy = request.getParameter("sortBy");
+            
+            // 调试信息
+            System.out.println("=== Search Parameters ===");
+            System.out.println("keyword: " + keyword);
+            System.out.println("minHoursStr: " + minHoursStr);
+            System.out.println("maxHoursStr: " + maxHoursStr);
+            System.out.println("sortBy: " + sortBy);
+            
+            Integer minHours = null;
+            Integer maxHours = null;
+            
+            try {
+                if (minHoursStr != null && !minHoursStr.trim().isEmpty()) {
+                    minHours = Integer.parseInt(minHoursStr.trim());
+                }
+                if (maxHoursStr != null && !maxHoursStr.trim().isEmpty()) {
+                    maxHours = Integer.parseInt(maxHoursStr.trim());
+                }
+            } catch (NumberFormatException e) {
+                // 忽略无效的数字输入
+            }
+            
+            // 使用搜索服务获取职位
+            List<Position> positions;
+            boolean hasSearchCriteria = (keyword != null && !keyword.trim().isEmpty()) || 
+                                      minHours != null || maxHours != null || 
+                                      (sortBy != null && !sortBy.equals("newest"));
+            
+            System.out.println("hasSearchCriteria: " + hasSearchCriteria);
+            
+            if (hasSearchCriteria) {
+                System.out.println("Using SearchService...");
+                positions = searchService.searchPositions(keyword, minHours, maxHours, sortBy);
+                System.out.println("SearchService returned " + positions.size() + " positions");
+            } else {
+                System.out.println("Using PositionService...");
+                positions = positionService.getAllOpenPositions();
+                System.out.println("PositionService returned " + positions.size() + " positions");
+            }
+            
+            // 设置搜索参数到request中，用于表单回显
+            request.setAttribute("keyword", keyword);
+            request.setAttribute("minHours", minHours);
+            request.setAttribute("maxHours", maxHours);
+            request.setAttribute("sortBy", sortBy);
             
             // 如果是 TA 用户，获取已申请的职位 ID 列表
             if (currentUser.getRole() == UserRole.TA) {
@@ -170,8 +221,38 @@ public class PositionServlet extends HttpServlet {
             // 获取该MO创建的所有职位
             List<Position> positions = positionService.getPositionsByMO(currentUser.getUserId());
             
-            // 将职位列表设置到request中
+            // 为每个职位查找被选中的TA
+            java.util.Map<String, com.bupt.tarecruitment.model.Application> selectedApplications = 
+                new java.util.HashMap<>();
+            
+            System.out.println("=== Checking selected TAs for positions ===");
+            for (Position position : positions) {
+                System.out.println("Position: " + position.getPositionId() + " - " + position.getTitle());
+                List<com.bupt.tarecruitment.model.Application> applications = 
+                    applicationService.getApplicationsByPosition(position.getPositionId());
+                
+                System.out.println("  Found " + applications.size() + " applications");
+                
+                // 查找状态为SELECTED的申请
+                for (com.bupt.tarecruitment.model.Application app : applications) {
+                    System.out.println("  Application: " + app.getApplicationId() + " - Status: " + app.getStatus());
+                    if (app.getStatus() == com.bupt.tarecruitment.model.ApplicationStatus.SELECTED) {
+                        System.out.println("  -> SELECTED application found!");
+                        selectedApplications.put(position.getPositionId(), app);
+                        break;
+                    }
+                }
+                
+                if (!selectedApplications.containsKey(position.getPositionId())) {
+                    System.out.println("  -> No SELECTED application for this position");
+                }
+            }
+            
+            System.out.println("Total selected applications: " + selectedApplications.size());
+            
+            // 将职位列表和选中的申请映射设置到request中
             request.setAttribute("positions", positions);
+            request.setAttribute("selectedApplications", selectedApplications);
             
             // 转发到MO职位页面
             request.getRequestDispatcher("/WEB-INF/jsp/mo/positions.jsp").forward(request, response);
@@ -215,6 +296,7 @@ public class PositionServlet extends HttpServlet {
             String description = request.getParameter("description");
             String requirements = request.getParameter("requirements");
             String hoursStr = request.getParameter("hours");
+            String maxPositionsStr = request.getParameter("maxPositions");
             
             // 验证必填字段不为空
             if (title == null || title.trim().isEmpty()) {
@@ -235,6 +317,12 @@ public class PositionServlet extends HttpServlet {
                 return;
             }
             
+            if (maxPositionsStr == null || maxPositionsStr.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "招聘名额不能为空");
+                request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
+                return;
+            }
+            
             // 解析工作时长
             int hours;
             try {
@@ -250,13 +338,29 @@ public class PositionServlet extends HttpServlet {
                 return;
             }
             
+            // 解析招聘名额
+            int maxPositions;
+            try {
+                maxPositions = Integer.parseInt(maxPositionsStr.trim());
+                if (maxPositions <= 0) {
+                    request.setAttribute("errorMessage", "招聘名额必须大于0");
+                    request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorMessage", "招聘名额必须是有效的数字");
+                request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
+                return;
+            }
+            
             // 调用服务层创建职位
             Position position = positionService.createPosition(
                 currentUser.getUserId(),
                 title,
                 description,
                 requirements,
-                hours
+                hours,
+                maxPositions
             );
             
             // 创建成功，重定向到我的职位页面

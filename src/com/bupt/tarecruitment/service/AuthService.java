@@ -33,11 +33,12 @@ public class AuthService {
      * @param email 用户邮箱
      * @param password 用户密码（明文）
      * @param role 用户角色
+     * @param skills 用户技能（可选，仅TA使用）
      * @return 注册成功的用户对象
      * @throws IllegalArgumentException 如果邮箱已存在或参数无效
      * @throws IOException 如果数据保存失败
      */
-    public User register(String name, String email, String password, UserRole role) 
+    public User register(String name, String email, String password, UserRole role, String skills) 
             throws IllegalArgumentException, IOException {
         
         // 验证必填字段
@@ -69,6 +70,7 @@ public class AuthService {
         user.setEmail(email.trim());
         user.setPassword(hashPassword(password));
         user.setRole(role);
+        user.setSkills(skills != null ? skills.trim() : "");
         user.setCreatedAt(new Date());
         
         // 保存用户

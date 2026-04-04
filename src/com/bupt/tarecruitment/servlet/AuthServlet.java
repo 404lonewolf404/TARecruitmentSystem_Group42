@@ -3,6 +3,7 @@ package com.bupt.tarecruitment.servlet;
 import com.bupt.tarecruitment.model.User;
 import com.bupt.tarecruitment.model.UserRole;
 import com.bupt.tarecruitment.service.AuthService;
+import com.bupt.tarecruitment.util.ValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -94,12 +95,38 @@ public class AuthServlet extends HttpServlet {
             String email = request.getParameter("email");
             String password = request.getParameter("password");
             String roleStr = request.getParameter("role");
+            String skills = request.getParameter("skills");
             
             // 验证必填参数
             if (name == null || email == null || password == null || roleStr == null) {
                 request.setAttribute("errorMessage", "请填写所有必填字段");
                 request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
                 return;
+            }
+            
+            // 数据验证
+            if (!ValidationUtil.isValidLength(name, 2, 50)) {
+                request.setAttribute("errorMessage", "姓名长度必须在2-50个字符之间");
+                request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+                return;
+            }
+            
+            if (!ValidationUtil.isValidEmail(email)) {
+                request.setAttribute("errorMessage", "请输入有效的邮箱地址");
+                request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+                return;
+            }
+            
+            if (!ValidationUtil.isStrongPassword(password)) {
+                request.setAttribute("errorMessage", "密码必须至少8位，包含字母和数字");
+                request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+                return;
+            }
+            
+            // XSS防护
+            name = ValidationUtil.escapeHtml(name);
+            if (skills != null) {
+                skills = ValidationUtil.escapeHtml(skills);
             }
             
             // 解析角色
@@ -113,7 +140,7 @@ public class AuthServlet extends HttpServlet {
             }
             
             // 调用服务层进行注册
-            User user = authService.register(name, email, password, role);
+            User user = authService.register(name, email, password, role, skills);
             
             // 注册成功，重定向到登录页面
             request.setAttribute("successMessage", "注册成功！请登录");
@@ -149,6 +176,13 @@ public class AuthServlet extends HttpServlet {
                 return;
             }
             
+            // 邮箱格式验证
+            if (!ValidationUtil.isValidEmail(email)) {
+                request.setAttribute("errorMessage", "请输入有效的邮箱地址");
+                request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
+                return;
+            }
+            
             // 调用服务层进行登录验证
             User user = authService.login(email, password);
             
@@ -156,7 +190,9 @@ public class AuthServlet extends HttpServlet {
             HttpSession session = request.getSession(true);
             session.setAttribute("user", user);
             
-            
+            // 根据用户角色重定向到相应的dashboard
+            String redirectUrl = getDashboardUrl(user.getRole());
+            response.sendRedirect(request.getContextPath() + redirectUrl);
             
         } catch (IllegalArgumentException e) {
             // 登录失败（凭证错误）
@@ -180,5 +216,23 @@ public class AuthServlet extends HttpServlet {
         // 重定向到登录页面
         response.sendRedirect(request.getContextPath() + "/auth/login");
     }
-} 
-   
+    
+    /**
+     * 根据用户角色获取对应的dashboard URL
+     * 
+     * @param role 用户角色
+     * @return dashboard URL
+     */
+    private String getDashboardUrl(UserRole role) {
+        switch (role) {
+            case TA:
+                return "/ta/dashboard";
+            case MO:
+                return "/mo/dashboard";
+            case ADMIN:
+                return "/admin/dashboard";
+            default:
+                return "/auth/login";
+        }
+    }
+}
