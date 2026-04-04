@@ -46,15 +46,17 @@
                 <div class="form-group">
                     <label for="password">密码：<span class="required">*</span></label>
                     <input type="password" id="password" name="password" required 
-                           placeholder="请输入密码（至少6位）"
-                           minlength="6">
+                           placeholder="请输入密码（至少8位，包含字母和数字）"
+                           minlength="8">
+                    <div id="password-strength" class="password-strength"></div>
+                    <small>密码必须至少8位，包含字母和数字</small>
                 </div>
                 
                 <div class="form-group">
                     <label for="confirmPassword">确认密码：<span class="required">*</span></label>
                     <input type="password" id="confirmPassword" name="confirmPassword" required 
                            placeholder="请再次输入密码"
-                           minlength="6">
+                           minlength="8">
                 </div>
                 
                 <div class="form-group">
@@ -87,11 +89,81 @@
     
     <script src="<%= request.getContextPath() %>/js/main.js"></script>
     <script>
+        // 密码强度检查
+        document.getElementById('password').addEventListener('input', function() {
+            var password = this.value;
+            var strengthDiv = document.getElementById('password-strength');
+            
+            if (password.length === 0) {
+                strengthDiv.innerHTML = '';
+                return;
+            }
+            
+            var strength = checkPasswordStrength(password);
+            var strengthText = '';
+            var strengthClass = '';
+            
+            switch(strength) {
+                case '太弱':
+                    strengthText = '密码强度：太弱';
+                    strengthClass = 'strength-very-weak';
+                    break;
+                case '弱':
+                    strengthText = '密码强度：弱';
+                    strengthClass = 'strength-weak';
+                    break;
+                case '中':
+                    strengthText = '密码强度：中等';
+                    strengthClass = 'strength-medium';
+                    break;
+                case '强':
+                    strengthText = '密码强度：强';
+                    strengthClass = 'strength-strong';
+                    break;
+            }
+            
+            strengthDiv.innerHTML = '<span class="' + strengthClass + '">' + strengthText + '</span>';
+        });
+        
+        // 密码强度检查函数
+        function checkPasswordStrength(password) {
+            if (password.length < 6) {
+                return '太弱';
+            }
+            if (password.length < 8) {
+                return '弱';
+            }
+            
+            var score = 0;
+            if (/[a-z]/.test(password)) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/\d/.test(password)) score++;
+            if (/[!@#$%^&*]/.test(password)) score++;
+            
+            if (score < 2) return '弱';
+            if (score < 3) return '中';
+            return '强';
+        }
+        
         // 客户端密码确认验证
         document.querySelector('.register-form').addEventListener('submit', function(e) {
             var password = document.getElementById('password').value;
             var confirmPassword = document.getElementById('confirmPassword').value;
             
+            // 密码强度检查
+            if (password.length < 8) {
+                e.preventDefault();
+                alert('密码必须至少8位！');
+                return false;
+            }
+            
+            if (!/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+                e.preventDefault();
+                alert('密码必须包含字母和数字！');
+                return false;
+            }
+            
+            // 密码确认检查
             if (password !== confirmPassword) {
                 e.preventDefault();
                 alert('两次输入的密码不一致，请重新输入！');
