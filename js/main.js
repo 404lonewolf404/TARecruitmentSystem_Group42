@@ -472,3 +472,95 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// ========================================
+// V6: 用户体验优化 - Toast通知和加载动画
+// ========================================
+
+// Toast通知系统
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    // 触发动画
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // 3秒后自动消失
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// 加载动画
+function showLoading() {
+    // 避免重复创建
+    if (document.getElementById('loading-overlay')) return;
+    
+    const loading = document.createElement('div');
+    loading.id = 'loading-overlay';
+    loading.innerHTML = '<div class="spinner"></div>';
+    document.body.appendChild(loading);
+}
+
+function hideLoading() {
+    const loading = document.getElementById('loading-overlay');
+    if (loading) loading.remove();
+}
+
+// 增强的确认对话框
+function confirmActionEnhanced(message, type = 'warning') {
+    // 可以在未来替换为自定义模态框
+    return confirm(message || '确定要执行此操作吗？');
+}
+
+// 页面加载完成后的初始化
+window.addEventListener('DOMContentLoaded', function() {
+    // 检查是否有成功/错误消息需要显示
+    const successMsg = document.querySelector('.success-message');
+    const errorMsg = document.querySelector('.error-message');
+    
+    if (successMsg) {
+        showToast(successMsg.textContent, 'success');
+        successMsg.style.display = 'none'; // 隐藏原始消息
+    }
+    
+    if (errorMsg) {
+        showToast(errorMsg.textContent, 'error');
+        errorMsg.style.display = 'none'; // 隐藏原始消息
+    }
+    
+    // 为所有表单添加加载动画
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            // 只有在表单验证通过时才显示加载动画
+            if (this.checkValidity()) {
+                showLoading();
+                
+                // 防止重复提交
+                const submitBtn = this.querySelector('button[type="submit"], input[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                }
+            }
+        });
+    });
+    
+    // 为所有链接添加加载动画（可选）
+    document.querySelectorAll('a.btn-primary, a.btn-success').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // 如果不是外部链接或锚点链接
+            if (!this.href.startsWith('#') && !this.target) {
+                showLoading();
+            }
+        });
+    });
+});
+
+// 导出函数供全局使用
+window.showToast = showToast;
+window.showLoading = showLoading;
+window.hideLoading = hideLoading;
+window.confirmActionEnhanced = confirmActionEnhanced;
