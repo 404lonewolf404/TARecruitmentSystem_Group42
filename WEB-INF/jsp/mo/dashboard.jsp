@@ -27,8 +27,20 @@
     <nav>
         <ul>
             <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/my">我的职位</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
+            <li>
+                <a href="<%= request.getContextPath() %>/mo/notifications">
+                    通知
+                    <% 
+                        Integer unreadCount = (Integer) request.getAttribute("unreadNotificationCount");
+                        if (unreadCount != null && unreadCount > 0) { 
+                    %>
+                        <span class="notification-badge"><%= unreadCount %></span>
+                    <% } %>
+                </a>
+            </li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>

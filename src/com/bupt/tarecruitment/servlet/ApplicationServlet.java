@@ -6,6 +6,7 @@ import com.bupt.tarecruitment.model.User;
 import com.bupt.tarecruitment.model.UserRole;
 import com.bupt.tarecruitment.service.ApplicationService;
 import com.bupt.tarecruitment.service.PositionService;
+import com.bupt.tarecruitment.service.NotificationService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -34,12 +35,14 @@ public class ApplicationServlet extends HttpServlet {
     
     private ApplicationService applicationService;
     private PositionService positionService;
+    private NotificationService notificationService;
     
     @Override
     public void init() throws ServletException {
         super.init();
         this.applicationService = new ApplicationService();
         this.positionService = new PositionService();
+        this.notificationService = new NotificationService();
     }
     
     @Override
@@ -214,8 +217,44 @@ public class ApplicationServlet extends HttpServlet {
                 }
             }
             
+            // V3.2: 检查职位是否可以接受申请（状态为OPEN且未过期）
+            Position position = positionService.getPositionById(positionId.trim());
+            if (position == null) {
+                session.setAttribute("errorMessage", "职位不存在");
+                response.sendRedirect(request.getContextPath() + "/ta/positions");
+                return;
+            }
+            
+            if (!position.canAcceptApplications()) {
+                String reason = "";
+                if (position.isExpired()) {
+                    reason = "该职位申请已截止";
+                } else if (position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.CLOSED) {
+                    reason = "该职位已关闭";
+                } else {
+                    reason = "该职位暂不接受申请";
+                }
+                session.setAttribute("errorMessage", reason);
+                response.sendRedirect(request.getContextPath() + "/ta/positions");
+                return;
+            }
+            
             // 调用服务层申请职位
             applicationService.applyForPosition(currentUser.getUserId(), positionId.trim(), resumePath);
+            
+            // 发送通知给MO
+            try {
+                if (position != null) {
+                    notificationService.sendNewApplicationNotification(
+                        position.getMoId(),
+                        currentUser.getUserId(),
+                        positionId.trim()
+                    );
+                }
+            } catch (Exception e) {
+                // 通知发送失败不影响主流程
+                e.printStackTrace();
+            }
             
             // 申请成功，设置成功消息到session
             session.setAttribute("successMessage", "申请提交成功！");
@@ -290,8 +329,28 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
+            // 获取申请信息用于发送通知
+            Application application = applicationService.getApplicationById(applicationId.trim());
+            
             // 调用服务层撤回申请
             applicationService.withdrawApplication(applicationId.trim());
+            
+            // 发送通知给MO
+            if (application != null) {
+                try {
+                    Position position = positionService.getPositionById(application.getPositionId());
+                    if (position != null) {
+                        notificationService.sendApplicationWithdrawnNotification(
+                            position.getMoId(),
+                            currentUser.getUserId(),
+                            application.getPositionId()
+                        );
+                    }
+                } catch (Exception e) {
+                    // 通知发送失败不影响主流程
+                    e.printStackTrace();
+                }
+            }
             
             // 撤回成功，重定向到我的申请页面
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
@@ -491,6 +550,24 @@ public class ApplicationServlet extends HttpServlet {
             
             // 调用服务层选择申请者
             applicationService.selectApplicant(applicationId.trim());
+            
+            // 发送通知给所有相关的TA
+            try {
+                Application selectedApp = applicationService.getApplicationById(applicationId.trim());
+                if (selectedApp != null) {
+                    List<Application> allApps = applicationService.getApplicationsByPositionId(selectedApp.getPositionId());
+                    for (Application app : allApps) {
+                        notificationService.sendApplicationStatusNotification(
+                            app.getTaId(), 
+                            app.getPositionId(), 
+                            app.getStatus()
+                        );
+                    }
+                }
+            } catch (Exception e) {
+                // 通知发送失败不影响主流程
+                e.printStackTrace();
+            }
             
             // 选择成功，重定向回职位申请列表页面
             if (positionId != null && !positionId.trim().isEmpty()) {

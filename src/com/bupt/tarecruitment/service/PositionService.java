@@ -149,4 +149,68 @@ public class PositionService {
         // 删除职位
         positionDAO.delete(positionId.trim());
     }
+
+    /**
+     * 创建带截止日期的职位
+     * V3.2 - 职位截止日期管理
+     * 
+     * @param moId MO的用户ID
+     * @param title 职位标题
+     * @param description 职位描述
+     * @param requirements 职位要求
+     * @param hours 工作时长（小时/周）
+     * @param maxPositions 招聘名额
+     * @param deadline 申请截止日期（可选）
+     * @return 创建的职位对象
+     * @throws IllegalArgumentException 如果参数无效
+     * @throws IOException 如果数据保存失败
+     */
+    public Position createPositionWithDeadline(String moId, String title, String description, 
+                                               String requirements, int hours, int maxPositions, Date deadline) 
+            throws IllegalArgumentException, IOException {
+        
+        // 验证必填字段
+        if (moId == null || moId.trim().isEmpty()) {
+            throw new IllegalArgumentException("MO ID不能为空");
+        }
+        
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("职位标题不能为空");
+        }
+        
+        if (description == null || description.trim().isEmpty()) {
+            throw new IllegalArgumentException("职位描述不能为空");
+        }
+        
+        if (hours <= 0) {
+            throw new IllegalArgumentException("工作时长必须大于0");
+        }
+        
+        if (maxPositions <= 0) {
+            throw new IllegalArgumentException("招聘名额必须大于0");
+        }
+        
+        // 验证截止日期不能早于今天
+        if (deadline != null && deadline.before(new Date())) {
+            throw new IllegalArgumentException("截止日期不能早于今天");
+        }
+        
+        // 创建新职位
+        Position position = new Position();
+        position.setPositionId(UUID.randomUUID().toString());
+        position.setMoId(moId.trim());
+        position.setTitle(title.trim());
+        position.setDescription(description.trim());
+        position.setRequirements(requirements != null ? requirements.trim() : "");
+        position.setHours(hours);
+        position.setMaxPositions(maxPositions);
+        position.setStatus(PositionStatus.OPEN);
+        position.setCreatedAt(new Date());
+        position.setDeadline(deadline);
+        
+        // 保存职位
+        positionDAO.add(position);
+        
+        return position;
+    }
 }

@@ -1,10 +1,20 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruitment.model.User" %>
+<%@ page import="com.bupt.tarecruitment.service.NotificationService" %>
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
+    }
+    
+    // 获取未读通知数量
+    int unreadCount = 0;
+    try {
+        NotificationService notificationService = new NotificationService();
+        unreadCount = notificationService.getUnreadCount(currentUser.getUserId());
+    } catch (Exception e) {
+        e.printStackTrace();
     }
 %>
 <!DOCTYPE html>
@@ -23,9 +33,17 @@
     <nav>
         <ul>
             <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/positions">我的职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/positions/create">创建职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/profile" class="active">个人资料</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/my">我的职位</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
+            <li>
+                <a href="<%= request.getContextPath() %>/mo/notifications">
+                    通知
+                    <% if (unreadCount > 0) { %>
+                        <span class="notification-badge"><%= unreadCount %></span>
+                    <% } %>
+                </a>
+            </li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>

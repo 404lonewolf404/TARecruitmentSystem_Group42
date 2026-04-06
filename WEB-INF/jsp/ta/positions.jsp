@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruitment.model.User" %>
 <%@ page import="com.bupt.tarecruitment.model.Position" %>
+<%@ page import="com.bupt.tarecruitment.service.NotificationService" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Set" %>
 <%
@@ -8,6 +9,15 @@
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
+    }
+    
+    // 获取未读通知数量
+    int unreadCount = 0;
+    try {
+        NotificationService notificationService = new NotificationService();
+        unreadCount = notificationService.getUnreadCount(currentUser.getUserId());
+    } catch (Exception e) {
+        e.printStackTrace();
     }
     
     @SuppressWarnings("unchecked")
@@ -44,6 +54,14 @@
             <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
+            <li>
+                <a href="<%= request.getContextPath() %>/ta/notifications">
+                    通知
+                    <% if (unreadCount > 0) { %>
+                        <span class="notification-badge"><%= unreadCount %></span>
+                    <% } %>
+                </a>
+            </li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>
@@ -135,14 +153,49 @@
                                 <%= position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.OPEN ? "开放" : "关闭" %>
                             </span>
                         </p>
+                        
+                        <%-- V3.2: 显示截止日期和剩余天数 --%>
+                        <% if (position.getDeadline() != null) { %>
+                            <p><strong>申请截止：</strong>
+                                <%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(position.getDeadline()) %>
+                                <% 
+                                int daysRemaining = position.getDaysRemaining();
+                                if (daysRemaining > 0) { 
+                                    String urgencyColor = daysRemaining <= 3 ? "#dc3545" : (daysRemaining <= 7 ? "#ffc107" : "#28a745");
+                                %>
+                                    <span style="color: <%= urgencyColor %>; font-weight: bold;">
+                                        (还剩 <%= daysRemaining %> 天)
+                                    </span>
+                                <% } else if (position.isExpired()) { %>
+                                    <span style="color: #dc3545; font-weight: bold;">(已过期)</span>
+                                <% } %>
+                            </p>
+                        <% } %>
                     </div>
                     
                     <% 
                     boolean hasApplied = appliedPositionIds != null && appliedPositionIds.contains(position.getPositionId());
+                    boolean canApply = position.canAcceptApplications(); // V3.2: 检查是否可以申请
+                    
                     if (hasApplied) { 
                     %>
                         <button type="button" class="btn btn-secondary" disabled>
                             已申请
+                        </button>
+                    <% } else if (!canApply) { %>
+                        <%-- V3.2: 职位已关闭或过期 --%>
+                        <div style="padding: 10px; background-color: #f8d7da; border-left: 4px solid #dc3545; border-radius: 4px; margin-bottom: 10px;">
+                            <p style="margin: 0; color: #721c24;">
+                                <strong>⚠️ 此职位暂不接受申请</strong><br>
+                                <% if (position.isExpired()) { %>
+                                    原因：申请已截止
+                                <% } else if (position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.CLOSED) { %>
+                                    原因：职位已关闭
+                                <% } %>
+                            </p>
+                        </div>
+                        <button type="button" class="btn btn-secondary" disabled>
+                            无法申请
                         </button>
                     <% } else { %>
                         <form action="<%= request.getContextPath() %>/ta/applications/apply" method="post" enctype="multipart/form-data" style="margin-top: 15px;">

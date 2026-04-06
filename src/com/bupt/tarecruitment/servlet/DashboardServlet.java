@@ -3,6 +3,7 @@ package com.bupt.tarecruitment.servlet;
 import com.bupt.tarecruitment.model.User;
 import com.bupt.tarecruitment.model.UserRole;
 import com.bupt.tarecruitment.service.StatisticsService;
+import com.bupt.tarecruitment.service.NotificationService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,10 +20,12 @@ import java.util.Map;
 public class DashboardServlet extends HttpServlet {
     
     private StatisticsService statisticsService;
+    private NotificationService notificationService;
     
     @Override
     public void init() {
         this.statisticsService = new StatisticsService();
+        this.notificationService = new NotificationService();
     }
     
     @Override
@@ -38,6 +41,16 @@ public class DashboardServlet extends HttpServlet {
         
         User user = (User) session.getAttribute("user");
         UserRole role = user.getRole();
+        
+        // 获取未读通知数量
+        try {
+            int unreadCount = notificationService.getUnreadCount(user.getUserId());
+            request.setAttribute("unreadNotificationCount", unreadCount);
+        } catch (Exception e) {
+            // 获取通知数量失败不影响主流程
+            e.printStackTrace();
+            request.setAttribute("unreadNotificationCount", 0);
+        }
         
         // 根据角色获取统计数据
         if (role == UserRole.TA) {

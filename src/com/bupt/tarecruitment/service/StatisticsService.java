@@ -82,39 +82,93 @@ public class StatisticsService {
         Map<String, Object> stats = new HashMap<>();
         
         try {
+            // 获取所有用户
             List<User> allUsers = userDAO.loadAll();
-            stats.put("totalUsers", allUsers.size());
-            stats.put("totalTAs", (int) allUsers.stream()
-                .filter(u -> u.getRole() == UserRole.TA).count());
-            stats.put("totalMOs", (int) allUsers.stream()
-                .filter(u -> u.getRole() == UserRole.MO).count());
-            
-            stats.put("totalPositions", positionDAO.loadAll().size());
-            stats.put("totalApplications", applicationDAO.loadAll().size());
-            
-            // 平均工时
+            int totalUsers = allUsers.size();
             List<User> tas = allUsers.stream()
                 .filter(u -> u.getRole() == UserRole.TA)
                 .collect(Collectors.toList());
+            List<User> mos = allUsers.stream()
+                .filter(u -> u.getRole() == UserRole.MO)
+                .collect(Collectors.toList());
+            int totalTAs = tas.size();
+            int totalMOs = mos.size();
+            int totalAdmins = (int) allUsers.stream()
+                .filter(u -> u.getRole() == UserRole.ADMIN).count();
             
-            if (!tas.isEmpty()) {
-                double avgHours = tas.stream()
-                    .mapToInt(ta -> getTAStats(ta.getUserId()).get("hours"))
-                    .average()
-                    .orElse(0.0);
-                stats.put("avgHours", String.format("%.1f", avgHours));
-            } else {
-                stats.put("avgHours", "0.0");
+            // 获取所有职位
+            List<Position> allPositions = positionDAO.loadAll();
+            int totalPositions = allPositions.size();
+            int openPositions = (int) allPositions.stream()
+                .filter(p -> p.getStatus() == PositionStatus.OPEN).count();
+            int closedPositions = (int) allPositions.stream()
+                .filter(p -> p.getStatus() == PositionStatus.CLOSED).count();
+            
+            // 获取所有申请
+            List<Application> allApplications = applicationDAO.loadAll();
+            int totalApplications = allApplications.size();
+            int pendingApplications = (int) allApplications.stream()
+                .filter(a -> a.getStatus() == ApplicationStatus.PENDING).count();
+            int selectedApplications = (int) allApplications.stream()
+                .filter(a -> a.getStatus() == ApplicationStatus.SELECTED).count();
+            int rejectedApplications = (int) allApplications.stream()
+                .filter(a -> a.getStatus() == ApplicationStatus.REJECTED).count();
+            
+            // 计算工时统计
+            int totalHours = 0;
+            int activeTAs = 0; // 有工作的TA数量
+            for (User ta : tas) {
+                int taHours = getTAStats(ta.getUserId()).get("hours");
+                if (taHours > 0) {
+                    activeTAs++;
+                }
+                totalHours += taHours;
             }
+            
+            double avgHours = totalTAs > 0 ? (double) totalHours / totalTAs : 0.0;
+            double avgHoursActive = activeTAs > 0 ? (double) totalHours / activeTAs : 0.0;
+            
+            // 设置基本统计数据
+            stats.put("totalUsers", totalUsers);
+            stats.put("totalTAs", totalTAs);
+            stats.put("totalMOs", totalMOs);
+            stats.put("totalAdmins", totalAdmins);
+            
+            // 职位统计
+            stats.put("totalPositions", totalPositions);
+            stats.put("openPositions", openPositions);
+            stats.put("closedPositions", closedPositions);
+            
+            // 申请统计
+            stats.put("totalApplications", totalApplications);
+            stats.put("pendingApplications", pendingApplications);
+            stats.put("selectedApplications", selectedApplications);
+            stats.put("rejectedApplications", rejectedApplications);
+            
+            // 工时统计
+            stats.put("totalHours", totalHours);
+            stats.put("activeTAs", activeTAs);
+            stats.put("avgHours", String.format("%.1f", avgHours));
+            stats.put("avgHoursActive", String.format("%.1f", avgHoursActive));
             
         } catch (Exception e) {
             // 如果出错，返回默认值
+            e.printStackTrace();
             stats.put("totalUsers", 0);
             stats.put("totalTAs", 0);
             stats.put("totalMOs", 0);
+            stats.put("totalAdmins", 0);
             stats.put("totalPositions", 0);
+            stats.put("openPositions", 0);
+            stats.put("closedPositions", 0);
             stats.put("totalApplications", 0);
+            stats.put("pendingApplications", 0);
+            stats.put("selectedApplications", 0);
+            stats.put("rejectedApplications", 0);
+            stats.put("totalHours", 0);
+            stats.put("activeTAs", 0);
             stats.put("avgHours", "0.0");
+            stats.put("avgHoursActive", "0.0");
         }
         
         return stats;

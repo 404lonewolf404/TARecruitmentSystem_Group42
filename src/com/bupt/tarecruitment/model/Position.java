@@ -17,6 +17,7 @@ public class Position {
     private int maxPositions;     // 招聘名额（需要招聘的TA数量）
     private PositionStatus status; // 状态：OPEN, CLOSED
     private Date createdAt;       // 创建时间
+    private Date deadline;        // 申请截止日期（可选）
 
     /**
      * 默认构造函数
@@ -38,6 +39,25 @@ public class Position {
         this.maxPositions = maxPositions;
         this.status = status;
         this.createdAt = createdAt;
+        this.deadline = null;
+    }
+    
+    /**
+     * 扩展构造函数（包含截止日期）
+     */
+    public Position(String positionId, String moId, String title, String description,
+                   String requirements, int hours, int maxPositions, PositionStatus status, 
+                   Date createdAt, Date deadline) {
+        this.positionId = positionId;
+        this.moId = moId;
+        this.title = title;
+        this.description = description;
+        this.requirements = requirements;
+        this.hours = hours;
+        this.maxPositions = maxPositions;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.deadline = deadline;
     }
 
     // Getter和Setter方法
@@ -114,6 +134,46 @@ public class Position {
         this.createdAt = createdAt;
     }
 
+    public Date getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
+    }
+    
+    /**
+     * 检查职位是否已过期
+     */
+    public boolean isExpired() {
+        if (deadline == null) {
+            return false;
+        }
+        return new Date().after(deadline);
+    }
+    
+    /**
+     * 获取剩余天数（如果有截止日期）
+     * @return 剩余天数，如果已过期返回0，如果没有截止日期返回-1
+     */
+    public int getDaysRemaining() {
+        if (deadline == null) {
+            return -1;
+        }
+        long diff = deadline.getTime() - new Date().getTime();
+        if (diff < 0) {
+            return 0;
+        }
+        return (int) (diff / (1000 * 60 * 60 * 24));
+    }
+    
+    /**
+     * 检查职位是否可以接受申请
+     */
+    public boolean canAcceptApplications() {
+        return status == PositionStatus.OPEN && !isExpired();
+    }
+
     /**
      * equals方法 - 基于所有字段比较
      */
@@ -130,7 +190,8 @@ public class Position {
                Objects.equals(description, position.description) &&
                Objects.equals(requirements, position.requirements) &&
                status == position.status &&
-               Objects.equals(createdAt, position.createdAt);
+               Objects.equals(createdAt, position.createdAt) &&
+               Objects.equals(deadline, position.deadline);
     }
 
     /**
@@ -139,7 +200,7 @@ public class Position {
     @Override
     public int hashCode() {
         return Objects.hash(positionId, moId, title, description, requirements, 
-                          hours, maxPositions, status, createdAt);
+                          hours, maxPositions, status, createdAt, deadline);
     }
 
     /**
@@ -157,6 +218,7 @@ public class Position {
                 ", maxPositions=" + maxPositions +
                 ", status=" + status +
                 ", createdAt=" + createdAt +
+                ", deadline=" + deadline +
                 '}';
     }
 }
