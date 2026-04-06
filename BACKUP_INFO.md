@@ -1,23 +1,24 @@
-# V3.1 通知系统
+# V3.2 职位截止日期管理
 
 ## 功能说明
-实现了完整的通知系统，支持申请状态变化、新申请、申请撤回等通知�?
+为职位添加申请截止日期功能，支持自动过期控制和剩余天数显示�?
 
 ## 主要更新
-- 新增NotificationType枚举（APPLICATION_STATUS_CHANGED等）
-- 新增NotificationService服务�?
-- 新增NotificationServlet处理通知请求
-- 新增notifications.jsp页面（TA/MO/Admin三个版本�?
-- 导航栏添加通知入口和未读徽�?
-- 支持标记已读和删除通知
+- Position模型添加deadline字段
+- 创建职位时可设置截止日期（可选）
+- 显示剩余天数（颜色编码：�?�?红）
+- 过期职位自动停止接受申请
+- 前后端双重验�?
 
 ## 修改文件
-- 新增：NotificationType.java, NotificationService.java, NotificationServlet.java
-- 新增：notifications.jsp�?个版本）
-- 修改：所有dashboard页面（添加通知链接�?
-- 数据：notifications.csv
+- 修改：Position.java（添加deadline相关方法�?
+- 修改：PositionDAO.java, PositionService.java
+- 修改：ApplicationServlet.java（添加过期检查）
+- 修改：create-position.jsp, positions.jsp（MO/TA�?
+- 数据：positions.csv�?个测试职位）
 
 ## 技术要�?
-- 通知自动创建（申请状态变化时�?
-- 未读数量实时显示
-- 支持批量标记已读
+- 🟢 绿色�?天以�?
+- 🟡 黄色�?-7�?
+- 🔴 红色�?天以下或已过�?
+- 无截止日期可一直申�?

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class PositionDAO implements CSVDataStore<Position> {
     
     private static final String FILE_PATH = "webapps/TARecruitmentSystem/data/positions.csv";
-    private static final String HEADER = "positionId,moId,title,description,requirements,hours,maxPositions,status,createdAt";
+    private static final String HEADER = "positionId,moId,title,description,requirements,hours,maxPositions,status,createdAt,deadline";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     
     private List<Position> positions;
@@ -207,6 +207,11 @@ public class PositionDAO implements CSVDataStore<Position> {
                 position.setMaxPositions(Integer.parseInt(parts[6]));
                 position.setStatus(PositionStatus.valueOf(parts[7]));
                 position.setCreatedAt(DATE_FORMAT.parse(parts[8]));
+                
+                // 新字段：deadline
+                if (parts.length >= 10 && !parts[9].isEmpty()) {
+                    position.setDeadline(DATE_FORMAT.parse(parts[9]));
+                }
             } else {
                 position.setMaxPositions(1); // 默认名额为1
                 position.setStatus(PositionStatus.valueOf(parts[6]));
@@ -231,7 +236,8 @@ public class PositionDAO implements CSVDataStore<Position> {
                escapeCSV(String.valueOf(position.getHours())) + "," +
                escapeCSV(String.valueOf(position.getMaxPositions())) + "," +
                escapeCSV(position.getStatus().toString()) + "," +
-               escapeCSV(DATE_FORMAT.format(position.getCreatedAt()));
+               escapeCSV(DATE_FORMAT.format(position.getCreatedAt())) + "," +
+               escapeCSV(position.getDeadline() != null ? DATE_FORMAT.format(position.getDeadline()) : "");
     }
     
     /**

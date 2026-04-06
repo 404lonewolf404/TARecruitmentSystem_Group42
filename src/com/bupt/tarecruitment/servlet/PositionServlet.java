@@ -353,15 +353,49 @@ public class PositionServlet extends HttpServlet {
                 return;
             }
             
-            // 调用服务层创建职位
-            Position position = positionService.createPosition(
-                currentUser.getUserId(),
-                title,
-                description,
-                requirements,
-                hours,
-                maxPositions
-            );
+            // 获取截止日期参数（可选）
+            String deadlineStr = request.getParameter("deadline");
+            java.util.Date deadline = null;
+            if (deadlineStr != null && !deadlineStr.trim().isEmpty()) {
+                try {
+                    java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                    deadline = dateFormat.parse(deadlineStr.trim());
+                    
+                    // 验证截止日期不能早于今天
+                    if (deadline.before(new java.util.Date())) {
+                        request.setAttribute("errorMessage", "截止日期不能早于今天");
+                        request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
+                        return;
+                    }
+                } catch (java.text.ParseException e) {
+                    request.setAttribute("errorMessage", "截止日期格式无效");
+                    request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
+                    return;
+                }
+            }
+            
+            // 调用服务层创建职位（根据是否有截止日期选择不同的方法）
+            Position position;
+            if (deadline != null) {
+                position = positionService.createPositionWithDeadline(
+                    currentUser.getUserId(),
+                    title,
+                    description,
+                    requirements,
+                    hours,
+                    maxPositions,
+                    deadline
+                );
+            } else {
+                position = positionService.createPosition(
+                    currentUser.getUserId(),
+                    title,
+                    description,
+                    requirements,
+                    hours,
+                    maxPositions
+                );
+            }
             
             // 创建成功，重定向到我的职位页面
             response.sendRedirect(request.getContextPath() + "/mo/positions/my");

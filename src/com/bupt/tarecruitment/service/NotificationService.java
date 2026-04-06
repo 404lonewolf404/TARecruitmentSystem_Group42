@@ -296,4 +296,60 @@ public class NotificationService {
             default: return status.toString();
         }
     }
+
+    /**
+     * 发送职位关闭通知给所有申请了该职位的TA
+     * V3.2 - 职位状态管理
+     */
+    public void sendPositionClosedNotification(String positionId, String positionTitle) {
+        try {
+            System.out.println("=== sendPositionClosedNotification called ===");
+            System.out.println("positionId: " + positionId);
+            System.out.println("positionTitle: " + positionTitle);
+            
+            // 获取该职位的所有申请
+            ApplicationService applicationService = new ApplicationService();
+            java.util.List<com.bupt.tarecruitment.model.Application> applications = 
+                applicationService.getApplicationsByPositionId(positionId);
+            
+            System.out.println("Found " + applications.size() + " applications for this position");
+            
+            // 给每个申请者发送通知
+            for (com.bupt.tarecruitment.model.Application app : applications) {
+                // 只给待审核的申请者发送通知
+                if (app.getStatus() != ApplicationStatus.PENDING) {
+                    continue;
+                }
+                
+                Notification notification = new Notification();
+                notification.setNotificationId(java.util.UUID.randomUUID().toString());
+                notification.setUserId(app.getTaId());
+                notification.setType(NotificationType.POSITION_CLOSED);
+                
+                notification.setMessage(
+                    "🔒 职位关闭通知\n\n" +
+                    "职位：【" + positionTitle + "】\n" +
+                    "您的状态：⏳ 待审核\n" +
+                    "申请时间：" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(app.getAppliedAt()) + "\n\n" +
+                    "⚠️ 该职位已关闭，暂时不再接受新申请。\n" +
+                    "您的申请仍在系统中，如果职位重新开放，您的申请将继续有效。\n\n" +
+                    "💡 请前往\"浏览职位\"页面查看其他机会"
+                );
+                notification.setRelatedId(positionId);
+                notification.setCreatedAt(new java.util.Date());
+                notification.setRead(false);
+                
+                System.out.println("Sending notification to TA: " + app.getTaId());
+                
+                // 保存通知
+                notificationDAO.save(notification);
+            }
+            
+            System.out.println("Position closed notifications sent successfully");
+            
+        } catch (Exception e) {
+            System.out.println("ERROR sending position closed notifications: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
