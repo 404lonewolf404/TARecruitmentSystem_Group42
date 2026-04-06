@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruitment.model.User" %>
+<%@ page import="com.bupt.tarecruitment.service.NotificationService" %>
 <%
     User user = (User) request.getAttribute("user");
     if (user == null) {
@@ -8,6 +9,15 @@
     if (user == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
+    }
+    
+    // 获取未读通知数量
+    int unreadCount = 0;
+    try {
+        NotificationService notificationService = new NotificationService();
+        unreadCount = notificationService.getUnreadCount(user.getUserId());
+    } catch (Exception e) {
+        e.printStackTrace();
     }
     
     String successMessage = (String) request.getAttribute("successMessage");
@@ -32,6 +42,14 @@
             <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
+            <li>
+                <a href="<%= request.getContextPath() %>/ta/notifications">
+                    通知
+                    <% if (unreadCount > 0) { %>
+                        <span class="notification-badge"><%= unreadCount %></span>
+                    <% } %>
+                </a>
+            </li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>

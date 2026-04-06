@@ -112,6 +112,11 @@
         <servlet-class>com.bupt.tarecruitment.servlet.CVServlet</servlet-class>
     </servlet>
     
+    <servlet>
+        <servlet-name>NotificationServlet</servlet-name>
+        <servlet-class>com.bupt.tarecruitment.servlet.NotificationServlet</servlet-class>
+    </servlet>
+    
     <!-- Servlet Mappings -->
     <servlet-mapping>
         <servlet-name>AuthServlet</servlet-name>
@@ -194,6 +199,27 @@
     <servlet-mapping>
         <servlet-name>DashboardServlet</servlet-name>
         <url-pattern>/admin/dashboard</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Notification mappings for all roles (must be before AdminServlet wildcard) -->
+    <servlet-mapping>
+        <servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/ta/notifications</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/mo/notifications</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/admin/notifications</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/notifications/*</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
