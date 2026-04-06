@@ -1,28 +1,23 @@
-﻿# V2.6 用户体验优化
+# V3.1 通知系统
 
 ## 功能说明
-全面优化用户体验，添加Toast通知和加载动画�?
+实现了完整的通知系统，支持申请状态变化、新申请、申请撤回等通知�?
 
 ## 主要更新
-- Toast通知系统（成功、错误、信息、警告）
-- 加载动画（表单提交时自动显示�?
-- 增强的UI交互效果�?
-  - 按钮悬停上浮和波纹效�?
-  - 卡片悬停阴影加深
-  - 表格行悬停高�?
-  - 输入框焦点蓝色边�?
-  - 导航链接下划线动�?
-- 页面加载淡入动画
-- 平滑滚动效果
-- 响应式Toast（移动端适配�?
+- 新增NotificationType枚举（APPLICATION_STATUS_CHANGED等）
+- 新增NotificationService服务�?
+- 新增NotificationServlet处理通知请求
+- 新增notifications.jsp页面（TA/MO/Admin三个版本�?
+- 导航栏添加通知入口和未读徽�?
+- 支持标记已读和删除通知
 
 ## 修改文件
-- 修改：main.js（新增Toast和加载动画函数）
-- 修改：style.css（新增UI交互样式�?
-- 新增：test-toast.html（测试页面）
+- 新增：NotificationType.java, NotificationService.java, NotificationServlet.java
+- 新增：notifications.jsp�?个版本）
+- 修改：所有dashboard页面（添加通知链接�?
+- 数据：notifications.csv
 
 ## 技术要�?
-- Toast自动3秒消�?
-- 自动检测消息元�?
-- 防止重复提交
-- 流畅动画效果
+- 通知自动创建（申请状态变化时�?
+- 未读数量实时显示
+- 支持批量标记已读

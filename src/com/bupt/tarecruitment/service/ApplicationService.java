@@ -175,4 +175,28 @@ public class ApplicationService {
             applicationDAO.update(application);
         }
     }
+    
+    /**
+     * 根据ID获取申请
+     */
+    public Application getApplicationById(String applicationId) {
+        try {
+            return applicationDAO.findById(applicationId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    /**
+     * 获取职位的所有申请
+     */
+    public List<Application> getApplicationsByPositionId(String positionId) {
+        try {
+            return applicationDAO.findByPositionId(positionId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
+        }
+    }
 }

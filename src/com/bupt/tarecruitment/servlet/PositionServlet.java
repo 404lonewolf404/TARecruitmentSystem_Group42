@@ -414,6 +414,21 @@ public class PositionServlet extends HttpServlet {
                 return;
             }
             
+            // 在删除之前，获取职位信息用于发送通知
+            Position position = positionService.getPositionById(positionId.trim());
+            
+            // 发送通知给所有申请了该职位的TA
+            if (position != null) {
+                try {
+                    com.bupt.tarecruitment.service.NotificationService notificationService = 
+                        new com.bupt.tarecruitment.service.NotificationService();
+                    notificationService.sendPositionDeletedNotification(positionId.trim(), position.getTitle());
+                } catch (Exception e) {
+                    // 通知发送失败不影响删除操作
+                    e.printStackTrace();
+                }
+            }
+            
             // 调用服务层删除职位（级联删除相关申请）
             positionService.deletePosition(positionId.trim());
             

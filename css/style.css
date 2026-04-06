@@ -1302,3 +1302,135 @@ button:disabled:hover {
         max-width: none;
     }
 }
+
+/* ========================================
+   V3.1: 通知系统样式
+   ======================================== */
+
+/* 通知徽章 */
+.notification-badge {
+    display: inline-block;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-left: 5px;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* 通知列表容器 */
+.notifications-list {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* 通知项 */
+.notification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* 未读通知 */
+.notification-item.unread {
+    background-color: #e3f2fd;
+    border-left: 4px solid #3498db;
+}
+
+.notification-item.unread:hover {
+    background-color: #d1e7fd;
+}
+
+/* 已读通知 */
+.notification-item.read {
+    opacity: 0.7;
+}
+
+/* 通知内容 */
+.notification-content {
+    flex: 1;
+}
+
+.notification-message {
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 5px;
+    line-height: 1.5;
+}
+
+.notification-time {
+    color: #7f8c8d;
+    font-size: 12px;
+}
+
+/* 通知操作按钮 */
+.notification-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 15px;
+}
+
+.notification-actions .btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* 通知操作栏 */
+.notification-actions-bar {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 响应式通知样式 */
+@media (max-width: 768px) {
+    .notification-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .notification-actions {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .notification-actions .btn-sm {
+        flex: 1;
+    }
+}
+
+/* 导航栏通知图标位置调整 */
+nav ul li a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+nav ul li a .notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+}
