@@ -18,6 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TA仪表板 - TA招聘系统</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -72,6 +73,14 @@
         </div>
         <% } %>
         
+        <!-- V3.3 图表可视化 -->
+        <div class="card">
+            <h3>📊 我的申请状态分布</h3>
+            <div style="margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                <canvas id="applicationChart"></canvas>
+            </div>
+        </div>
+        
         <div class="dashboard">
             <div class="dashboard-card">
                 <h3>个人资料</h3>
@@ -94,5 +103,46 @@
     </div>
     
     <script src="<%= request.getContextPath() %>/js/main.js"></script>
+    <script>
+        // V3.3 - 图表可视化
+        <%
+            String chartData = (String) request.getAttribute("chartData");
+            if (chartData != null) {
+        %>
+        // 申请状态分布环形图
+        const applicationData = <%= chartData %>;
+        const ctx = document.getElementById('applicationChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: applicationData.labels,
+                datasets: [{
+                    data: applicationData.data,
+                    backgroundColor: applicationData.colors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        <% } %>
+    </script>
 </body>
 </html>

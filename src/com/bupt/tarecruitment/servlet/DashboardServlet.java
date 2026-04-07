@@ -4,6 +4,7 @@ import com.bupt.tarecruitment.model.User;
 import com.bupt.tarecruitment.model.UserRole;
 import com.bupt.tarecruitment.service.StatisticsService;
 import com.bupt.tarecruitment.service.NotificationService;
+import com.bupt.tarecruitment.service.ChartService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,16 +17,19 @@ import java.util.Map;
 /**
  * Dashboard Servlet
  * 根据用户角色显示相应的dashboard页面
+ * V3.3 - 添加图表可视化支持
  */
 public class DashboardServlet extends HttpServlet {
     
     private StatisticsService statisticsService;
     private NotificationService notificationService;
+    private ChartService chartService;
     
     @Override
     public void init() {
         this.statisticsService = new StatisticsService();
         this.notificationService = new NotificationService();
+        this.chartService = new ChartService();
     }
     
     @Override
@@ -52,16 +56,27 @@ public class DashboardServlet extends HttpServlet {
             request.setAttribute("unreadNotificationCount", 0);
         }
         
-        // 根据角色获取统计数据
+        // 根据角色获取统计数据和图表数据
         if (role == UserRole.TA) {
             Map<String, Integer> stats = statisticsService.getTAStats(user.getUserId());
             request.setAttribute("stats", stats);
+            // V3.3 - TA申请状态分布环形图数据
+            String chartData = chartService.getTAApplicationStatusData(user.getUserId());
+            request.setAttribute("chartData", chartData);
         } else if (role == UserRole.MO) {
             Map<String, Integer> stats = statisticsService.getMOStats(user.getUserId());
             request.setAttribute("stats", stats);
+            // V3.3 - MO职位申请数对比图数据
+            String chartData = chartService.getPositionApplicationsData(user.getUserId());
+            request.setAttribute("chartData", chartData);
         } else if (role == UserRole.ADMIN) {
             Map<String, Object> stats = statisticsService.getAdminStats();
             request.setAttribute("stats", stats);
+            // V3.3 - Admin工作量分布柱状图和申请状态饼图数据
+            String workloadChartData = chartService.getWorkloadChartData();
+            String statusChartData = chartService.getApplicationStatusData();
+            request.setAttribute("workloadChartData", workloadChartData);
+            request.setAttribute("statusChartData", statusChartData);
         }
         
         // 根据角色转发到相应的dashboard页面

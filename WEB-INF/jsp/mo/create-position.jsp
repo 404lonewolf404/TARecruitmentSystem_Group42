@@ -118,6 +118,16 @@
                     <small>请输入需要招聘的TA数量（1-100人）</small>
                 </div>
                 
+                <div class="form-group">
+                    <label for="deadline">申请截止日期（可选）</label>
+                    <input type="date" 
+                           id="deadline" 
+                           name="deadline"
+                           min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>"
+                           value="<%= request.getParameter("deadline") != null ? request.getParameter("deadline") : "" %>">
+                    <small>设置申请截止日期后，过期职位将自动停止接受申请</small>
+                </div>
+                
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">创建职位</button>
                     <a href="<%= request.getContextPath() %>/mo/positions/my" class="btn btn-secondary">取消</a>

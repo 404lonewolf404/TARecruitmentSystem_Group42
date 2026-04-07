@@ -8,5 +8,7 @@ public enum NotificationType {
     APPLICATION_REJECTED,    // 申请被拒绝
     NEW_APPLICATION,         // 新申请提交
     APPLICATION_WITHDRAWN,   // 申请被撤回
-    POSITION_DELETED         // 职位被删除
+    POSITION_DELETED,        // 职位被删除
+    POSITION_CLOSED,         // 职位被关闭（V3.2）
+    MESSAGE                  // 新消息（V3.5）
 }

@@ -1,0 +1,3 @@
+messageId,applicationId,senderId,senderRole,content,sentAt,isRead
+1552399d-6b87-4739-8937-9fd3bec26e91,57e35c9a-a40f-4208-8ece-be636a3e9e2d,d376fdce-5a0a-4481-afb1-dee49956e649,TA,hello,2026-03-28T17:34:50,true
+26a1e1dc-87a0-4e01-9063-f44d038bc3d8,57e35c9a-a40f-4208-8ece-be636a3e9e2d,365536ed-6487-413a-bfb9-bd8f6c079dd5,MO,你好,2026-03-28T17:35:08,true

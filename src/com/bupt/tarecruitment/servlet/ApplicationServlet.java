@@ -217,12 +217,33 @@ public class ApplicationServlet extends HttpServlet {
                 }
             }
             
+            // V3.2: 检查职位是否可以接受申请（状态为OPEN且未过期）
+            Position position = positionService.getPositionById(positionId.trim());
+            if (position == null) {
+                session.setAttribute("errorMessage", "职位不存在");
+                response.sendRedirect(request.getContextPath() + "/ta/positions");
+                return;
+            }
+            
+            if (!position.canAcceptApplications()) {
+                String reason = "";
+                if (position.isExpired()) {
+                    reason = "该职位申请已截止";
+                } else if (position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.CLOSED) {
+                    reason = "该职位已关闭";
+                } else {
+                    reason = "该职位暂不接受申请";
+                }
+                session.setAttribute("errorMessage", reason);
+                response.sendRedirect(request.getContextPath() + "/ta/positions");
+                return;
+            }
+            
             // 调用服务层申请职位
             applicationService.applyForPosition(currentUser.getUserId(), positionId.trim(), resumePath);
             
             // 发送通知给MO
             try {
-                Position position = positionService.getPositionById(positionId.trim());
                 if (position != null) {
                     notificationService.sendNewApplicationNotification(
                         position.getMoId(),

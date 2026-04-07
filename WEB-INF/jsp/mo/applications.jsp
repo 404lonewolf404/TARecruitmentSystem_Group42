@@ -169,8 +169,13 @@
                             <% } %>
                         </div>
                         
-                        <% if (app.getStatus() == ApplicationStatus.PENDING && !hasSelected) { %>
-                            <div class="application-actions">
+                        <div class="application-actions" style="margin-top: 15px;">
+                            <a href="<%= request.getContextPath() %>/messages/conversation?applicationId=<%= app.getApplicationId() %>" 
+                               class="btn btn-primary" style="margin-right: 10px;">
+                                💬 对话
+                            </a>
+                            
+                            <% if (app.getStatus() == ApplicationStatus.PENDING && !hasSelected) { %>
                                 <form method="post" action="<%= request.getContextPath() %>/mo/applications/select" 
                                       style="display: inline;"
                                       onsubmit="return confirm('确定要选择此申请者吗？这将拒绝其他所有申请。');">
@@ -178,12 +183,10 @@
                                     <input type="hidden" name="positionId" value="<%= position.getPositionId() %>">
                                     <button type="submit" class="btn btn-primary">选择此申请者</button>
                                 </form>
-                            </div>
-                        <% } else if (app.getStatus() == ApplicationStatus.SELECTED) { %>
-                            <div class="application-actions" style="margin-top: 15px;">
+                            <% } else if (app.getStatus() == ApplicationStatus.SELECTED) { %>
                                 <span class="success-message">✓ 已选中此申请者</span>
-                            </div>
-                        <% } %>
+                            <% } %>
+                        </div>
                     </div>
                 <% } %>
             </div>

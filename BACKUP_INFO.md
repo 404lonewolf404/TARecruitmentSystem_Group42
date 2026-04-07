@@ -1,23 +1,24 @@
-# V3.1 通知系统
+# V3.5 招聘对话系统 - Part 1
 
 ## 功能说明
-实现了完整的通知系统，支持申请状态变化、新申请、申请撤回等通知�?
+实现基本的一对一对话功能，TA和MO可以针对申请进行沟通�?
 
 ## 主要更新
-- 新增NotificationType枚举（APPLICATION_STATUS_CHANGED等）
-- 新增NotificationService服务�?
-- 新增NotificationServlet处理通知请求
-- 新增notifications.jsp页面（TA/MO/Admin三个版本�?
-- 导航栏添加通知入口和未读徽�?
-- 支持标记已读和删除通知
+- 新增Message模型和MessageDAO
+- 新增MessageService服务�?
+- 新增MessageServlet处理对话请求
+- 新增conversation-simple.jsp对话页面
+- 申请列表添加"对话"按钮
+- 支持发送消息和查看历史
 
 ## 修改文件
-- 新增：NotificationType.java, NotificationService.java, NotificationServlet.java
-- 新增：notifications.jsp�?个版本）
-- 修改：所有dashboard页面（添加通知链接�?
-- 数据：notifications.csv
+- 新增：Message.java, MessageDAO.java, MessageService.java, MessageServlet.java
+- 新增：conversation-simple.jsp, compile-message.bat
+- 修改：applications.jsp（TA/MO添加对话按钮�?
+- 修改：NotificationType.java（添加MESSAGE类型�?
+- 数据：messages.csv
 
 ## 技术要�?
-- 通知自动创建（申请状态变化时�?
-- 未读数量实时显示
-- 支持批量标记已读
+- 基于申请的一对一对话
+- 权限验证（只有申请双方可对话�?
+- 自动创建消息通知
