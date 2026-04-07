@@ -9,5 +9,6 @@ public enum NotificationType {
     NEW_APPLICATION,         // 新申请提交
     APPLICATION_WITHDRAWN,   // 申请被撤回
     POSITION_DELETED,        // 职位被删除
-    POSITION_CLOSED          // 职位被关闭（V3.2）
+    POSITION_CLOSED,         // 职位被关闭（V3.2）
+    MESSAGE                  // 新消息（V3.5）
 }

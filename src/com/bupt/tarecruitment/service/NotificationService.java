@@ -352,4 +352,20 @@ public class NotificationService {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * 创建通用通知
+     * V3.5 - 招聘对话系统
+     */
+    public void createNotification(String userId, NotificationType type, String message) throws IOException {
+        Notification notification = new Notification();
+        notification.setNotificationId(UUID.randomUUID().toString());
+        notification.setUserId(userId);
+        notification.setType(type);
+        notification.setMessage(message);
+        notification.setCreatedAt(new Date());
+        notification.setRead(false);
+        
+        notificationDAO.save(notification);
+    }
 }
