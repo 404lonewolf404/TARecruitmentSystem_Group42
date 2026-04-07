@@ -18,6 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理员仪表板 - TA招聘系统</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -97,6 +98,21 @@
         </div>
         <% } %>
         
+        <!-- V3.3 图表可视化 -->
+        <div class="card">
+            <h3>📊 数据可视化</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                <div>
+                    <h4 style="text-align: center; color: #2c3e50;">TA工作量分布</h4>
+                    <canvas id="workloadChart" style="max-height: 300px;"></canvas>
+                </div>
+                <div>
+                    <h4 style="text-align: center; color: #2c3e50;">申请状态分布</h4>
+                    <canvas id="statusChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        
         <div class="dashboard">
             <div class="dashboard-card">
                 <h3>👥 用户管理</h3>
@@ -113,5 +129,98 @@
     </div>
     
     <script src="<%= request.getContextPath() %>/js/main.js"></script>
+    <script>
+        // V3.3 - 图表可视化
+        <%
+            String workloadChartData = (String) request.getAttribute("workloadChartData");
+            String statusChartData = (String) request.getAttribute("statusChartData");
+            if (workloadChartData != null && statusChartData != null) {
+        %>
+        // TA工作量分布柱状图
+        const workloadData = <%= workloadChartData %>;
+        const workloadCtx = document.getElementById('workloadChart').getContext('2d');
+        new Chart(workloadCtx, {
+            type: 'bar',
+            data: {
+                labels: workloadData.labels,
+                datasets: [{
+                    label: '工作时数',
+                    data: workloadData.data,
+                    backgroundColor: workloadData.colors,
+                    borderColor: workloadData.colors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' 小时';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 5
+                        },
+                        title: {
+                            display: true,
+                            text: '工作时数'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'TA姓名'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 申请状态饼图
+        const statusData = <%= statusChartData %>;
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'pie',
+            data: {
+                labels: statusData.labels,
+                datasets: [{
+                    data: statusData.data,
+                    backgroundColor: statusData.colors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        <% } %>
+    </script>
 </body>
 </html>

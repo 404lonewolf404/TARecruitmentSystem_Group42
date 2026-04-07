@@ -1,24 +1,22 @@
-# V3.2 职位截止日期管理
+# V3.3 图表可视�?
 
 ## 功能说明
-为职位添加申请截止日期功能，支持自动过期控制和剩余天数显示�?
+使用Chart.js实现数据可视化，为不同角色提供直观的图表展示�?
 
 ## 主要更新
-- Position模型添加deadline字段
-- 创建职位时可设置截止日期（可选）
-- 显示剩余天数（颜色编码：�?�?红）
-- 过期职位自动停止接受申请
-- 前后端双重验�?
+- Admin：TA工作量分布柱状图、申请状态饼�?
+- MO：职位申请数对比横向柱状�?
+- TA：申请状态分布环形图
+- 新增ChartService提供JSON数据
+- 响应式设计，支持移动�?
 
 ## 修改文件
-- 修改：Position.java（添加deadline相关方法�?
-- 修改：PositionDAO.java, PositionService.java
-- 修改：ApplicationServlet.java（添加过期检查）
-- 修改：create-position.jsp, positions.jsp（MO/TA�?
-- 数据：positions.csv�?个测试职位）
+- 新增：ChartService.java
+- 修改：DashboardServlet.java（添加图表数据）
+- 修改：dashboard.jsp（Admin/MO/TA三个版本�?
 
 ## 技术要�?
-- 🟢 绿色�?天以�?
-- 🟡 黄色�?-7�?
-- 🔴 红色�?天以下或已过�?
-- 无截止日期可一直申�?
+- 使用Chart.js CDN
+- 手动构建JSON字符串（无需JSON库）
+- 交互式图表（悬停显示详情�?
+- 颜色编码（工作量：红/�?绿）
