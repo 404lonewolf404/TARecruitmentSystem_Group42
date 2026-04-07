@@ -4,6 +4,7 @@
 <%@ page import="com.bupt.tarecruitment.model.ApplicationStatus" %>
 <%@ page import="com.bupt.tarecruitment.model.Position" %>
 <%@ page import="com.bupt.tarecruitment.dao.PositionDAO" %>
+<%@ page import="com.bupt.tarecruitment.service.NotificationService" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%
@@ -11,6 +12,15 @@
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
+    }
+    
+    // 获取未读通知数量
+    int unreadCount = 0;
+    try {
+        NotificationService notificationService = new NotificationService();
+        unreadCount = notificationService.getUnreadCount(currentUser.getUserId());
+    } catch (Exception e) {
+        e.printStackTrace();
     }
     
     @SuppressWarnings("unchecked")
@@ -55,6 +65,14 @@
             <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
+            <li>
+                <a href="<%= request.getContextPath() %>/ta/notifications">
+                    通知
+                    <% if (unreadCount > 0) { %>
+                        <span class="notification-badge"><%= unreadCount %></span>
+                    <% } %>
+                </a>
+            </li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>

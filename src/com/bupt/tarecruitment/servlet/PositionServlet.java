@@ -4,6 +4,7 @@ import com.bupt.tarecruitment.model.Position;
 import com.bupt.tarecruitment.model.User;
 import com.bupt.tarecruitment.model.UserRole;
 import com.bupt.tarecruitment.service.PositionService;
+import com.bupt.tarecruitment.service.SearchService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,12 +23,14 @@ public class PositionServlet extends HttpServlet {
     
     private PositionService positionService;
     private com.bupt.tarecruitment.service.ApplicationService applicationService;
+    private SearchService searchService;
     
     @Override
     public void init() throws ServletException {
         super.init();
         this.positionService = new PositionService();
         this.applicationService = new com.bupt.tarecruitment.service.ApplicationService();
+        this.searchService = new SearchService();
     }
     
     @Override
@@ -109,8 +112,56 @@ public class PositionServlet extends HttpServlet {
                 return;
             }
             
-            // 获取所有开放职位
-            List<Position> positions = positionService.getAllOpenPositions();
+            // 获取搜索参数
+            String keyword = request.getParameter("keyword");
+            String minHoursStr = request.getParameter("minHours");
+            String maxHoursStr = request.getParameter("maxHours");
+            String sortBy = request.getParameter("sortBy");
+            
+            // 调试信息
+            System.out.println("=== Search Parameters ===");
+            System.out.println("keyword: " + keyword);
+            System.out.println("minHoursStr: " + minHoursStr);
+            System.out.println("maxHoursStr: " + maxHoursStr);
+            System.out.println("sortBy: " + sortBy);
+            
+            Integer minHours = null;
+            Integer maxHours = null;
+            
+            try {
+                if (minHoursStr != null && !minHoursStr.trim().isEmpty()) {
+                    minHours = Integer.parseInt(minHoursStr.trim());
+                }
+                if (maxHoursStr != null && !maxHoursStr.trim().isEmpty()) {
+                    maxHours = Integer.parseInt(maxHoursStr.trim());
+                }
+            } catch (NumberFormatException e) {
+                // 忽略无效的数字输入
+            }
+            
+            // 使用搜索服务获取职位
+            List<Position> positions;
+            boolean hasSearchCriteria = (keyword != null && !keyword.trim().isEmpty()) || 
+                                      minHours != null || maxHours != null || 
+                                      (sortBy != null && !sortBy.equals("newest"));
+            
+            System.out.println("hasSearchCriteria: " + hasSearchCriteria);
+            
+            if (hasSearchCriteria) {
+                System.out.println("Using SearchService...");
+                positions = searchService.searchPositions(keyword, minHours, maxHours, sortBy);
+                System.out.println("SearchService returned " + positions.size() + " positions");
+            } else {
+                System.out.println("Using PositionService...");
+                positions = positionService.getAllOpenPositions();
+                System.out.println("PositionService returned " + positions.size() + " positions");
+            }
+            
+            // 设置搜索参数到request中，用于表单回显
+            request.setAttribute("keyword", keyword);
+            request.setAttribute("minHours", minHours);
+            request.setAttribute("maxHours", maxHours);
+            request.setAttribute("sortBy", sortBy);
             
             // 如果是 TA 用户，获取已申请的职位 ID 列表
             if (currentUser.getRole() == UserRole.TA) {
@@ -302,15 +353,49 @@ public class PositionServlet extends HttpServlet {
                 return;
             }
             
-            // 调用服务层创建职位
-            Position position = positionService.createPosition(
-                currentUser.getUserId(),
-                title,
-                description,
-                requirements,
-                hours,
-                maxPositions
-            );
+            // 获取截止日期参数（可选）
+            String deadlineStr = request.getParameter("deadline");
+            java.util.Date deadline = null;
+            if (deadlineStr != null && !deadlineStr.trim().isEmpty()) {
+                try {
+                    java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                    deadline = dateFormat.parse(deadlineStr.trim());
+                    
+                    // 验证截止日期不能早于今天
+                    if (deadline.before(new java.util.Date())) {
+                        request.setAttribute("errorMessage", "截止日期不能早于今天");
+                        request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
+                        return;
+                    }
+                } catch (java.text.ParseException e) {
+                    request.setAttribute("errorMessage", "截止日期格式无效");
+                    request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
+                    return;
+                }
+            }
+            
+            // 调用服务层创建职位（根据是否有截止日期选择不同的方法）
+            Position position;
+            if (deadline != null) {
+                position = positionService.createPositionWithDeadline(
+                    currentUser.getUserId(),
+                    title,
+                    description,
+                    requirements,
+                    hours,
+                    maxPositions,
+                    deadline
+                );
+            } else {
+                position = positionService.createPosition(
+                    currentUser.getUserId(),
+                    title,
+                    description,
+                    requirements,
+                    hours,
+                    maxPositions
+                );
+            }
             
             // 创建成功，重定向到我的职位页面
             response.sendRedirect(request.getContextPath() + "/mo/positions/my");
@@ -361,6 +446,21 @@ public class PositionServlet extends HttpServlet {
                 request.setAttribute("errorMessage", "职位ID不能为空");
                 response.sendRedirect(request.getContextPath() + "/mo/positions/my");
                 return;
+            }
+            
+            // 在删除之前，获取职位信息用于发送通知
+            Position position = positionService.getPositionById(positionId.trim());
+            
+            // 发送通知给所有申请了该职位的TA
+            if (position != null) {
+                try {
+                    com.bupt.tarecruitment.service.NotificationService notificationService = 
+                        new com.bupt.tarecruitment.service.NotificationService();
+                    notificationService.sendPositionDeletedNotification(positionId.trim(), position.getTitle());
+                } catch (Exception e) {
+                    // 通知发送失败不影响删除操作
+                    e.printStackTrace();
+                }
             }
             
             // 调用服务层删除职位（级联删除相关申请）

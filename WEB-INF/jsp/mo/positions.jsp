@@ -3,6 +3,7 @@
 <%@ page import="com.bupt.tarecruitment.model.Position" %>
 <%@ page import="com.bupt.tarecruitment.model.Application" %>
 <%@ page import="com.bupt.tarecruitment.dao.UserDAO" %>
+<%@ page import="com.bupt.tarecruitment.service.NotificationService" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%
@@ -10,6 +11,15 @@
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
+    }
+    
+    // 获取未读通知数量
+    int unreadCount = 0;
+    try {
+        NotificationService notificationService = new NotificationService();
+        unreadCount = notificationService.getUnreadCount(currentUser.getUserId());
+    } catch (Exception e) {
+        e.printStackTrace();
     }
     
     @SuppressWarnings("unchecked")
@@ -44,8 +54,17 @@
     <nav>
         <ul>
             <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/my" class="active">我的职位</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
+            <li>
+                <a href="<%= request.getContextPath() %>/mo/notifications">
+                    通知
+                    <% if (unreadCount > 0) { %>
+                        <span class="notification-badge"><%= unreadCount %></span>
+                    <% } %>
+                </a>
+            </li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>
@@ -81,6 +100,26 @@
                             <p><strong>工作时长：</strong><%= position.getHours() %> 小时/周</p>
                             <p><strong>招聘名额：</strong><%= position.getMaxPositions() %> 人</p>
                             
+                            <%-- V3.2: 显示截止日期和剩余天数 --%>
+                            <% if (position.getDeadline() != null) { %>
+                                <p><strong>申请截止：</strong>
+                                    <%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(position.getDeadline()) %>
+                                    <% 
+                                    int daysRemaining = position.getDaysRemaining();
+                                    if (daysRemaining > 7) { %>
+                                        <span style="color: #28a745;">(还剩 <%= daysRemaining %> 天)</span>
+                                    <% } else if (daysRemaining >= 4) { %>
+                                        <span style="color: #ffc107;">(还剩 <%= daysRemaining %> 天)</span>
+                                    <% } else if (daysRemaining > 0) { %>
+                                        <span style="color: #dc3545;">(还剩 <%= daysRemaining %> 天)</span>
+                                    <% } else if (position.isExpired()) { %>
+                                        <span style="color: #dc3545; font-weight: bold;">(已过期)</span>
+                                    <% } %>
+                                </p>
+                            <% } else { %>
+                                <p><strong>申请截止：</strong><span style="color: #6c757d;">无截止日期</span></p>
+                            <% } %>
+                            
                             <% 
                             // 显示被选中的TA信息
                             Application selectedApp = selectedApplications != null ? selectedApplications.get(position.getPositionId()) : null;
@@ -105,6 +144,7 @@
                         <div class="position-actions">
                             <a href="<%= request.getContextPath() %>/mo/applications/position?positionId=<%= position.getPositionId() %>" 
                                class="btn btn-secondary">查看申请</a>
+                            
                             <form method="post" action="<%= request.getContextPath() %>/mo/positions/delete" 
                                   style="display: inline;" 
                                   onsubmit="return confirm('确定要删除此职位吗？这将同时删除所有相关申请。');">
