@@ -1,6 +1,7 @@
 package com.bupt.tarecruitment.servlet;
 
 import com.bupt.tarecruitment.model.User;
+import com.bupt.tarecruitment.model.UserRole;
 import com.bupt.tarecruitment.model.Application;
 import com.bupt.tarecruitment.model.Position;
 import com.bupt.tarecruitment.model.Message;
@@ -54,6 +55,9 @@ public class MessageServlet extends HttpServlet {
             case "/conversation":
                 handleViewConversation(request, response);
                 break;
+            case "/list":
+                handleListConversations(request, response);
+                break;
             default:
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "请求的资源不存在");
                 break;
@@ -82,6 +86,46 @@ public class MessageServlet extends HttpServlet {
             default:
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "请求的资源不存在");
                 break;
+        }
+    }
+    
+    /**
+     * 查看消息列表
+     */
+    private void handleMessageList(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
+            return;
+        }
+        
+        User currentUser = (User) session.getAttribute("user");
+        
+        try {
+            // 获取用户的所有对话
+            java.util.List<MessageService.ConversationInfo> conversations = messageService.getUserConversations(currentUser.getUserId());
+            
+            // 获取未读通知数量
+            int unreadCount = notificationService.getUnreadCount(currentUser.getUserId());
+            
+            // 设置属性
+            request.setAttribute("conversations", conversations);
+            request.setAttribute("unreadNotificationCount", unreadCount);
+            
+            // 根据用户角色转发到不同页面
+            if (currentUser.getRole() == UserRole.TA) {
+                request.getRequestDispatcher("/WEB-INF/jsp/ta/messages.jsp").forward(request, response);
+            } else if (currentUser.getRole() == UserRole.MO) {
+                request.getRequestDispatcher("/WEB-INF/jsp/mo/messages.jsp").forward(request, response);
+            } else {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "管理员无法访问消息功能");
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "获取消息列表失败：" + e.getMessage());
         }
     }
     
@@ -242,4 +286,82 @@ public class MessageServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "标记已读失败");
         }
     }
+    
+    /**
+     * 显示对话列表（类似QQ消息列表）
+     */
+    private void handleListConversations(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
+            return;
+        }
+        
+        User currentUser = (User) session.getAttribute("user");
+        
+        try {
+            // 获取当前用户的所有申请
+            List<Application> applications;
+            if (currentUser.getRole() == com.bupt.tarecruitment.model.UserRole.TA) {
+                applications = applicationService.getApplicationsByTA(currentUser.getUserId());
+            } else {
+                // MO获取所有职位的申请
+                List<Position> positions = positionService.getPositionsByMO(currentUser.getUserId());
+                applications = new java.util.ArrayList<>();
+                for (Position pos : positions) {
+                    applications.addAll(applicationService.getApplicationsByPositionId(pos.getPositionId()));
+                }
+            }
+            
+            // 为每个申请获取未读消息数和最后一条消息
+            java.util.List<java.util.Map<String, Object>> conversationList = new java.util.ArrayList<>();
+            for (Application app : applications) {
+                Position position = positionService.getPositionById(app.getPositionId());
+                if (position == null) continue;
+                
+                User ta = userDAO.findById(app.getTaId());
+                User mo = userDAO.findById(position.getMoId());
+                
+                List<Message> messages = messageService.getConversation(app.getApplicationId());
+                int unreadCount = messageService.getUnreadCount(currentUser.getUserId(), app.getApplicationId());
+                
+                java.util.Map<String, Object> conv = new java.util.HashMap<>();
+                conv.put("application", app);
+                conv.put("position", position);
+                conv.put("ta", ta);
+                conv.put("mo", mo);
+                conv.put("unreadCount", unreadCount);
+                conv.put("messageCount", messages.size());
+                conv.put("lastMessage", messages.isEmpty() ? null : messages.get(messages.size() - 1));
+                
+                conversationList.add(conv);
+            }
+            
+            // 按最后消息时间排序
+            conversationList.sort((a, b) -> {
+                Message msgA = (Message) a.get("lastMessage");
+                Message msgB = (Message) b.get("lastMessage");
+                if (msgA == null && msgB == null) return 0;
+                if (msgA == null) return 1;
+                if (msgB == null) return -1;
+                return msgB.getSentAt().compareTo(msgA.getSentAt());
+            });
+            
+            // 获取未读通知数量
+            int unreadNotificationCount = notificationService.getUnreadCount(currentUser.getUserId());
+            
+            request.setAttribute("conversations", conversationList);
+            request.setAttribute("unreadNotificationCount", unreadNotificationCount);
+            
+            // 转发到对话列表页面
+            request.getRequestDispatcher("/WEB-INF/jsp/messages-list.jsp").forward(request, response);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "获取对话列表失败：" + e.getMessage());
+        }
+    }
+
 }
