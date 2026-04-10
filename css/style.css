@@ -1434,3 +1434,69 @@ nav ul li a .notification-badge {
     top: -5px;
     right: -10px;
 }
+
+
+/* 筛选和排序工具栏样式 */
+.filter-toolbar {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filter-group, .sort-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-group label, .sort-group label {
+    font-weight: bold;
+    color: #2c3e50;
+    white-space: nowrap;
+}
+
+.filter-toolbar select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    color: #2c3e50;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    min-width: 120px;
+}
+
+.filter-toolbar select:hover {
+    border-color: #3498db;
+}
+
+.filter-toolbar select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+@media (max-width: 768px) {
+    .filter-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group, .sort-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .filter-toolbar select {
+        flex: 1;
+    }
+}

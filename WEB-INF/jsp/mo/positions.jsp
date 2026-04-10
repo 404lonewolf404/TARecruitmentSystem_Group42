@@ -57,6 +57,7 @@
             <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/my" class="active">我的职位</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/mo/notifications">
                     通知
@@ -144,6 +145,9 @@
                         <div class="position-actions">
                             <a href="<%= request.getContextPath() %>/mo/applications/position?positionId=<%= position.getPositionId() %>" 
                                class="btn btn-secondary">查看申请</a>
+                            
+                            <a href="<%= request.getContextPath() %>/mo/positions/edit?positionId=<%= position.getPositionId() %>" 
+                               class="btn btn-primary">编辑职位</a>
                             
                             <form method="post" action="<%= request.getContextPath() %>/mo/positions/delete" 
                                   style="display: inline;" 
