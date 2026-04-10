@@ -58,6 +58,10 @@ public class PositionServlet extends HttpServlet {
             // /positions/create - 显示创建职位表单（MO视图）
             System.out.println("Handling: Create position form");
             request.getRequestDispatcher("/WEB-INF/jsp/mo/create-position.jsp").forward(request, response);
+        } else if (pathInfo.equals("/edit")) {
+            // /positions/edit - 显示编辑职位表单（MO视图）
+            System.out.println("Handling: Edit position form");
+            handleEditPositionForm(request, response);
         } else {
             System.out.println("No matching path, returning 404");
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "请求的资源不存在");
@@ -84,6 +88,12 @@ public class PositionServlet extends HttpServlet {
                 break;
             case "/delete":
                 handleDeletePosition(request, response);
+                break;
+            case "/edit":
+                handleEditPosition(request, response);
+                break;
+            case "/update":
+                handleUpdatePosition(request, response);
                 break;
             default:
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "请求的资源不存在");
@@ -479,5 +489,242 @@ public class PositionServlet extends HttpServlet {
             request.setAttribute("errorMessage", "删除职位失败：" + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/mo/positions/my");
         }
+    }
+    
+    /**
+     * 处理显示编辑职位表单请求（MO操作）
+     * V3.6 - 职位编辑功能
+     */
+    private void handleEditPositionForm(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        try {
+            // 获取当前登录用户
+            HttpSession session = request.getSession(false);
+            if (session == null) {
+                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                return;
+            }
+            
+            User currentUser = (User) session.getAttribute("user");
+            if (currentUser == null) {
+                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                return;
+            }
+            
+            // 验证用户角色为MO
+            if (currentUser.getRole() != UserRole.MO) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有MO可以编辑职位");
+                return;
+            }
+            
+            // 获取职位ID参数
+            String positionId = request.getParameter("positionId");
+            
+            if (positionId == null || positionId.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "职位ID不能为空");
+                return;
+            }
+            
+            // 获取职位信息
+            Position position = positionService.getPositionById(positionId.trim());
+            
+            if (position == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "职位不存在");
+                return;
+            }
+            
+            // 验证该职位是否属于当前MO
+            if (!position.getMoId().equals(currentUser.getUserId())) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "您只能编辑自己创建的职位");
+                return;
+            }
+            
+            // 将职位信息设置到request中
+            request.setAttribute("position", position);
+            
+            // 转发到编辑页面
+            request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+            
+        } catch (Exception e) {
+            request.setAttribute("errorMessage", "获取职位信息失败：" + e.getMessage());
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+        }
+    }
+    
+    /**
+     * 处理编辑职位请求（MO操作）
+     * V3.6 - 职位编辑功能
+     */
+    private void handleEditPosition(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        try {
+            // 获取当前登录用户
+            HttpSession session = request.getSession(false);
+            if (session == null) {
+                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                return;
+            }
+            
+            User currentUser = (User) session.getAttribute("user");
+            if (currentUser == null) {
+                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                return;
+            }
+            
+            // 验证用户角色为MO
+            if (currentUser.getRole() != UserRole.MO) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有MO可以编辑职位");
+                return;
+            }
+            
+            // 获取职位ID
+            String positionId = request.getParameter("positionId");
+            
+            if (positionId == null || positionId.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "职位ID不能为空");
+                return;
+            }
+            
+            // 验证职位存在且属于当前MO
+            Position existingPosition = positionService.getPositionById(positionId.trim());
+            if (existingPosition == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "职位不存在");
+                return;
+            }
+            
+            if (!existingPosition.getMoId().equals(currentUser.getUserId())) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "您只能编辑自己创建的职位");
+                return;
+            }
+            
+            // 获取表单参数
+            String title = request.getParameter("title");
+            String description = request.getParameter("description");
+            String requirements = request.getParameter("requirements");
+            String hoursStr = request.getParameter("hours");
+            String maxPositionsStr = request.getParameter("maxPositions");
+            String deadlineStr = request.getParameter("deadline");
+            
+            // 验证必填字段
+            if (title == null || title.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "职位标题不能为空");
+                request.setAttribute("position", existingPosition);
+                request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+                return;
+            }
+            
+            if (description == null || description.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "职位描述不能为空");
+                request.setAttribute("position", existingPosition);
+                request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+                return;
+            }
+            
+            if (hoursStr == null || hoursStr.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "工作时长不能为空");
+                request.setAttribute("position", existingPosition);
+                request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+                return;
+            }
+            
+            if (maxPositionsStr == null || maxPositionsStr.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "招聘名额不能为空");
+                request.setAttribute("position", existingPosition);
+                request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+                return;
+            }
+            
+            // 解析工作时长
+            int hours;
+            try {
+                hours = Integer.parseInt(hoursStr.trim());
+                if (hours <= 0) {
+                    request.setAttribute("errorMessage", "工作时长必须大于0");
+                    request.setAttribute("position", existingPosition);
+                    request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorMessage", "工作时长必须是有效的数字");
+                request.setAttribute("position", existingPosition);
+                request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+                return;
+            }
+            
+            // 解析招聘名额
+            int maxPositions;
+            try {
+                maxPositions = Integer.parseInt(maxPositionsStr.trim());
+                if (maxPositions <= 0) {
+                    request.setAttribute("errorMessage", "招聘名额必须大于0");
+                    request.setAttribute("position", existingPosition);
+                    request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorMessage", "招聘名额必须是有效的数字");
+                request.setAttribute("position", existingPosition);
+                request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+                return;
+            }
+            
+            // 解析截止日期
+            java.util.Date deadline = null;
+            if (deadlineStr != null && !deadlineStr.trim().isEmpty()) {
+                try {
+                    java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                    deadline = dateFormat.parse(deadlineStr.trim());
+                    
+                    // 验证截止日期不能早于今天
+                    if (deadline.before(new java.util.Date())) {
+                        request.setAttribute("errorMessage", "截止日期不能早于今天");
+                        request.setAttribute("position", existingPosition);
+                        request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+                        return;
+                    }
+                } catch (java.text.ParseException e) {
+                    request.setAttribute("errorMessage", "截止日期格式无效");
+                    request.setAttribute("position", existingPosition);
+                    request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+                    return;
+                }
+            }
+            
+            // 调用服务层更新职位
+            positionService.updatePosition(
+                positionId.trim(),
+                title,
+                description,
+                requirements,
+                hours,
+                maxPositions,
+                deadline
+            );
+            
+            // 更新成功，重定向到我的职位页面
+            response.sendRedirect(request.getContextPath() + "/mo/positions/my");
+            
+        } catch (IllegalArgumentException e) {
+            // 业务逻辑错误
+            request.setAttribute("errorMessage", e.getMessage());
+            request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+            
+        } catch (IOException e) {
+            // 数据访问错误
+            request.setAttribute("errorMessage", "更新职位失败：" + e.getMessage());
+            request.getRequestDispatcher("/WEB-INF/jsp/mo/edit-position.jsp").forward(request, response);
+        }
+    }
+    
+    /**
+     * 处理更新职位请求（MO操作）
+     * V3.6 - 职位编辑功能
+     * 这个方法与handleEditPosition功能相同，提供额外的路由选项
+     */
+    private void handleUpdatePosition(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        handleEditPosition(request, response);
     }
 }

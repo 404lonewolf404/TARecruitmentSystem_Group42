@@ -65,6 +65,7 @@
             <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/ta/notifications">
                     通知

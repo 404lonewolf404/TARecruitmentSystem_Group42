@@ -213,4 +213,70 @@ public class PositionService {
         
         return position;
     }
+    
+    /**
+     * 更新职位信息
+     * V3.6 - 职位编辑功能
+     * 
+     * @param positionId 职位ID
+     * @param title 职位标题
+     * @param description 职位描述
+     * @param requirements 职位要求
+     * @param hours 工作时长（小时/周）
+     * @param maxPositions 招聘名额
+     * @param deadline 申请截止日期（可选）
+     * @return 更新后的职位对象
+     * @throws IllegalArgumentException 如果参数无效或职位不存在
+     * @throws IOException 如果数据保存失败
+     */
+    public Position updatePosition(String positionId, String title, String description,
+                                   String requirements, int hours, int maxPositions, Date deadline)
+            throws IllegalArgumentException, IOException {
+        
+        // 验证职位ID
+        if (positionId == null || positionId.trim().isEmpty()) {
+            throw new IllegalArgumentException("职位ID不能为空");
+        }
+        
+        // 检查职位是否存在
+        Position position = positionDAO.findById(positionId.trim());
+        if (position == null) {
+            throw new IllegalArgumentException("职位不存在");
+        }
+        
+        // 验证必填字段
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("职位标题不能为空");
+        }
+        
+        if (description == null || description.trim().isEmpty()) {
+            throw new IllegalArgumentException("职位描述不能为空");
+        }
+        
+        if (hours <= 0) {
+            throw new IllegalArgumentException("工作时长必须大于0");
+        }
+        
+        if (maxPositions <= 0) {
+            throw new IllegalArgumentException("招聘名额必须大于0");
+        }
+        
+        // 验证截止日期不能早于今天
+        if (deadline != null && deadline.before(new Date())) {
+            throw new IllegalArgumentException("截止日期不能早于今天");
+        }
+        
+        // 更新职位信息
+        position.setTitle(title.trim());
+        position.setDescription(description.trim());
+        position.setRequirements(requirements != null ? requirements.trim() : "");
+        position.setHours(hours);
+        position.setMaxPositions(maxPositions);
+        position.setDeadline(deadline);
+        
+        // 保存更新
+        positionDAO.update(position);
+        
+        return position;
+    }
 }

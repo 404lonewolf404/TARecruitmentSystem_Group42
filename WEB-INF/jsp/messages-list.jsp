@@ -112,6 +112,51 @@
         .status-selected { background: #27ae60; color: white; }
         .status-rejected { background: #e74c3c; color: white; }
         
+        .filter-toolbar {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .filter-group, .sort-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-group label, .sort-group label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .filter-toolbar select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            color: #2c3e50;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .filter-toolbar select:hover {
+            border-color: #3498db;
+        }
+        
+        .filter-toolbar select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+        
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -153,6 +198,34 @@
     <div class="container">
         <h2>💬 消息列表</h2>
         
+        <!-- 筛选和排序工具栏 -->
+        <div class="filter-toolbar">
+            <div class="filter-group">
+                <label>筛选：</label>
+                <select id="filterUnread" onchange="applyFilters()">
+                    <option value="all">全部消息</option>
+                    <option value="unread">仅未读</option>
+                    <option value="read">仅已读</option>
+                </select>
+                
+                <select id="filterStatus" onchange="applyFilters()">
+                    <option value="all">全部状态</option>
+                    <option value="PENDING">待审核</option>
+                    <option value="SELECTED">已选中</option>
+                    <option value="REJECTED">已拒绝</option>
+                </select>
+            </div>
+            
+            <div class="sort-group">
+                <label>排序：</label>
+                <select id="sortBy" onchange="applyFilters()">
+                    <option value="time">按时间</option>
+                    <option value="unread">按未读数</option>
+                    <option value="name">按姓名</option>
+                </select>
+            </div>
+        </div>
+        
         <div class="conversation-list">
             <% if (conversations == null || conversations.isEmpty()) { %>
                 <div class="empty-state">
@@ -174,19 +247,23 @@
                     String otherUserName = currentUser.getRole() == UserRole.TA ? mo.getName() : ta.getName();
                     String statusClass = "";
                     String statusText = "";
+                    String statusValue = "";
                     
                     if (app.getStatus() == ApplicationStatus.PENDING) {
                         statusClass = "status-pending";
                         statusText = "待审核";
+                        statusValue = "PENDING";
                     } else if (app.getStatus() == ApplicationStatus.SELECTED) {
                         statusClass = "status-selected";
                         statusText = "已选中";
+                        statusValue = "SELECTED";
                     } else if (app.getStatus() == ApplicationStatus.REJECTED) {
                         statusClass = "status-rejected";
                         statusText = "已拒绝";
+                        statusValue = "REJECTED";
                     }
                 %>
-                    <div class="conversation-item" onclick="window.location.href='<%= request.getContextPath() %>/messages/conversation?applicationId=<%= app.getApplicationId() %>'">
+                    <div class="conversation-item" data-status="<%= statusValue %>" onclick="window.location.href='<%= request.getContextPath() %>/messages/conversation?applicationId=<%= app.getApplicationId() %>'">
                         <div class="conversation-avatar">
                             <%= otherUserName.substring(0, 1) %>
                         </div>
@@ -215,5 +292,81 @@
             <% } %>
         </div>
     </div>
+    
+    <script>
+        // 存储所有对话数据
+        let allConversations = [];
+        
+        // 页面加载时初始化数据
+        window.addEventListener('DOMContentLoaded', function() {
+            // 获取所有对话项
+            const conversationItems = document.querySelectorAll('.conversation-item');
+            conversationItems.forEach(item => {
+                const unreadBadge = item.querySelector('.conversation-badge');
+                const statusSpan = item.querySelector('.conversation-status');
+                const nameSpan = item.querySelector('.conversation-name');
+                const timeSpan = item.querySelector('.conversation-time');
+                
+                allConversations.push({
+                    element: item,
+                    unreadCount: unreadBadge ? parseInt(unreadBadge.textContent) : 0,
+                    status: statusSpan ? statusSpan.textContent.trim() : '',
+                    statusValue: item.dataset.status || '',
+                    name: nameSpan ? nameSpan.textContent.trim() : '',
+                    time: timeSpan ? timeSpan.textContent.trim() : ''
+                });
+            });
+        });
+        
+        function applyFilters() {
+            const filterUnread = document.getElementById('filterUnread').value;
+            const filterStatus = document.getElementById('filterStatus').value;
+            const sortBy = document.getElementById('sortBy').value;
+            
+            // 筛选
+            let filtered = allConversations.filter(conv => {
+                // 未读筛选
+                if (filterUnread === 'unread' && conv.unreadCount === 0) return false;
+                if (filterUnread === 'read' && conv.unreadCount > 0) return false;
+                
+                // 状态筛选
+                if (filterStatus !== 'all' && conv.statusValue !== filterStatus) return false;
+                
+                return true;
+            });
+            
+            // 排序
+            filtered.sort((a, b) => {
+                if (sortBy === 'time') {
+                    // 按时间排序（最新的在前）
+                    return b.time.localeCompare(a.time);
+                } else if (sortBy === 'unread') {
+                    // 按未读数排序（多的在前）
+                    return b.unreadCount - a.unreadCount;
+                } else if (sortBy === 'name') {
+                    // 按姓名排序
+                    return a.name.localeCompare(b.name, 'zh-CN');
+                }
+                return 0;
+            });
+            
+            // 重新渲染列表
+            const conversationList = document.querySelector('.conversation-list');
+            conversationList.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                conversationList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💬</div>
+                        <p>没有符合条件的消息</p>
+                    </div>
+                `;
+            } else {
+                filtered.forEach(conv => {
+                    conversationList.appendChild(conv.element.cloneNode(true));
+                });
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,10 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruitment.model.User" %>
+<%@ page import="com.bupt.tarecruitment.model.Position" %>
 <%@ page import="com.bupt.tarecruitment.service.NotificationService" %>
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
+        return;
+    }
+    
+    Position position = (Position) request.getAttribute("position");
+    if (position == null) {
+        response.sendRedirect(request.getContextPath() + "/mo/positions/my");
         return;
     }
     
@@ -24,7 +31,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>创建职位 - TA招聘系统</title>
+    <title>编辑职位 - TA招聘系统</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
 </head>
 <body>
@@ -37,7 +44,7 @@
             <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/my">我的职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/positions/create" class="active">创建职位</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
             <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/mo/notifications">
@@ -53,8 +60,8 @@
     
     <div class="container">
         <div class="card">
-            <h2>创建新职位</h2>
-            <p>填写以下信息发布助教职位招聘</p>
+            <h2>编辑职位</h2>
+            <p>修改职位信息</p>
         </div>
         
         <% if (errorMessage != null) { %>
@@ -64,7 +71,9 @@
         <% } %>
         
         <div class="card">
-            <form method="post" action="<%= request.getContextPath() %>/mo/positions/create" class="form">
+            <form method="post" action="<%= request.getContextPath() %>/mo/positions/edit" class="form">
+                <input type="hidden" name="positionId" value="<%= position.getPositionId() %>">
+                
                 <div class="form-group">
                     <label for="title">职位标题 <span class="required">*</span></label>
                     <input type="text" 
@@ -73,7 +82,7 @@
                            required 
                            maxlength="200"
                            placeholder="例如：数据结构课程助教"
-                           value="<%= request.getParameter("title") != null ? request.getParameter("title") : "" %>">
+                           value="<%= position.getTitle() %>">
                 </div>
                 
                 <div class="form-group">
@@ -82,7 +91,7 @@
                               name="description" 
                               required 
                               rows="5"
-                              placeholder="详细描述职位职责和工作内容"><%= request.getParameter("description") != null ? request.getParameter("description") : "" %></textarea>
+                              placeholder="详细描述职位职责和工作内容"><%= position.getDescription() %></textarea>
                 </div>
                 
                 <div class="form-group">
@@ -90,7 +99,7 @@
                     <textarea id="requirements" 
                               name="requirements" 
                               rows="4"
-                              placeholder="描述对申请者的技能和经验要求（可选）"><%= request.getParameter("requirements") != null ? request.getParameter("requirements") : "" %></textarea>
+                              placeholder="描述对申请者的技能和经验要求（可选）"><%= position.getRequirements() != null ? position.getRequirements() : "" %></textarea>
                 </div>
                 
                 <div class="form-group">
@@ -102,7 +111,7 @@
                            min="1" 
                            max="40"
                            placeholder="例如：10"
-                           value="<%= request.getParameter("hours") != null ? request.getParameter("hours") : "" %>">
+                           value="<%= position.getHours() %>">
                     <small>请输入每周工作小时数（1-40小时）</small>
                 </div>
                 
@@ -115,7 +124,7 @@
                            min="1" 
                            max="100"
                            placeholder="例如：2"
-                           value="<%= request.getParameter("maxPositions") != null ? request.getParameter("maxPositions") : "1" %>">
+                           value="<%= position.getMaxPositions() %>">
                     <small>请输入需要招聘的TA数量（1-100人）</small>
                 </div>
                 
@@ -125,12 +134,12 @@
                            id="deadline" 
                            name="deadline"
                            min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>"
-                           value="<%= request.getParameter("deadline") != null ? request.getParameter("deadline") : "" %>">
+                           value="<%= position.getDeadline() != null ? new java.text.SimpleDateFormat("yyyy-MM-dd").format(position.getDeadline()) : "" %>">
                     <small>设置申请截止日期后，过期职位将自动停止接受申请</small>
                 </div>
                 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">创建职位</button>
+                    <button type="submit" class="btn btn-primary">保存修改</button>
                     <a href="<%= request.getContextPath() %>/mo/positions/my" class="btn btn-secondary">取消</a>
                 </div>
             </form>

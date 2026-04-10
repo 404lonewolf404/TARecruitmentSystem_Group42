@@ -147,6 +147,7 @@
             <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/my">我的职位</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/mo/notifications">
                     通知
