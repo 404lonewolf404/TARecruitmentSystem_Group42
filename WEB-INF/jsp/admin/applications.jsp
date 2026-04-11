@@ -21,12 +21,18 @@
     <nav>
         <ul>
             <li><a href="<%= request.getContextPath() %>/admin/dashboard">仪表板</a></li>
+<<<<<<< HEAD
             <li><a href="<%= request.getContextPath() %>/admin/profile">个人资料</a></li>
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
             <li><a href="<%= request.getContextPath() %>/admin/users">用户管理</a></li>
             <li><a href="<%= request.getContextPath() %>/admin/positions">职位管理</a></li>
             <li><a href="<%= request.getContextPath() %>/admin/applications">申请管理</a></li>
             <li><a href="<%= request.getContextPath() %>/admin/workload">工作量报告</a></li>
+<<<<<<< HEAD
             <li><a href="<%= request.getContextPath() %>/admin/notifications">通知</a></li>
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>

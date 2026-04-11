@@ -127,11 +127,14 @@
         <servlet-class>com.bupt.tarecruitment.servlet.MessageServlet</servlet-class>
     </servlet>
     
+<<<<<<< HEAD
     <servlet>
         <servlet-name>FavoriteServlet</servlet-name>
         <servlet-class>com.bupt.tarecruitment.servlet.FavoriteServlet</servlet-class>
     </servlet>
     
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
     <!-- Servlet Mappings -->
     <servlet-mapping>
         <servlet-name>AuthServlet</servlet-name>
@@ -243,6 +246,7 @@
     </servlet-mapping>
     
     <servlet-mapping>
+<<<<<<< HEAD
         <servlet-name>FavoriteServlet</servlet-name>
         <url-pattern>/ta/favorites</url-pattern>
     </servlet-mapping>
@@ -253,6 +257,8 @@
     </servlet-mapping>
     
     <servlet-mapping>
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
         <servlet-name>AdminServlet</servlet-name>
         <url-pattern>/admin/*</url-pattern>
     </servlet-mapping>

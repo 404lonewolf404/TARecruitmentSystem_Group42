@@ -42,7 +42,10 @@
             <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
+<<<<<<< HEAD
             <li><a href="<%= request.getContextPath() %>/ta/favorites">⭐ 我的收藏</a></li>
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
             <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/ta/notifications">

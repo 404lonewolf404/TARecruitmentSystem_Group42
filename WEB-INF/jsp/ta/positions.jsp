@@ -56,7 +56,10 @@
             <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
+<<<<<<< HEAD
             <li><a href="<%= request.getContextPath() %>/ta/favorites">⭐ 我的收藏</a></li>
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
             <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/ta/notifications">
@@ -179,7 +182,10 @@
                     
                     <% 
                     boolean hasApplied = appliedPositionIds != null && appliedPositionIds.contains(position.getPositionId());
+<<<<<<< HEAD
                     boolean isFavorited = favoritedPositionIds != null && favoritedPositionIds.contains(position.getPositionId());
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
                     boolean canApply = position.canAcceptApplications(); // V3.2: 检查是否可以申请
                     
                     if (hasApplied) { 
@@ -239,6 +245,7 @@
                             </button>
                         </form>
                         
+<<<<<<< HEAD
                         <% if (isFavorited) { %>
                             <button type="button" class="btn btn-secondary" style="margin-left: 10px;" 
                                     id="favoriteBtn_<%= position.getPositionId() %>"
@@ -253,6 +260,8 @@
                             </button>
                         <% } %>
                         
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
                         <script>
                         function toggleResumeUpload(radio) {
                             var form = radio.form;
