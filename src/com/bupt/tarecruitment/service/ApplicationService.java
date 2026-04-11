@@ -37,11 +37,12 @@ public class ApplicationService {
      * 
      * @param taId TA的用户ID
      * @param positionId 职位ID
+     * @param resumePath 简历文件路径（可选，如果为null则使用用户默认简历）
      * @return 创建的申请对象
      * @throws IllegalArgumentException 如果参数无效或已申请过
      * @throws IOException 如果数据保存失败
      */
-    public Application applyForPosition(String taId, String positionId) 
+    public Application applyForPosition(String taId, String positionId, String resumePath) 
             throws IllegalArgumentException, IOException {
         
         // 验证参数
@@ -77,6 +78,7 @@ public class ApplicationService {
         application.setPositionId(positionId.trim());
         application.setStatus(ApplicationStatus.PENDING);
         application.setAppliedAt(new Date());
+        application.setResumePath(resumePath);
         
         // 保存申请
         applicationDAO.add(application);
@@ -171,6 +173,30 @@ public class ApplicationService {
                 application.setStatus(ApplicationStatus.REJECTED);
             }
             applicationDAO.update(application);
+        }
+    }
+    
+    /**
+     * 根据ID获取申请
+     */
+    public Application getApplicationById(String applicationId) {
+        try {
+            return applicationDAO.findById(applicationId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    /**
+     * 获取职位的所有申请
+     */
+    public List<Application> getApplicationsByPositionId(String positionId) {
+        try {
+            return applicationDAO.findByPositionId(positionId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
         }
     }
 }

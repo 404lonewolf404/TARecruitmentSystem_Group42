@@ -2,6 +2,7 @@ package com.bupt.tarecruitment.servlet;
 
 import com.bupt.tarecruitment.dao.UserDAO;
 import com.bupt.tarecruitment.model.User;
+import com.bupt.tarecruitment.util.ValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -144,6 +145,23 @@ public class ProfileServlet extends HttpServlet {
                 return;
             }
             
+            // 数据验证
+            if (!ValidationUtil.isValidLength(name.trim(), 2, 50)) {
+                request.setAttribute("errorMessage", "姓名长度必须在2-50个字符之间");
+                request.setAttribute("user", currentUser);
+                String profilePage = getProfilePage(currentUser);
+                request.getRequestDispatcher(profilePage).forward(request, response);
+                return;
+            }
+            
+            if (!ValidationUtil.isValidEmail(email.trim())) {
+                request.setAttribute("errorMessage", "请输入有效的邮箱地址");
+                request.setAttribute("user", currentUser);
+                String profilePage = getProfilePage(currentUser);
+                request.getRequestDispatcher(profilePage).forward(request, response);
+                return;
+            }
+            
             // 检查邮箱是否被其他用户使用
             User existingUser = userDAO.findByEmail(email.trim());
             if (existingUser != null && !existingUser.getUserId().equals(currentUser.getUserId())) {
@@ -162,13 +180,13 @@ public class ProfileServlet extends HttpServlet {
                 return;
             }
             
-            // 更新用户信息
-            user.setName(name.trim());
-            user.setEmail(email.trim());
+            // 更新用户信息（XSS防护）
+            user.setName(ValidationUtil.escapeHtml(name.trim()));
+            user.setEmail(email.trim()); // 邮箱不需要HTML转义
             
             // 只有TA角色才更新技能字段
             if (skills != null) {
-                user.setSkills(skills.trim());
+                user.setSkills(ValidationUtil.escapeHtml(skills.trim()));
             }
             
             // 处理CV文件上传（仅TA角色）

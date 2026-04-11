@@ -1,6 +1,8 @@
 package com.bupt.tarecruitment.servlet;
 
+import com.bupt.tarecruitment.dao.ApplicationDAO;
 import com.bupt.tarecruitment.dao.UserDAO;
+import com.bupt.tarecruitment.model.Application;
 import com.bupt.tarecruitment.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -20,11 +22,13 @@ import java.io.OutputStream;
 public class CVServlet extends HttpServlet {
     
     private UserDAO userDAO;
+    private ApplicationDAO applicationDAO;
     
     @Override
     public void init() throws ServletException {
         super.init();
         this.userDAO = new UserDAO();
+        this.applicationDAO = new ApplicationDAO();
     }
     
     @Override
@@ -44,33 +48,65 @@ public class CVServlet extends HttpServlet {
             return;
         }
         
-        // 获取要下载的用户ID
+        // 检查是通过userId还是applicationId下载
         String userId = request.getParameter("userId");
-        if (userId == null || userId.trim().isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "用户ID不能为空");
-            return;
-        }
+        String applicationId = request.getParameter("applicationId");
         
-        // 获取用户信息
-        User targetUser = userDAO.findById(userId.trim());
-        if (targetUser == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "用户不存在");
-            return;
-        }
+        String cvPath = null;
+        String targetUserId = null;
         
-        // 检查权限：只有本人或MO可以下载简历
-        boolean isOwner = currentUser.getUserId().equals(targetUser.getUserId());
-        boolean isMO = currentUser.getRole().toString().equals("MO");
-        
-        if (!isOwner && !isMO) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "您没有权限下载此简历");
-            return;
-        }
-        
-        // 检查用户是否有简历
-        String cvPath = targetUser.getCvPath();
-        if (cvPath == null || cvPath.trim().isEmpty()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "该用户未上传简历");
+        if (applicationId != null && !applicationId.trim().isEmpty()) {
+            // 通过applicationId下载
+            Application application = applicationDAO.findById(applicationId.trim());
+            if (application == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "申请不存在");
+                return;
+            }
+            
+            // 检查权限：只有MO可以通过applicationId下载
+            boolean isMO = currentUser.getRole().toString().equals("MO");
+            if (!isMO) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "您没有权限下载此简历");
+                return;
+            }
+            
+            // 获取申请中的简历路径
+            cvPath = application.getResumePath();
+            targetUserId = application.getTaId();
+            
+            if (cvPath == null || cvPath.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "该申请未关联简历");
+                return;
+            }
+            
+        } else if (userId != null && !userId.trim().isEmpty()) {
+            // 通过userId下载
+            User targetUser = userDAO.findById(userId.trim());
+            if (targetUser == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "用户不存在");
+                return;
+            }
+            
+            // 检查权限：只有本人或MO可以下载简历
+            boolean isOwner = currentUser.getUserId().equals(targetUser.getUserId());
+            boolean isMO = currentUser.getRole().toString().equals("MO");
+            
+            if (!isOwner && !isMO) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "您没有权限下载此简历");
+                return;
+            }
+            
+            // 检查用户是否有简历
+            cvPath = targetUser.getCvPath();
+            targetUserId = targetUser.getUserId();
+            
+            if (cvPath == null || cvPath.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "该用户未上传简历");
+                return;
+            }
+            
+        } else {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "必须提供userId或applicationId参数");
             return;
         }
         

@@ -1,7 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruitment.model.User" %>
 <%@ page import="com.bupt.tarecruitment.model.Position" %>
+<%@ page import="com.bupt.tarecruitment.model.Application" %>
+<%@ page import="com.bupt.tarecruitment.dao.UserDAO" %>
+<%@ page import="com.bupt.tarecruitment.service.NotificationService" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
@@ -9,8 +13,30 @@
         return;
     }
     
+    // 获取未读通知数量
+    int unreadCount = 0;
+    try {
+        NotificationService notificationService = new NotificationService();
+        unreadCount = notificationService.getUnreadCount(currentUser.getUserId());
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
     @SuppressWarnings("unchecked")
     List<Position> positions = (List<Position>) request.getAttribute("positions");
+    
+    @SuppressWarnings("unchecked")
+    Map<String, Application> selectedApplications = (Map<String, Application>) request.getAttribute("selectedApplications");
+    
+    // 调试输出
+    System.out.println("=== JSP Debug ===");
+    System.out.println("selectedApplications is null: " + (selectedApplications == null));
+    if (selectedApplications != null) {
+        System.out.println("selectedApplications size: " + selectedApplications.size());
+    }
+    
+    // 创建UserDAO实例用于获取TA信息
+    UserDAO userDAO = new UserDAO();
 %>
 <!DOCTYPE html>
 <html>
@@ -28,8 +54,18 @@
     <nav>
         <ul>
             <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/my" class="active">我的职位</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
+            <li>
+                <a href="<%= request.getContextPath() %>/mo/notifications">
+                    通知
+                    <% if (unreadCount > 0) { %>
+                        <span class="notification-badge"><%= unreadCount %></span>
+                    <% } %>
+                </a>
+            </li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>
@@ -63,11 +99,56 @@
                                 <p><strong>要求：</strong><%= position.getRequirements() %></p>
                             <% } %>
                             <p><strong>工作时长：</strong><%= position.getHours() %> 小时/周</p>
+                            <p><strong>招聘名额：</strong><%= position.getMaxPositions() %> 人</p>
+                            
+                            <%-- V3.2: 显示截止日期和剩余天数 --%>
+                            <% if (position.getDeadline() != null) { %>
+                                <p><strong>申请截止：</strong>
+                                    <%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(position.getDeadline()) %>
+                                    <% 
+                                    int daysRemaining = position.getDaysRemaining();
+                                    if (daysRemaining > 7) { %>
+                                        <span style="color: #28a745;">(还剩 <%= daysRemaining %> 天)</span>
+                                    <% } else if (daysRemaining >= 4) { %>
+                                        <span style="color: #ffc107;">(还剩 <%= daysRemaining %> 天)</span>
+                                    <% } else if (daysRemaining > 0) { %>
+                                        <span style="color: #dc3545;">(还剩 <%= daysRemaining %> 天)</span>
+                                    <% } else if (position.isExpired()) { %>
+                                        <span style="color: #dc3545; font-weight: bold;">(已过期)</span>
+                                    <% } %>
+                                </p>
+                            <% } else { %>
+                                <p><strong>申请截止：</strong><span style="color: #6c757d;">无截止日期</span></p>
+                            <% } %>
+                            
+                            <% 
+                            // 显示被选中的TA信息
+                            Application selectedApp = selectedApplications != null ? selectedApplications.get(position.getPositionId()) : null;
+                            if (selectedApp != null) {
+                                User selectedTA = userDAO.findById(selectedApp.getTaId());
+                                if (selectedTA != null) {
+                            %>
+                                <div style="margin-top: 15px; padding: 10px; background-color: #d4edda; border-left: 4px solid #28a745; border-radius: 4px;">
+                                    <p style="margin: 0; color: #155724;"><strong>✓ 已选中助教：</strong><%= selectedTA.getName() %></p>
+                                    <p style="margin: 5px 0 0 0; color: #155724; font-size: 0.9em;">邮箱：<%= selectedTA.getEmail() %></p>
+                                </div>
+                            <% 
+                                }
+                            } else {
+                            %>
+                                <div style="margin-top: 15px; padding: 10px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+                                    <p style="margin: 0; color: #856404;"><strong>⚠ 尚未选择助教</strong></p>
+                                </div>
+                            <% } %>
                         </div>
                         
                         <div class="position-actions">
                             <a href="<%= request.getContextPath() %>/mo/applications/position?positionId=<%= position.getPositionId() %>" 
                                class="btn btn-secondary">查看申请</a>
+                            
+                            <a href="<%= request.getContextPath() %>/mo/positions/edit?positionId=<%= position.getPositionId() %>" 
+                               class="btn btn-primary">编辑职位</a>
+                            
                             <form method="post" action="<%= request.getContextPath() %>/mo/positions/delete" 
                                   style="display: inline;" 
                                   onsubmit="return confirm('确定要删除此职位吗？这将同时删除所有相关申请。');">

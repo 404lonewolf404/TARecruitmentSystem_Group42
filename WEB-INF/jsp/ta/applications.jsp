@@ -4,6 +4,7 @@
 <%@ page import="com.bupt.tarecruitment.model.ApplicationStatus" %>
 <%@ page import="com.bupt.tarecruitment.model.Position" %>
 <%@ page import="com.bupt.tarecruitment.dao.PositionDAO" %>
+<%@ page import="com.bupt.tarecruitment.service.NotificationService" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%
@@ -11,6 +12,15 @@
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
+    }
+    
+    // 获取未读通知数量
+    int unreadCount = 0;
+    try {
+        NotificationService notificationService = new NotificationService();
+        unreadCount = notificationService.getUnreadCount(currentUser.getUserId());
+    } catch (Exception e) {
+        e.printStackTrace();
     }
     
     @SuppressWarnings("unchecked")
@@ -55,6 +65,16 @@
             <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/favorites">⭐ 我的收藏</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
+            <li>
+                <a href="<%= request.getContextPath() %>/ta/notifications">
+                    通知
+                    <% if (unreadCount > 0) { %>
+                        <span class="notification-badge"><%= unreadCount %></span>
+                    <% } %>
+                </a>
+            </li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>
@@ -148,25 +168,32 @@
                         <% } %>
                     </div>
                     
-                    <% if (app.getStatus() == ApplicationStatus.PENDING) { %>
-                        <form action="<%= request.getContextPath() %>/ta/applications/withdraw" method="post" style="display: inline;">
-                            <input type="hidden" name="applicationId" value="<%= app.getApplicationId() %>">
-                            <button type="submit" class="btn btn-danger" 
-                                    onclick="return confirm('确定要撤回这个申请吗？撤回后将无法恢复。');">
-                                撤回申请
-                            </button>
-                        </form>
-                    <% } else { %>
-                        <p style="color: #7f8c8d; font-style: italic;">
-                            <% if (app.getStatus() == ApplicationStatus.SELECTED) { %>
-                                恭喜！您已被选中担任此职位。
-                            <% } else if (app.getStatus() == ApplicationStatus.REJECTED) { %>
-                                很遗憾，您的申请未被选中。
-                            <% } else if (app.getStatus() == ApplicationStatus.WITHDRAWN) { %>
-                                您已撤回此申请。
-                            <% } %>
-                        </p>
-                    <% } %>
+                    <div style="margin-top: 15px;">
+                        <a href="<%= request.getContextPath() %>/messages/conversation?applicationId=<%= app.getApplicationId() %>" 
+                           class="btn btn-primary" style="margin-right: 10px;">
+                            💬 对话
+                        </a>
+                        
+                        <% if (app.getStatus() == ApplicationStatus.PENDING) { %>
+                            <form action="<%= request.getContextPath() %>/ta/applications/withdraw" method="post" style="display: inline;">
+                                <input type="hidden" name="applicationId" value="<%= app.getApplicationId() %>">
+                                <button type="submit" class="btn btn-danger" 
+                                        onclick="return confirm('确定要撤回这个申请吗？撤回后将无法恢复。');">
+                                    撤回申请
+                                </button>
+                            </form>
+                        <% } else { %>
+                            <span style="color: #7f8c8d; font-style: italic;">
+                                <% if (app.getStatus() == ApplicationStatus.SELECTED) { %>
+                                    恭喜！您已被选中担任此职位。
+                                <% } else if (app.getStatus() == ApplicationStatus.REJECTED) { %>
+                                    很遗憾，您的申请未被选中。
+                                <% } else if (app.getStatus() == ApplicationStatus.WITHDRAWN) { %>
+                                    您已撤回此申请。
+                                <% } %>
+                            </span>
+                        <% } %>
+                    </div>
                 </div>
             <% } %>
         <% } %>

@@ -62,6 +62,11 @@
     </filter-mapping>
     
     <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/messages/*</url-pattern>
+    </filter-mapping>
+    
+    <filter-mapping>
         <filter-name>RoleFilter</filter-name>
         <url-pattern>/ta/*</url-pattern>
     </filter-mapping>
@@ -110,6 +115,21 @@
     <servlet>
         <servlet-name>CVServlet</servlet-name>
         <servlet-class>com.bupt.tarecruitment.servlet.CVServlet</servlet-class>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>NotificationServlet</servlet-name>
+        <servlet-class>com.bupt.tarecruitment.servlet.NotificationServlet</servlet-class>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>MessageServlet</servlet-name>
+        <servlet-class>com.bupt.tarecruitment.servlet.MessageServlet</servlet-class>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>FavoriteServlet</servlet-name>
+        <servlet-class>com.bupt.tarecruitment.servlet.FavoriteServlet</servlet-class>
     </servlet>
     
     <!-- Servlet Mappings -->
@@ -192,13 +212,49 @@
     </servlet-mapping>
     
     <servlet-mapping>
-        <servlet-name>AdminServlet</servlet-name>
-        <url-pattern>/admin/*</url-pattern>
+        <servlet-name>DashboardServlet</servlet-name>
+        <url-pattern>/admin/dashboard</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Notification mappings for all roles (must be before AdminServlet wildcard) -->
+    <servlet-mapping>
+        <servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/ta/notifications</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
-        <servlet-name>DashboardServlet</servlet-name>
-        <url-pattern>/admin/dashboard</url-pattern>
+        <servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/mo/notifications</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/admin/notifications</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/notifications/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>MessageServlet</servlet-name>
+        <url-pattern>/messages/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>FavoriteServlet</servlet-name>
+        <url-pattern>/ta/favorites</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>FavoriteServlet</servlet-name>
+        <url-pattern>/ta/favorites/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/admin/*</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>

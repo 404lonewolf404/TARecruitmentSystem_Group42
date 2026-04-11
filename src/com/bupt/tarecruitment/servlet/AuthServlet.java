@@ -3,6 +3,7 @@ package com.bupt.tarecruitment.servlet;
 import com.bupt.tarecruitment.model.User;
 import com.bupt.tarecruitment.model.UserRole;
 import com.bupt.tarecruitment.service.AuthService;
+import com.bupt.tarecruitment.util.ValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -103,6 +104,31 @@ public class AuthServlet extends HttpServlet {
                 return;
             }
             
+            // 数据验证
+            if (!ValidationUtil.isValidLength(name, 2, 50)) {
+                request.setAttribute("errorMessage", "姓名长度必须在2-50个字符之间");
+                request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+                return;
+            }
+            
+            if (!ValidationUtil.isValidEmail(email)) {
+                request.setAttribute("errorMessage", "请输入有效的邮箱地址");
+                request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+                return;
+            }
+            
+            if (!ValidationUtil.isStrongPassword(password)) {
+                request.setAttribute("errorMessage", "密码必须至少8位，包含字母和数字");
+                request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+                return;
+            }
+            
+            // XSS防护
+            name = ValidationUtil.escapeHtml(name);
+            if (skills != null) {
+                skills = ValidationUtil.escapeHtml(skills);
+            }
+            
             // 解析角色
             UserRole role;
             try {
@@ -146,6 +172,13 @@ public class AuthServlet extends HttpServlet {
             // 验证必填参数
             if (email == null || password == null) {
                 request.setAttribute("errorMessage", "请输入邮箱和密码");
+                request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
+                return;
+            }
+            
+            // 邮箱格式验证
+            if (!ValidationUtil.isValidEmail(email)) {
+                request.setAttribute("errorMessage", "请输入有效的邮箱地址");
                 request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
                 return;
             }

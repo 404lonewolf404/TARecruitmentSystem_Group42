@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruitment.model.User" %>
+<%@ page import="com.bupt.tarecruitment.service.NotificationService" %>
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
@@ -8,6 +9,15 @@
     }
     
     String errorMessage = (String) request.getAttribute("errorMessage");
+    
+    // 获取未读通知数量
+    int unreadCount = 0;
+    try {
+        NotificationService notificationService = new NotificationService();
+        unreadCount = notificationService.getUnreadCount(currentUser.getUserId());
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 %>
 <!DOCTYPE html>
 <html>
@@ -25,8 +35,18 @@
     <nav>
         <ul>
             <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/my">我的职位</a></li>
             <li><a href="<%= request.getContextPath() %>/mo/positions/create" class="active">创建职位</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
+            <li>
+                <a href="<%= request.getContextPath() %>/mo/notifications">
+                    通知
+                    <% if (unreadCount > 0) { %>
+                        <span class="notification-badge"><%= unreadCount %></span>
+                    <% } %>
+                </a>
+            </li>
             <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
         </ul>
     </nav>
@@ -84,6 +104,29 @@
                            placeholder="例如：10"
                            value="<%= request.getParameter("hours") != null ? request.getParameter("hours") : "" %>">
                     <small>请输入每周工作小时数（1-40小时）</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="maxPositions">招聘名额 <span class="required">*</span></label>
+                    <input type="number" 
+                           id="maxPositions" 
+                           name="maxPositions" 
+                           required 
+                           min="1" 
+                           max="100"
+                           placeholder="例如：2"
+                           value="<%= request.getParameter("maxPositions") != null ? request.getParameter("maxPositions") : "1" %>">
+                    <small>请输入需要招聘的TA数量（1-100人）</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="deadline">申请截止日期（可选）</label>
+                    <input type="date" 
+                           id="deadline" 
+                           name="deadline"
+                           min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>"
+                           value="<%= request.getParameter("deadline") != null ? request.getParameter("deadline") : "" %>">
+                    <small>设置申请截止日期后，过期职位将自动停止接受申请</small>
                 </div>
                 
                 <div class="form-actions">
