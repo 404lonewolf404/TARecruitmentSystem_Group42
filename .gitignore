@@ -1,30 +1,35 @@
-# 编译文件
+# --- 核心：屏蔽 Java 编译文件 ---
 *.class
 WEB-INF/classes/
 
-# 日志文件
+# --- 日志与临时文件 ---
 *.log
-
-# 临时文件
 *.tmp
 *.temp
 *.swp
 *~
 
-# IDE文件
+# --- 常见 IDE 配置文件 (避免团队冲突) ---
+# IntelliJ IDEA
 .idea/
 *.iml
-.vscode/
+*.iws
+*.ipr
+
+# Eclipse
 .settings/
 .project
 .classpath
 
-# 操作系统文件
-.DS_Store
-Thumbs.db
+# VS Code
+.vscode/
 
-# 构建输出
+# --- 构建工具目录 ---
 target/
 build/
-dist/
 out/
+dist/
+
+# --- 系统文件 ---
+.DS_Store
+Thumbs.db

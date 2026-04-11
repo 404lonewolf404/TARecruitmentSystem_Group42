@@ -24,6 +24,8 @@
     List<Position> positions = (List<Position>) request.getAttribute("positions");
     @SuppressWarnings("unchecked")
     Set<String> appliedPositionIds = (Set<String>) request.getAttribute("appliedPositionIds");
+    @SuppressWarnings("unchecked")
+    Set<String> favoritedPositionIds = (Set<String>) request.getAttribute("favoritedPositionIds");
     String errorMessage = (String) request.getAttribute("errorMessage");
     
     // 从session获取错误消息
@@ -54,6 +56,10 @@
             <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
             <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
+<<<<<<< HEAD
+            <li><a href="<%= request.getContextPath() %>/ta/favorites">⭐ 我的收藏</a></li>
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
             <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/ta/notifications">
@@ -176,6 +182,10 @@
                     
                     <% 
                     boolean hasApplied = appliedPositionIds != null && appliedPositionIds.contains(position.getPositionId());
+<<<<<<< HEAD
+                    boolean isFavorited = favoritedPositionIds != null && favoritedPositionIds.contains(position.getPositionId());
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
                     boolean canApply = position.canAcceptApplications(); // V3.2: 检查是否可以申请
                     
                     if (hasApplied) { 
@@ -235,6 +245,23 @@
                             </button>
                         </form>
                         
+<<<<<<< HEAD
+                        <% if (isFavorited) { %>
+                            <button type="button" class="btn btn-secondary" style="margin-left: 10px;" 
+                                    id="favoriteBtn_<%= position.getPositionId() %>"
+                                    onclick="toggleFavorite('<%= position.getPositionId() %>', true)">
+                                ⭐ 已收藏
+                            </button>
+                        <% } else { %>
+                            <button type="button" class="btn btn-secondary" style="margin-left: 10px;" 
+                                    id="favoriteBtn_<%= position.getPositionId() %>"
+                                    onclick="toggleFavorite('<%= position.getPositionId() %>', false)">
+                                ☆ 收藏
+                            </button>
+                        <% } %>
+                        
+=======
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
                         <script>
                         function toggleResumeUpload(radio) {
                             var form = radio.form;
@@ -287,6 +314,52 @@
             <a href="<%= request.getContextPath() %>/ta/dashboard" class="btn btn-secondary">返回仪表板</a>
         </div>
     </div>
+    
+    <script>
+    function toggleFavorite(positionId, isFavorited) {
+        var btn = document.getElementById('favoriteBtn_' + positionId);
+        var action = isFavorited ? 'remove' : 'add';
+        var url = '<%= request.getContextPath() %>/ta/favorites/' + action;
+        
+        // 禁用按钮防止重复点击
+        btn.disabled = true;
+        
+        // 创建 URL 编码的表单数据
+        var params = new URLSearchParams();
+        params.append('positionId', positionId);
+        
+        // 发送 AJAX 请求
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params.toString()
+        })
+        .then(response => {
+            if (response.ok) {
+                // 切换按钮状态
+                if (isFavorited) {
+                    btn.textContent = '☆ 收藏';
+                    btn.onclick = function() { toggleFavorite(positionId, false); };
+                } else {
+                    btn.textContent = '⭐ 已收藏';
+                    btn.onclick = function() { toggleFavorite(positionId, true); };
+                }
+            } else {
+                alert('操作失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('操作失败，请重试');
+        })
+        .finally(() => {
+            // 重新启用按钮
+            btn.disabled = false;
+        });
+    }
+    </script>
     
     <script src="<%= request.getContextPath() %>/js/main.js"></script>
 </body>

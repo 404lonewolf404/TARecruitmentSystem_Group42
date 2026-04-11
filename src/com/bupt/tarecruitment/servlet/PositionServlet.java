@@ -127,6 +127,54 @@ public class PositionServlet extends HttpServlet {
             String minHoursStr = request.getParameter("minHours");
             String maxHoursStr = request.getParameter("maxHours");
             String sortBy = request.getParameter("sortBy");
+<<<<<<< HEAD
+=======
+            
+            // 调试信息
+            System.out.println("=== Search Parameters ===");
+            System.out.println("keyword: " + keyword);
+            System.out.println("minHoursStr: " + minHoursStr);
+            System.out.println("maxHoursStr: " + maxHoursStr);
+            System.out.println("sortBy: " + sortBy);
+            
+            Integer minHours = null;
+            Integer maxHours = null;
+            
+            try {
+                if (minHoursStr != null && !minHoursStr.trim().isEmpty()) {
+                    minHours = Integer.parseInt(minHoursStr.trim());
+                }
+                if (maxHoursStr != null && !maxHoursStr.trim().isEmpty()) {
+                    maxHours = Integer.parseInt(maxHoursStr.trim());
+                }
+            } catch (NumberFormatException e) {
+                // 忽略无效的数字输入
+            }
+            
+            // 使用搜索服务获取职位
+            List<Position> positions;
+            boolean hasSearchCriteria = (keyword != null && !keyword.trim().isEmpty()) || 
+                                      minHours != null || maxHours != null || 
+                                      (sortBy != null && !sortBy.equals("newest"));
+            
+            System.out.println("hasSearchCriteria: " + hasSearchCriteria);
+            
+            if (hasSearchCriteria) {
+                System.out.println("Using SearchService...");
+                positions = searchService.searchPositions(keyword, minHours, maxHours, sortBy);
+                System.out.println("SearchService returned " + positions.size() + " positions");
+            } else {
+                System.out.println("Using PositionService...");
+                positions = positionService.getAllOpenPositions();
+                System.out.println("PositionService returned " + positions.size() + " positions");
+            }
+            
+            // 设置搜索参数到request中，用于表单回显
+            request.setAttribute("keyword", keyword);
+            request.setAttribute("minHours", minHours);
+            request.setAttribute("maxHours", maxHours);
+            request.setAttribute("sortBy", sortBy);
+>>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
             
             // 调试信息
             System.out.println("=== Search Parameters ===");
@@ -173,7 +221,7 @@ public class PositionServlet extends HttpServlet {
             request.setAttribute("maxHours", maxHours);
             request.setAttribute("sortBy", sortBy);
             
-            // 如果是 TA 用户，获取已申请的职位 ID 列表
+            // 如果是 TA 用户，获取已申请的职位 ID 列表和收藏的职位 ID 列表
             if (currentUser.getRole() == UserRole.TA) {
                 List<com.bupt.tarecruitment.model.Application> myApplications = 
                     applicationService.getApplicationsByTA(currentUser.getUserId());
@@ -182,6 +230,16 @@ public class PositionServlet extends HttpServlet {
                     appliedPositionIds.add(app.getPositionId());
                 }
                 request.setAttribute("appliedPositionIds", appliedPositionIds);
+                
+                // 获取收藏的职位 ID 列表
+                com.bupt.tarecruitment.service.FavoriteService favoriteService = 
+                    new com.bupt.tarecruitment.service.FavoriteService();
+                List<Position> favoritePositions = favoriteService.getFavoritePositions(currentUser.getUserId());
+                java.util.Set<String> favoritedPositionIds = new java.util.HashSet<>();
+                for (Position pos : favoritePositions) {
+                    favoritedPositionIds.add(pos.getPositionId());
+                }
+                request.setAttribute("favoritedPositionIds", favoritedPositionIds);
             }
             
             // 将职位列表设置到request中
