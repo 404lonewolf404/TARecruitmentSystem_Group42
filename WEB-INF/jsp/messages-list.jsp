@@ -16,8 +16,9 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>消息列表 - TA招聘系统</title>
+    <title>Messages - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .conversation-list {
             max-width: 900px;
@@ -171,61 +172,78 @@
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
             <% if (currentUser.getRole() == UserRole.TA) { %>
-                <li><a href="<%= request.getContextPath() %>/ta/dashboard">仪表板</a></li>
-                <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
-                <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
-                <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
-<<<<<<< HEAD
-                <li><a href="<%= request.getContextPath() %>/ta/favorites">⭐ 我的收藏</a></li>
-=======
->>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
-                <li><a href="<%= request.getContextPath() %>/messages/list" class="active">💬 消息</a></li>
-                <li><a href="<%= request.getContextPath() %>/ta/notifications">通知</a></li>
+                <li><a href="<%= request.getContextPath() %>/ta/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+                <li><a href="<%= request.getContextPath() %>/ta/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+                <li><a href="<%= request.getContextPath() %>/ta/positions"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;Browse Positions</a></li>
+                <li><a href="<%= request.getContextPath() %>/ta/applications/my"><i class="fas fa-file-alt"></i>&nbsp;&nbsp;My Applications</a></li>
+                <li><a href="<%= request.getContextPath() %>/ta/favorites"><i class="fas fa-star"></i>&nbsp;&nbsp;Favorites</a></li>
+                <li><a href="<%= request.getContextPath() %>/messages/list"><i class="fas fa-comments"></i>&nbsp;&nbsp;Messages</a></li>
+                <li>
+                    <a href="<%= request.getContextPath() %>/ta/notifications">
+                        <i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications
+                        <% 
+                            Integer unreadCount = (Integer) request.getAttribute("unreadNotificationCount");
+                            if (unreadCount != null && unreadCount > 0) { 
+                        %>
+                            <span class="notification-badge"><%= unreadCount %></span>
+                        <% } %>
+                    </a>
+                </li>
             <% } else { %>
-                <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
-                <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
-                <li><a href="<%= request.getContextPath() %>/mo/positions/my">我的职位</a></li>
-                <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
-                <li><a href="<%= request.getContextPath() %>/messages/list" class="active">💬 消息</a></li>
-                <li><a href="<%= request.getContextPath() %>/mo/notifications">通知</a></li>
+                <li><a href="<%= request.getContextPath() %>/mo/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+                <li><a href="<%= request.getContextPath() %>/mo/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+                <li><a href="<%= request.getContextPath() %>/mo/positions/my"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;My Positions</a></li>
+                <li><a href="<%= request.getContextPath() %>/mo/positions/create"><i class="fas fa-plus-circle"></i>&nbsp;&nbsp;Create Position</a></li>
+                <li><a href="<%= request.getContextPath() %>/messages/list"><i class="fas fa-comments"></i>&nbsp;&nbsp;Messages</a></li>
+                <li>
+                    <a href="<%= request.getContextPath() %>/mo/notifications">
+                        <i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications
+                        <% 
+                            Integer unreadCount = (Integer) request.getAttribute("unreadNotificationCount");
+                            if (unreadCount != null && unreadCount > 0) { 
+                        %>
+                            <span class="notification-badge"><%= unreadCount %></span>
+                        <% } %>
+                    </a>
+                </li>
             <% } %>
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
     
     <div class="container">
-        <h2>💬 消息列表</h2>
+        <h2>💬 Message List</h2>
         
-        <!-- 筛选和排序工具栏 -->
+        <!-- Filter and sort toolbar -->
         <div class="filter-toolbar">
             <div class="filter-group">
-                <label>筛选：</label>
+                <label>Filter:</label>
                 <select id="filterUnread" onchange="applyFilters()">
-                    <option value="all">全部消息</option>
-                    <option value="unread">仅未读</option>
-                    <option value="read">仅已读</option>
+                    <option value="all">All Messages</option>
+                    <option value="unread">Unread Only</option>
+                    <option value="read">Read Only</option>
                 </select>
                 
                 <select id="filterStatus" onchange="applyFilters()">
-                    <option value="all">全部状态</option>
-                    <option value="PENDING">待审核</option>
-                    <option value="SELECTED">已选中</option>
-                    <option value="REJECTED">已拒绝</option>
+                    <option value="all">All Status</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="SELECTED">Selected</option>
+                    <option value="REJECTED">Rejected</option>
                 </select>
             </div>
             
             <div class="sort-group">
-                <label>排序：</label>
+                <label>Sort By:</label>
                 <select id="sortBy" onchange="applyFilters()">
-                    <option value="time">按时间</option>
-                    <option value="unread">按未读数</option>
-                    <option value="name">按姓名</option>
+                    <option value="time">By Time</option>
+                    <option value="unread">By Unread Count</option>
+                    <option value="name">By Name</option>
                 </select>
             </div>
         </div>
@@ -234,8 +252,8 @@
             <% if (conversations == null || conversations.isEmpty()) { %>
                 <div class="empty-state">
                     <div class="empty-state-icon">💬</div>
-                    <p>暂无消息</p>
-                    <p style="font-size: 14px;">申请职位后可以与MO进行对话</p>
+                    <p>No messages yet</p>
+                    <p style="font-size: 14px;">You can chat with MO after applying for positions</p>
                 </div>
             <% } else { %>
                 <% for (Object obj : conversations) {
@@ -255,15 +273,15 @@
                     
                     if (app.getStatus() == ApplicationStatus.PENDING) {
                         statusClass = "status-pending";
-                        statusText = "待审核";
+                        statusText = "Pending";
                         statusValue = "PENDING";
                     } else if (app.getStatus() == ApplicationStatus.SELECTED) {
                         statusClass = "status-selected";
-                        statusText = "已选中";
+                        statusText = "Selected";
                         statusValue = "SELECTED";
                     } else if (app.getStatus() == ApplicationStatus.REJECTED) {
                         statusClass = "status-rejected";
-                        statusText = "已拒绝";
+                        statusText = "Rejected";
                         statusValue = "REJECTED";
                     }
                 %>
@@ -279,15 +297,15 @@
                                 </span>
                             </div>
                             <div class="conversation-preview">
-                                <%= lastMessage != null ? lastMessage.getContent() : "暂无消息" %>
+                                <%= lastMessage != null ? lastMessage.getContent() : "No messages yet" %>
                             </div>
                             <div class="conversation-meta">
                                 <span class="conversation-status <%= statusClass %>"><%= statusText %></span>
                                 <% if (messageCount != null && messageCount > 0) { %>
-                                    <span style="font-size: 12px; color: #999;"><%= messageCount %>条消息</span>
+                                    <span style="font-size: 12px; color: #999;"><%= messageCount %> message(s)</span>
                                 <% } %>
                                 <% if (unreadCount != null && unreadCount > 0) { %>
-                                    <span class="conversation-badge"><%= unreadCount %>条未读</span>
+                                    <span class="conversation-badge"><%= unreadCount %> unread</span>
                                 <% } %>
                             </div>
                         </div>
@@ -298,12 +316,12 @@
     </div>
     
     <script>
-        // 存储所有对话数据
+        // Store all conversation data
         let allConversations = [];
         
-        // 页面加载时初始化数据
+        // Initialize data on page load
         window.addEventListener('DOMContentLoaded', function() {
-            // 获取所有对话项
+            // Get all conversation items
             const conversationItems = document.querySelectorAll('.conversation-item');
             conversationItems.forEach(item => {
                 const unreadBadge = item.querySelector('.conversation-badge');
@@ -327,34 +345,34 @@
             const filterStatus = document.getElementById('filterStatus').value;
             const sortBy = document.getElementById('sortBy').value;
             
-            // 筛选
+            // Filter
             let filtered = allConversations.filter(conv => {
-                // 未读筛选
+                // Unread filter
                 if (filterUnread === 'unread' && conv.unreadCount === 0) return false;
                 if (filterUnread === 'read' && conv.unreadCount > 0) return false;
                 
-                // 状态筛选
+                // Status filter
                 if (filterStatus !== 'all' && conv.statusValue !== filterStatus) return false;
                 
                 return true;
             });
             
-            // 排序
+            // Sort
             filtered.sort((a, b) => {
                 if (sortBy === 'time') {
-                    // 按时间排序（最新的在前）
+                    // Sort by time (newest first)
                     return b.time.localeCompare(a.time);
                 } else if (sortBy === 'unread') {
-                    // 按未读数排序（多的在前）
+                    // Sort by unread count (most first)
                     return b.unreadCount - a.unreadCount;
                 } else if (sortBy === 'name') {
-                    // 按姓名排序
+                    // Sort by name
                     return a.name.localeCompare(b.name, 'zh-CN');
                 }
                 return 0;
             });
             
-            // 重新渲染列表
+            // Re-render list
             const conversationList = document.querySelector('.conversation-list');
             conversationList.innerHTML = '';
             
@@ -362,7 +380,7 @@
                 conversationList.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">💬</div>
-                        <p>没有符合条件的消息</p>
+                        <p>No messages match the criteria</p>
                     </div>
                 `;
             } else {

@@ -42,22 +42,22 @@ public class FavoriteService {
         
         // 验证参数
         if (taId == null || taId.trim().isEmpty()) {
-            throw new IllegalArgumentException("TA ID不能为空");
+            throw new IllegalArgumentException("TA ID cannot be empty");
         }
         
         if (positionId == null || positionId.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位ID不能为空");
+            throw new IllegalArgumentException("Position ID cannot be empty");
         }
         
         // 检查职位是否存在
         Position position = positionDAO.findById(positionId.trim());
         if (position == null) {
-            throw new IllegalArgumentException("职位不存在");
+            throw new IllegalArgumentException("Position not found");
         }
         
         // 检查是否已收藏
         if (favoriteDAO.isFavorited(taId.trim(), positionId.trim())) {
-            throw new IllegalArgumentException("已经收藏过该职位");
+            throw new IllegalArgumentException("This position is already in your favorites");
         }
         
         // 创建收藏
@@ -86,17 +86,17 @@ public class FavoriteService {
         
         // 验证参数
         if (taId == null || taId.trim().isEmpty()) {
-            throw new IllegalArgumentException("TA ID不能为空");
+            throw new IllegalArgumentException("TA ID cannot be empty");
         }
         
         if (positionId == null || positionId.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位ID不能为空");
+            throw new IllegalArgumentException("Position ID cannot be empty");
         }
         
         // 查找收藏记录
         Favorite favorite = favoriteDAO.findByTaAndPosition(taId.trim(), positionId.trim());
         if (favorite == null) {
-            throw new IllegalArgumentException("未收藏该职位");
+            throw new IllegalArgumentException("This position is not in your favorites");
         }
         
         // 删除收藏

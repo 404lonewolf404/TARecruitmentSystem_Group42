@@ -43,24 +43,24 @@ public class AuthService {
         
         // 验证必填字段
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("姓名不能为空");
+            throw new IllegalArgumentException("Name cannot be empty");
         }
         
         if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("邮箱不能为空");
+            throw new IllegalArgumentException("Email cannot be empty");
         }
         
         if (password == null || password.trim().isEmpty()) {
-            throw new IllegalArgumentException("密码不能为空");
+            throw new IllegalArgumentException("Password cannot be empty");
         }
         
         if (role == null) {
-            throw new IllegalArgumentException("角色不能为空");
+            throw new IllegalArgumentException("Role cannot be empty");
         }
         
         // 检查邮箱唯一性
         if (userDAO.emailExists(email)) {
-            throw new IllegalArgumentException("该邮箱已被注册");
+            throw new IllegalArgumentException("This email is already registered");
         }
         
         // 创建新用户
@@ -91,24 +91,24 @@ public class AuthService {
         
         // 验证参数
         if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("邮箱不能为空");
+            throw new IllegalArgumentException("Email cannot be empty");
         }
         
         if (password == null || password.trim().isEmpty()) {
-            throw new IllegalArgumentException("密码不能为空");
+            throw new IllegalArgumentException("Password cannot be empty");
         }
         
         // 查找用户
         User user = userDAO.findByEmail(email.trim());
         
         if (user == null) {
-            throw new IllegalArgumentException("邮箱或密码错误");
+            throw new IllegalArgumentException("Invalid email or password");
         }
         
         // 验证密码
         String hashedPassword = hashPassword(password);
         if (!user.getPassword().equals(hashedPassword)) {
-            throw new IllegalArgumentException("邮箱或密码错误");
+            throw new IllegalArgumentException("Invalid email or password");
         }
         
         return user;
@@ -177,7 +177,7 @@ public class AuthService {
             
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-256算法不可用", e);
+            throw new RuntimeException("SHA-256 algorithm is not available", e);
         }
     }
 }

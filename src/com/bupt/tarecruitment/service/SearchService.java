@@ -9,18 +9,19 @@ import java.util.stream.Collectors;
 
 /**
  * 搜索服务类
- * 处理职位搜索、过滤和排序功能
+ * 处理职位搜索、筛选和排序逻辑。
  */
 public class SearchService {
-    
+
     private PositionDAO positionDAO;
-    
+
     public SearchService() {
         this.positionDAO = new PositionDAO();
     }
-    
+
     /**
-     * 搜索职位
+     * 搜索职位。
+     *
      * @param keyword 关键词
      * @param minHours 最小工时
      * @param maxHours 最大工时
@@ -33,16 +34,22 @@ public class SearchService {
         System.out.println("minHours: " + minHours);
         System.out.println("maxHours: " + maxHours);
         System.out.println("sortBy: " + sortBy);
-        
+
         List<Position> positions = positionDAO.findAllOpen();
         System.out.println("Initial positions count: " + positions.size());
-        
-        // 关键词搜索
+
+        // 过滤已过期职位
+        positions = positions.stream()
+            .filter(p -> !p.isExpired())
+            .collect(Collectors.toList());
+        System.out.println("After expiration filter: " + positions.size());
+
+        // 关键词搜索（标题、描述、要求）
         if (keyword != null && !keyword.trim().isEmpty()) {
             String lowerKeyword = keyword.toLowerCase();
             System.out.println("Filtering by keyword: " + lowerKeyword);
             positions = positions.stream()
-                .filter(p -> 
+                .filter(p ->
                     p.getTitle().toLowerCase().contains(lowerKeyword) ||
                     p.getDescription().toLowerCase().contains(lowerKeyword) ||
                     (p.getRequirements() != null && p.getRequirements().toLowerCase().contains(lowerKeyword))
@@ -50,7 +57,7 @@ public class SearchService {
                 .collect(Collectors.toList());
             System.out.println("After keyword filter: " + positions.size());
         }
-        
+
         // 工时过滤
         if (minHours != null) {
             System.out.println("Filtering by minHours: " + minHours);
@@ -66,7 +73,7 @@ public class SearchService {
                 .collect(Collectors.toList());
             System.out.println("After maxHours filter: " + positions.size());
         }
-        
+
         // 排序
         if ("hours_asc".equals(sortBy)) {
             System.out.println("Sorting by hours ascending");
@@ -76,10 +83,10 @@ public class SearchService {
             positions.sort(Comparator.comparingInt(Position::getHours).reversed());
         } else {
             System.out.println("Sorting by creation date (newest first)");
-            // 默认按创建时间排序（最新的在前）
+            // 默认按创建时间倒序（最新在前）
             positions.sort((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()));
         }
-        
+
         System.out.println("Final positions count: " + positions.size());
         return positions;
     }

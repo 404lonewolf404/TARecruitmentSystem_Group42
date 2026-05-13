@@ -22,14 +22,14 @@ public class TestServlet extends HttpServlet {
         
         out.println("<!DOCTYPE html>");
         out.println("<html>");
-        out.println("<head><title>测试页面</title></head>");
+        out.println("<head><title>Test Page</title></head>");
         out.println("<body>");
-        out.println("<h1>Servlet测试成功！</h1>");
+        out.println("<h1>Servlet Test Successful!</h1>");
         out.println("<p>Context Path: " + request.getContextPath() + "</p>");
         out.println("<p>Servlet Path: " + request.getServletPath() + "</p>");
         out.println("<p>Path Info: " + request.getPathInfo() + "</p>");
         out.println("<p>Request URI: " + request.getRequestURI() + "</p>");
-        out.println("<h2>测试链接：</h2>");
+        out.println("<h2>Test Links:</h2>");
         out.println("<ul>");
         out.println("<li><a href='" + request.getContextPath() + "/profile'>Profile</a></li>");
         out.println("<li><a href='" + request.getContextPath() + "/positions'>Positions</a></li>");

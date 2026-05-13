@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 申请Servlet
- * 处理申请相关的请求：申请职位、撤回申请、查看申请列表、选择申请者
+ * 闁槒绶拠瀛樻閵?
+ * 闁槒绶拠瀛樻閵?
  */
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
@@ -51,7 +51,7 @@ public class ApplicationServlet extends HttpServlet {
         
         String pathInfo = request.getPathInfo();
         
-        // 调试日志
+        // 闁槒绶拠瀛樻閵?
         System.out.println("ApplicationServlet.doGet() called");
         System.out.println("Request URI: " + request.getRequestURI());
         System.out.println("Context Path: " + request.getContextPath());
@@ -59,11 +59,11 @@ public class ApplicationServlet extends HttpServlet {
         System.out.println("Path Info: " + pathInfo);
         
         if (pathInfo == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路径");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request path");
             return;
         }
         
-        // 移除尾部斜杠（如果有）
+        // 闁槒绶拠瀛樻閵?
         if (pathInfo.endsWith("/") && pathInfo.length() > 1) {
             pathInfo = pathInfo.substring(0, pathInfo.length() - 1);
         }
@@ -71,19 +71,22 @@ public class ApplicationServlet extends HttpServlet {
         System.out.println("Processed Path Info: " + pathInfo);
         
         switch (pathInfo) {
+            case "/apply":
+                handleShowApplyForm(request, response);
+                break;
             case "/my":
-                // 查看我的申请（TA视图）
+                // 闁槒绶拠瀛樻閵?
                 System.out.println("Handling /my request");
                 handleViewMyApplications(request, response);
                 break;
             case "/position":
-                // 查看职位的申请列表（MO视图）
+                // 闁槒绶拠瀛樻閵?
                 System.out.println("Handling /position request");
                 handleViewPositionApplications(request, response);
                 break;
             default:
                 System.out.println("No matching case, returning 404");
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "请求的资源不存在");
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Resource not found");
                 break;
         }
     }
@@ -92,71 +95,132 @@ public class ApplicationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 设置请求编码为UTF-8
+        // 闁槒绶拠瀛樻閵?
         request.setCharacterEncoding("UTF-8");
         
         String pathInfo = request.getPathInfo();
         
         if (pathInfo == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "无效的请求路径");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request path");
             return;
         }
         
         switch (pathInfo) {
             case "/apply":
-                // 申请职位（TA操作）
+                // 闁槒绶拠瀛樻閵?
                 handleApplyForPosition(request, response);
                 break;
             case "/withdraw":
-                // 撤回申请（TA操作）
+                // 闁槒绶拠瀛樻閵?
                 handleWithdrawApplication(request, response);
                 break;
             case "/select":
-                // 选择申请者（MO操作）
+                // 闁槒绶拠瀛樻閵?
                 handleSelectApplicant(request, response);
                 break;
             default:
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "请求的资源不存在");
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Resource not found");
                 break;
         }
     }
     
     /**
-     * 处理申请职位请求（TA操作）
-     * 需求：4.2 - 当TA申请职位时，系统应创建申请记录并关联TA和职位
-     * 需求：4.3 - 当TA尝试重复申请同一职位时，系统应拒绝该申请
+     * 闁槒绶拠瀛樻閵?
+     */
+    private void handleShowApplyForm(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        HttpSession session = request.getSession(false);
+        
+        if (session == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
+            return;
+        }
+        
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
+            return;
+        }
+        
+        // 闁槒绶拠瀛樻閵?
+        if (currentUser.getRole() != UserRole.TA) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only TAs can apply for positions");
+            return;
+        }
+        
+        // 闁槒绶拠瀛樻閵?
+        String positionId = request.getParameter("positionId");
+        if (positionId == null || positionId.trim().isEmpty()) {
+            session.setAttribute("errorMessage", "Position ID cannot be empty");
+            response.sendRedirect(request.getContextPath() + "/ta/positions");
+            return;
+        }
+        
+        // 闁槒绶拠瀛樻閵?
+        Position position = positionService.getPositionById(positionId.trim());
+        if (position == null) {
+            session.setAttribute("errorMessage", "Position not found");
+            response.sendRedirect(request.getContextPath() + "/ta/positions");
+            return;
+        }
+        
+        // 闁槒绶拠瀛樻閵?
+        if (!position.canAcceptApplications()) {
+            String reason = "";
+            if (position.isExpired()) {
+                reason = "This position deadline has passed";
+            } else if (position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.CLOSED) {
+                reason = "This position is closed";
+            } else {
+                reason = "This position is not accepting applications currently";
+            }
+            session.setAttribute("errorMessage", reason);
+            response.sendRedirect(request.getContextPath() + "/ta/positions");
+            return;
+        }
+        
+        // 闁槒绶拠瀛樻閵?
+        request.setAttribute("position", position);
+        request.getRequestDispatcher("/WEB-INF/jsp/ta/apply-position.jsp").forward(request, response);
+    }
+    
+    /**
+     * 闁槒绶拠瀛樻閵?
+     * 闁槒绶拠瀛樻閵?
+     * 闁槒绶拠瀛樻閵?
      */
     private void handleApplyForPosition(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 获取当前登录用户
+        // 闁槒绶拠瀛樻閵?
         HttpSession session = request.getSession(false);
         
         try {
             if (session == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
             User currentUser = (User) session.getAttribute("user");
             if (currentUser == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
-            // 验证用户角色为TA
+            // 闁槒绶拠瀛樻閵?
             if (currentUser.getRole() != UserRole.TA) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有TA可以申请职位");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only TAs can apply for positions");
                 return;
             }
             
-            // 对于 multipart/form-data 请求，需要先获取所有 parts
-            // 然后从 parts 中提取参数
+            // 闁槒绶拠瀛樻閵?
+            // 闁槒绶拠瀛樻閵?
             String positionId = null;
             String resumeChoice = null;
             Part filePart = null;
             
-            // 遍历所有 parts 来获取表单字段
+            // 闁槒绶拠瀛樻閵?
             for (Part part : request.getParts()) {
                 String partName = part.getName();
                 if ("positionId".equals(partName)) {
@@ -169,7 +233,7 @@ public class ApplicationServlet extends HttpServlet {
             }
             
             if (positionId == null || positionId.trim().isEmpty()) {
-                session.setAttribute("errorMessage", "职位ID不能为空");
+                session.setAttribute("errorMessage", "Position ID cannot be empty");
                 response.sendRedirect(request.getContextPath() + "/ta/positions");
                 return;
             }
@@ -177,18 +241,18 @@ public class ApplicationServlet extends HttpServlet {
             String resumePath = null;
             
             if ("new".equals(resumeChoice)) {
-                // 上传新简历
+                // 闁槒绶拠瀛樻閵?
                 if (filePart != null && filePart.getSize() > 0) {
                     String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
                     
-                    // 验证文件类型
+                    // 闁槒绶拠瀛樻閵?
                     if (!fileName.toLowerCase().endsWith(".pdf")) {
-                        session.setAttribute("errorMessage", "只支持PDF格式的简历文件");
+                        session.setAttribute("errorMessage", "Only PDF resume files are supported");
                         response.sendRedirect(request.getContextPath() + "/ta/positions");
                         return;
                     }
                     
-                    // 生成唯一文件名
+                    // 闁槒绶拠瀛樻閵?
                     String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
                     String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
                     File uploadDir = new File(uploadPath);
@@ -199,28 +263,28 @@ public class ApplicationServlet extends HttpServlet {
                     String filePath = uploadPath + File.separator + uniqueFileName;
                     filePart.write(filePath);
                     
-                    // 保存相对路径
+                    // 闁槒绶拠瀛樻閵?
                     resumePath = "uploads/" + uniqueFileName;
                 } else {
-                    session.setAttribute("errorMessage", "请选择要上传的简历文件");
+                    session.setAttribute("errorMessage", "Please select a resume file to upload");
                     response.sendRedirect(request.getContextPath() + "/ta/positions");
                     return;
                 }
             } else {
-                // 使用现有简历
+                // 闁槒绶拠瀛樻閵?
                 resumePath = currentUser.getCvPath();
                 
                 if (resumePath == null || resumePath.trim().isEmpty()) {
-                    session.setAttribute("errorMessage", "您还没有上传简历，请先在个人资料中上传简历或选择上传新简历");
+                    session.setAttribute("errorMessage", "No resume found. Upload one in your profile or upload a new file now.");
                     response.sendRedirect(request.getContextPath() + "/ta/positions");
                     return;
                 }
             }
             
-            // V3.2: 检查职位是否可以接受申请（状态为OPEN且未过期）
+            // 闁槒绶拠瀛樻閵?
             Position position = positionService.getPositionById(positionId.trim());
             if (position == null) {
-                session.setAttribute("errorMessage", "职位不存在");
+                session.setAttribute("errorMessage", "Position not found");
                 response.sendRedirect(request.getContextPath() + "/ta/positions");
                 return;
             }
@@ -228,21 +292,21 @@ public class ApplicationServlet extends HttpServlet {
             if (!position.canAcceptApplications()) {
                 String reason = "";
                 if (position.isExpired()) {
-                    reason = "该职位申请已截止";
+                    reason = "This position deadline has passed";
                 } else if (position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.CLOSED) {
-                    reason = "该职位已关闭";
+                    reason = "This position is closed";
                 } else {
-                    reason = "该职位暂不接受申请";
+                    reason = "This position is not accepting applications currently";
                 }
                 session.setAttribute("errorMessage", reason);
                 response.sendRedirect(request.getContextPath() + "/ta/positions");
                 return;
             }
             
-            // 调用服务层申请职位
+            // 闁槒绶拠瀛樻閵?
             applicationService.applyForPosition(currentUser.getUserId(), positionId.trim(), resumePath);
             
-            // 发送通知给MO
+            // 闁槒绶拠瀛樻閵?
             try {
                 if (position != null) {
                     notificationService.sendNewApplicationNotification(
@@ -252,34 +316,34 @@ public class ApplicationServlet extends HttpServlet {
                     );
                 }
             } catch (Exception e) {
-                // 通知发送失败不影响主流程
+                // 闁槒绶拠瀛樻閵?
                 e.printStackTrace();
             }
             
-            // 申请成功，设置成功消息到session
-            session.setAttribute("successMessage", "申请提交成功！");
+            // 闁槒绶拠瀛樻閵?
+            session.setAttribute("successMessage", "Application submitted successfully");
             
-            // 重定向到我的申请页面
+            // 闁槒绶拠瀛樻閵?
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
             
         } catch (IllegalArgumentException e) {
-            // 业务逻辑错误（如重复申请、职位不存在）
+            // 闁槒绶拠瀛樻閵?
             if (session != null) {
                 session.setAttribute("errorMessage", e.getMessage());
             }
             response.sendRedirect(request.getContextPath() + "/ta/positions");
             
         } catch (IOException e) {
-            // 数据访问错误
+            // 闁槒绶拠瀛樻閵?
             if (session != null) {
-                session.setAttribute("errorMessage", "申请职位失败：" + e.getMessage());
+                session.setAttribute("errorMessage", "Failed to apply for position: " + e.getMessage());
             }
             response.sendRedirect(request.getContextPath() + "/ta/positions");
         }
     }
     
     /**
-     * 从 Part 中获取文本值（用于 multipart/form-data 表单字段）
+     * 闁槒绶拠瀛樻閵?
      */
     private String getValue(Part part) throws IOException {
         java.io.BufferedReader reader = new java.io.BufferedReader(
@@ -294,48 +358,48 @@ public class ApplicationServlet extends HttpServlet {
     }
     
     /**
-     * 处理撤回申请请求（TA操作）
-     * 需求：4.5 - 当TA撤回申请时，系统应移除该申请记录
+     * 闁槒绶拠瀛樻閵?
+     * 闁槒绶拠瀛樻閵?
      */
     private void handleWithdrawApplication(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
         try {
-            // 获取当前登录用户
+            // 闁槒绶拠瀛樻閵?
             HttpSession session = request.getSession(false);
             if (session == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
             User currentUser = (User) session.getAttribute("user");
             if (currentUser == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
-            // 验证用户角色为TA
+            // 闁槒绶拠瀛樻閵?
             if (currentUser.getRole() != UserRole.TA) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有TA可以撤回申请");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only TAs can withdraw applications");
                 return;
             }
             
-            // 获取申请ID参数
+            // 闁槒绶拠瀛樻閵?
             String applicationId = request.getParameter("applicationId");
             
             if (applicationId == null || applicationId.trim().isEmpty()) {
-                request.setAttribute("errorMessage", "申请ID不能为空");
+                session.setAttribute("errorMessage", "Application ID cannot be empty");
                 response.sendRedirect(request.getContextPath() + "/ta/applications/my");
                 return;
             }
             
-            // 获取申请信息用于发送通知
+            // 闁槒绶拠瀛樻閵?
             Application application = applicationService.getApplicationById(applicationId.trim());
             
-            // 调用服务层撤回申请
+            // 闁槒绶拠瀛樻閵?
             applicationService.withdrawApplication(applicationId.trim());
             
-            // 发送通知给MO
+            // 闁槒绶拠瀛樻閵?
             if (application != null) {
                 try {
                     Position position = positionService.getPositionById(application.getPositionId());
@@ -347,29 +411,35 @@ public class ApplicationServlet extends HttpServlet {
                         );
                     }
                 } catch (Exception e) {
-                    // 通知发送失败不影响主流程
+                    // 闁槒绶拠瀛樻閵?
                     e.printStackTrace();
                 }
             }
             
-            // 撤回成功，重定向到我的申请页面
+            // 闁槒绶拠瀛樻閵?
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
             
         } catch (IllegalArgumentException e) {
-            // 业务逻辑错误（如申请不存在）
-            request.setAttribute("errorMessage", e.getMessage());
+            // 闁槒绶拠瀛樻閵?
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.setAttribute("errorMessage", e.getMessage());
+            }
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
             
         } catch (IOException e) {
-            // 数据访问错误
-            request.setAttribute("errorMessage", "撤回申请失败：" + e.getMessage());
+            // 闁槒绶拠瀛樻閵?
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.setAttribute("errorMessage", "Failed to withdraw application: " + e.getMessage());
+            }
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
         }
     }
     
     /**
-     * 处理查看我的申请请求（TA视图）
-     * 需求：4.4 - 当TA查看其申请时，系统应显示该TA提交的所有申请及其状态
+     * 闁槒绶拠瀛樻閵?
+     * 闁槒绶拠瀛樻閵?
      */
     private void handleViewMyApplications(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -377,13 +447,13 @@ public class ApplicationServlet extends HttpServlet {
         try {
             System.out.println("=== handleViewMyApplications START ===");
             
-            // 获取当前登录用户
+            // 闁槒绶拠瀛樻閵?
             HttpSession session = request.getSession(false);
             System.out.println("Session: " + (session != null ? "exists" : "null"));
             
             if (session == null) {
                 System.out.println("No session, redirecting to login");
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
@@ -392,28 +462,35 @@ public class ApplicationServlet extends HttpServlet {
             
             if (currentUser == null) {
                 System.out.println("No user in session, redirecting to login");
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
-            // 验证用户角色为TA
+            // 闁槒绶拠瀛樻閵?
             System.out.println("User role: " + currentUser.getRole());
             if (currentUser.getRole() != UserRole.TA) {
                 System.out.println("User is not TA, sending 403");
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有TA可以查看自己的申请");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only TAs can view their own applications");
                 return;
             }
             
-            // 获取该TA的所有申请
+            // 闁槒绶拠瀛樻閵?
+            try {
+                applicationService.cleanupExpiredPositionApplications();
+            } catch (IOException e) {
+                System.out.println("Warning: Failed to cleanup expired applications: " + e.getMessage());
+            }
+            
+            // 闁槒绶拠瀛樻閵?
             System.out.println("Calling applicationService.getApplicationsByTA()");
             List<Application> applications = applicationService.getApplicationsByTA(currentUser.getUserId());
             System.out.println("Retrieved " + (applications != null ? applications.size() : "null") + " applications");
             
-            // 将申请列表设置到request中
+            // 闁槒绶拠瀛樻閵?
             request.setAttribute("applications", applications);
             System.out.println("Set applications attribute");
             
-            // 转发到TA申请页面
+            // 闁槒绶拠瀛樻閵?
             String jspPath = "/WEB-INF/jsp/ta/applications.jsp";
             System.out.println("Forwarding to: " + jspPath);
             request.getRequestDispatcher(jspPath).forward(request, response);
@@ -424,62 +501,69 @@ public class ApplicationServlet extends HttpServlet {
             System.out.println("Exception type: " + e.getClass().getName());
             System.out.println("Exception message: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("errorMessage", "获取申请列表失败：" + e.getMessage());
+            request.setAttribute("errorMessage", "Failed to load applications: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
         }
     }
     
     /**
-     * 处理查看职位申请列表请求（MO视图）
-     * 需求：5.1 - 当MO查看职位申请时，系统应显示该职位的所有申请者及其信息
+     * 闁槒绶拠瀛樻閵?
+     * 闁槒绶拠瀛樻閵?
      */
     private void handleViewPositionApplications(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
         try {
-            // 获取当前登录用户
+            // 闁槒绶拠瀛樻閵?
             HttpSession session = request.getSession(false);
             if (session == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
             User currentUser = (User) session.getAttribute("user");
             if (currentUser == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
-            // 验证用户角色为MO
+            // 闁槒绶拠瀛樻閵?
             if (currentUser.getRole() != UserRole.MO) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有MO可以查看职位申请");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only MOs can view position applications");
                 return;
             }
             
-            // 获取职位ID参数
+            // 闁槒绶拠瀛樻閵?
+            try {
+                applicationService.cleanupExpiredPositionApplications();
+            } catch (IOException e) {
+                System.out.println("Warning: Failed to cleanup expired applications: " + e.getMessage());
+            }
+            
+            // 闁槒绶拠瀛樻閵?
             String positionId = request.getParameter("positionId");
             
             if (positionId == null || positionId.trim().isEmpty()) {
-                request.setAttribute("errorMessage", "职位ID不能为空");
+                session.setAttribute("errorMessage", "Position ID cannot be empty");
                 response.sendRedirect(request.getContextPath() + "/mo/positions/my");
                 return;
             }
             
-            // 获取职位信息
+            // 闁槒绶拠瀛樻閵?
             Position position = positionService.getPositionById(positionId.trim());
             if (position == null) {
-                request.setAttribute("errorMessage", "职位不存在");
+                session.setAttribute("errorMessage", "Position not found");
                 response.sendRedirect(request.getContextPath() + "/mo/positions/my");
                 return;
             }
             
-            // 获取该职位的所有申请
+            // 闁槒绶拠瀛樻閵?
             List<Application> applications = applicationService.getApplicationsByPosition(positionId.trim());
             
-            // 获取状态过滤参数
+            // 闁槒绶拠瀛樻閵?
             String statusFilter = request.getParameter("status");
             
-            // 状态过滤
+            // 闁槒绶拠瀛樻閵?
             if (statusFilter != null && !statusFilter.equals("all") && !statusFilter.isEmpty()) {
                 try {
                     com.bupt.tarecruitment.model.ApplicationStatus filterStatus = 
@@ -488,58 +572,58 @@ public class ApplicationServlet extends HttpServlet {
                         .filter(app -> app.getStatus() == filterStatus)
                         .collect(java.util.stream.Collectors.toList());
                 } catch (IllegalArgumentException e) {
-                    // 无效的状态值，忽略过滤
+                    // 闁槒绶拠瀛樻閵?
                 }
             }
             
-            // 将职位、申请列表和过滤状态设置到request中
+            // 闁槒绶拠瀛樻閵?
             request.setAttribute("position", position);
             request.setAttribute("applications", applications);
             request.setAttribute("statusFilter", statusFilter != null ? statusFilter : "all");
             
-            // 转发到MO申请页面
+            // 闁槒绶拠瀛樻閵?
             request.getRequestDispatcher("/WEB-INF/jsp/mo/applications.jsp").forward(request, response);
             
         } catch (Exception e) {
-            request.setAttribute("errorMessage", "获取申请列表失败：" + e.getMessage());
-            request.getRequestDispatcher("/error.jsp").forward(request, response);
+            request.setAttribute("errorMessage", "Failed to load applications: " + e.getMessage());
+            request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
         }
     }
     
     /**
-     * 处理选择申请者请求（MO操作）
-     * 需求：5.2 - 当MO选择申请者时，系统应将该申请状态更新为SELECTED
-     * 需求：5.3 - 当MO选择申请者时，系统应将同一职位的其他申请状态更新为REJECTED
+     * 闁槒绶拠瀛樻閵?
+     * 闁槒绶拠瀛樻閵?
+     * 闁槒绶拠瀛樻閵?
      */
     private void handleSelectApplicant(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
         try {
-            // 获取当前登录用户
+            // 闁槒绶拠瀛樻閵?
             HttpSession session = request.getSession(false);
             if (session == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
             User currentUser = (User) session.getAttribute("user");
             if (currentUser == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
-            // 验证用户角色为MO
+            // 闁槒绶拠瀛樻閵?
             if (currentUser.getRole() != UserRole.MO) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "只有MO可以选择申请者");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only MOs can select applicants");
                 return;
             }
             
-            // 获取申请ID和职位ID参数
+            // 闁槒绶拠瀛樻閵?
             String applicationId = request.getParameter("applicationId");
             String positionId = request.getParameter("positionId");
             
             if (applicationId == null || applicationId.trim().isEmpty()) {
-                request.setAttribute("errorMessage", "申请ID不能为空");
+                session.setAttribute("errorMessage", "Application ID cannot be empty");
                 if (positionId != null && !positionId.trim().isEmpty()) {
                     response.sendRedirect(request.getContextPath() + "/mo/applications/position?positionId=" + positionId);
                 } else {
@@ -548,10 +632,10 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 调用服务层选择申请者
+            // 闁槒绶拠瀛樻閵?
             applicationService.selectApplicant(applicationId.trim());
             
-            // 发送通知给所有相关的TA
+            // 闁槒绶拠瀛樻閵?
             try {
                 Application selectedApp = applicationService.getApplicationById(applicationId.trim());
                 if (selectedApp != null) {
@@ -565,11 +649,11 @@ public class ApplicationServlet extends HttpServlet {
                     }
                 }
             } catch (Exception e) {
-                // 通知发送失败不影响主流程
+                // 闁槒绶拠瀛樻閵?
                 e.printStackTrace();
             }
             
-            // 选择成功，重定向回职位申请列表页面
+            // 闁槒绶拠瀛樻閵?
             if (positionId != null && !positionId.trim().isEmpty()) {
                 response.sendRedirect(request.getContextPath() + "/mo/applications/position?positionId=" + positionId);
             } else {
@@ -577,8 +661,11 @@ public class ApplicationServlet extends HttpServlet {
             }
             
         } catch (IllegalArgumentException e) {
-            // 业务逻辑错误（如申请不存在）
-            request.setAttribute("errorMessage", e.getMessage());
+            // 闁槒绶拠瀛樻閵?
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.setAttribute("errorMessage", e.getMessage());
+            }
             String positionId = request.getParameter("positionId");
             if (positionId != null && !positionId.trim().isEmpty()) {
                 response.sendRedirect(request.getContextPath() + "/mo/applications/position?positionId=" + positionId);
@@ -587,8 +674,11 @@ public class ApplicationServlet extends HttpServlet {
             }
             
         } catch (IOException e) {
-            // 数据访问错误
-            request.setAttribute("errorMessage", "选择申请者失败：" + e.getMessage());
+            // 闁槒绶拠瀛樻閵?
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.setAttribute("errorMessage", "Failed to select applicant: " + e.getMessage());
+            }
             String positionId = request.getParameter("positionId");
             if (positionId != null && !positionId.trim().isEmpty()) {
                 response.sendRedirect(request.getContextPath() + "/mo/applications/position?positionId=" + positionId);
@@ -598,3 +688,4 @@ public class ApplicationServlet extends HttpServlet {
         }
     }
 }
+

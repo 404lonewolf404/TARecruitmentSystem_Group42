@@ -9,11 +9,11 @@
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
-        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/auth/login");
         return;
     }
     
-    // 获取未读通知数量
+    // Get unread notification count
     int unreadCount = 0;
     try {
         NotificationService notificationService = new NotificationService();
@@ -26,7 +26,7 @@
     @SuppressWarnings("unchecked")
     List<Application> applications = (List<Application>) request.getAttribute("applications");
     
-    // 创建UserDAO实例用于获取申请者信息
+    // Create UserDAO instance to get applicant information
     UserDAO userDAO = new UserDAO();
 %>
 <!DOCTYPE html>
@@ -34,101 +34,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>职位申请列表 - TA招聘系统</title>
+    <title>Position Applications - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/positions/my">我的职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/my"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;My Positions</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/create"><i class="fas fa-plus-circle"></i>&nbsp;&nbsp;Create Position</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list"><i class="fas fa-comments"></i>&nbsp;&nbsp;Messages</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/mo/notifications">
-                    通知
+                    <i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications
                     <% if (unreadCount > 0) { %>
                         <span class="notification-badge"><%= unreadCount %></span>
                     <% } %>
                 </a>
             </li>
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
     
     <div class="container">
-        <div class="card">
-            <h2>职位申请列表</h2>
-            <% if (position != null) { %>
-                <div class="position-info">
+        <div class="page-header">
+            <h2><i class="fas fa-file-alt"></i>&nbsp;&nbsp;Position Applications</h2>
+            <p>Review and manage applications for your positions</p>
+        </div>
+        
+        <% if (position != null) { %>
+            <div class="card position-info-card">
+                <div class="position-info-header">
                     <h3><%= position.getTitle() %></h3>
-                    <p><strong>职位ID：</strong><%= position.getPositionId() %></p>
-                    <p><strong>描述：</strong><%= position.getDescription() %></p>
-                    <p><strong>工作时长：</strong><%= position.getHours() %> 小时/周</p>
+                </div>
+                <div class="position-info-details">
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-id-card"></i>&nbsp;&nbsp;Position ID</span>
+                        <span class="info-value"><%= position.getPositionId() %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-align-left"></i>&nbsp;&nbsp;Description</span>
+                        <span class="info-value"><%= position.getDescription() %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-clock"></i>&nbsp;&nbsp;Work Hours</span>
+                        <span class="info-value"><%= position.getHours() %> hours/week</span>
+                    </div>
                 </div>
                 
-                <!-- 状态过滤按钮 -->
-                <div class="filter-tabs">
+                <!-- Status filter buttons -->
+                <div class="filter-tabs" style="margin-top: 20px;">
                     <a href="?positionId=<%= position.getPositionId() %>&status=all" 
                        class="filter-tab <%= "all".equals(request.getAttribute("statusFilter")) || request.getAttribute("statusFilter") == null ? "active" : "" %>">
-                        全部
+                        <i class="fas fa-list"></i>&nbsp;&nbsp;All
                     </a>
                     <a href="?positionId=<%= position.getPositionId() %>&status=pending" 
                        class="filter-tab <%= "pending".equals(request.getAttribute("statusFilter")) ? "active" : "" %>">
-                        待处理
+                        <i class="fas fa-hourglass-half"></i>&nbsp;&nbsp;Pending
                     </a>
                     <a href="?positionId=<%= position.getPositionId() %>&status=selected" 
                        class="filter-tab <%= "selected".equals(request.getAttribute("statusFilter")) ? "active" : "" %>">
-                        已选中
+                        <i class="fas fa-check-circle"></i>&nbsp;&nbsp;Selected
                     </a>
                     <a href="?positionId=<%= position.getPositionId() %>&status=rejected" 
                        class="filter-tab <%= "rejected".equals(request.getAttribute("statusFilter")) ? "active" : "" %>">
-                        已拒绝
+                        <i class="fas fa-times-circle"></i>&nbsp;&nbsp;Rejected
+                    </a>
+                    <a href="?positionId=<%= position.getPositionId() %>&status=withdrawn" 
+                       class="filter-tab <%= "withdrawn".equals(request.getAttribute("statusFilter")) ? "active" : "" %>">
+                        <i class="fas fa-undo"></i>&nbsp;&nbsp;Withdrawn
                     </a>
                 </div>
-            <% } %>
-        </div>
+            </div>
+        <% } %>
         
         <% if (applications == null || applications.isEmpty()) { %>
             <div class="card">
-                <p class="info-message">此职位暂无申请。</p>
-                <a href="<%= request.getContextPath() %>/mo/positions/my" class="btn btn-secondary">返回我的职位</a>
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Applications</h3>
+                    <p>There are no applications for this position yet.</p>
+                    <a href="<%= request.getContextPath() %>/mo/positions/my" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>&nbsp;&nbsp;Back to My Positions
+                    </a>
+                </div>
             </div>
         <% } else { %>
             <div class="applications-list">
                 <% 
-                boolean hasSelected = false;
+                int selectedCount = 0;
                 for (Application app : applications) {
                     if (app.getStatus() == ApplicationStatus.SELECTED) {
-                        hasSelected = true;
-                        break;
+                        selectedCount++;
                     }
                 }
+                boolean canSelectMore = selectedCount < position.getMaxPositions();
                 
                 for (Application app : applications) { 
                     User applicant = userDAO.findById(app.getTaId());
                     if (applicant == null) continue;
                 %>
-                    <div class="application-card">
-                        <div class="application-header">
-                            <h3><%= applicant.getName() %></h3>
+                    <div class="card application-card-enhanced">
+                        <div class="application-header-enhanced">
+                            <div class="applicant-info">
+                                <h3><%= applicant.getName() %></h3>
+                                <p class="applicant-email"><i class="fas fa-envelope"></i>&nbsp;&nbsp;<%= applicant.getEmail() %></p>
+                            </div>
                             <span class="badge badge-<%= app.getStatus().toString().toLowerCase() %>">
                                 <% 
                                 String statusText = "";
                                 switch (app.getStatus()) {
                                     case PENDING:
-                                        statusText = "待处理";
+                                        statusText = "Pending";
                                         break;
                                     case SELECTED:
-                                        statusText = "已选中";
+                                        statusText = "Selected";
                                         break;
                                     case REJECTED:
-                                        statusText = "已拒绝";
+                                        statusText = "Rejected";
+                                        break;
+                                    case WITHDRAWN:
+                                        statusText = "Withdrawn";
                                         break;
                                 }
                                 %>
@@ -136,56 +168,75 @@
                             </span>
                         </div>
                         
-                        <div class="application-details">
-                            <p><strong>申请ID：</strong><%= app.getApplicationId() %></p>
-                            <p><strong>申请者邮箱：</strong><%= applicant.getEmail() %></p>
+                        <div class="application-details-enhanced">
+                            <div class="detail-row">
+                                <span class="detail-label"><i class="fas fa-id-card"></i>&nbsp;&nbsp;Application ID:</span>
+                                <span class="detail-value"><%= app.getApplicationId() %></span>
+                            </div>
+                            
                             <% if (applicant.getSkills() != null && !applicant.getSkills().trim().isEmpty()) { %>
-                                <p><strong>技能：</strong><%= applicant.getSkills() %></p>
+                                <div class="detail-row">
+                                    <span class="detail-label"><i class="fas fa-star"></i>&nbsp;&nbsp;Skills:</span>
+                                    <span class="detail-value"><%= applicant.getSkills() %></span>
+                                </div>
                             <% } %>
+                            
                             <% 
-                            // 优先显示申请时提交的简历，如果没有则显示用户默认简历
                             String resumePath = app.getResumePath();
                             boolean hasApplicationResume = resumePath != null && !resumePath.trim().isEmpty();
                             boolean hasUserResume = applicant.getCvPath() != null && !applicant.getCvPath().trim().isEmpty();
                             
                             if (hasApplicationResume) { 
                             %>
-                                <p><strong>简历：</strong> 
-                                    <a href="<%= request.getContextPath() %>/cv/download?applicationId=<%= app.getApplicationId() %>" 
-                                       class="btn btn-sm btn-secondary" target="_blank">
-                                        下载申请简历
-                                    </a>
-                                    <span style="color: #27ae60; font-size: 0.9em;">(申请时提交)</span>
-                                </p>
+                                <div class="detail-row">
+                                    <span class="detail-label"><i class="fas fa-file-pdf"></i>&nbsp;&nbsp;Resume:</span>
+                                    <span class="detail-value">
+                                        <a href="<%= request.getContextPath() %>/cv/download?applicationId=<%= app.getApplicationId() %>" 
+                                           class="btn btn-sm btn-secondary" target="_blank">
+                                            <i class="fas fa-download"></i>&nbsp;&nbsp;View Application Resume
+                                        </a>
+                                        <span style="color: #10b981; font-size: 0.9em; margin-left: 10px;">(Submitted with application)</span>
+                                    </span>
+                                </div>
                             <% } else if (hasUserResume) { %>
-                                <p><strong>简历：</strong> 
-                                    <a href="<%= request.getContextPath() %>/cv/download?userId=<%= applicant.getUserId() %>" 
-                                       class="btn btn-sm btn-secondary" target="_blank">
-                                        下载简历
-                                    </a>
-                                    <span style="color: #7f8c8d; font-size: 0.9em;">(用户默认简历)</span>
-                                </p>
+                                <div class="detail-row">
+                                    <span class="detail-label"><i class="fas fa-file-pdf"></i>&nbsp;&nbsp;Resume:</span>
+                                    <span class="detail-value">
+                                        <a href="<%= request.getContextPath() %>/cv/download?userId=<%= applicant.getUserId() %>" 
+                                           class="btn btn-sm btn-secondary" target="_blank">
+                                            <i class="fas fa-download"></i>&nbsp;&nbsp;View Resume
+                                        </a>
+                                        <span style="color: #64748b; font-size: 0.9em; margin-left: 10px;">(User default resume)</span>
+                                    </span>
+                                </div>
                             <% } else { %>
-                                <p><strong>简历：</strong> <span style="color: #95a5a6;">未上传</span></p>
+                                <div class="detail-row">
+                                    <span class="detail-label"><i class="fas fa-file-pdf"></i>&nbsp;&nbsp;Resume:</span>
+                                    <span class="detail-value" style="color: #94a3b8;">Not uploaded</span>
+                                </div>
                             <% } %>
                         </div>
                         
-                        <div class="application-actions" style="margin-top: 15px;">
+                        <div class="application-actions-enhanced">
                             <a href="<%= request.getContextPath() %>/messages/conversation?applicationId=<%= app.getApplicationId() %>" 
-                               class="btn btn-primary" style="margin-right: 10px;">
-                                💬 对话
+                               class="btn btn-secondary">
+                                <i class="fas fa-comments"></i>&nbsp;&nbsp;Conversation
                             </a>
                             
-                            <% if (app.getStatus() == ApplicationStatus.PENDING && !hasSelected) { %>
+                            <% if (app.getStatus() == ApplicationStatus.PENDING && canSelectMore) { %>
                                 <form method="post" action="<%= request.getContextPath() %>/mo/applications/select" 
                                       style="display: inline;"
-                                      onsubmit="return confirm('确定要选择此申请者吗？这将拒绝其他所有申请。');">
+                                      onsubmit="return confirm('Are you sure you want to select this applicant? This will reject all other applications.');">
                                     <input type="hidden" name="applicationId" value="<%= app.getApplicationId() %>">
                                     <input type="hidden" name="positionId" value="<%= position.getPositionId() %>">
-                                    <button type="submit" class="btn btn-primary">选择此申请者</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-check"></i>&nbsp;&nbsp;Select This Applicant
+                                    </button>
                                 </form>
                             <% } else if (app.getStatus() == ApplicationStatus.SELECTED) { %>
-                                <span class="success-message">✓ 已选中此申请者</span>
+                                <div class="success-badge">
+                                    <i class="fas fa-check-circle"></i>&nbsp;&nbsp;Selected
+                                </div>
                             <% } %>
                         </div>
                     </div>
@@ -193,7 +244,9 @@
             </div>
             
             <div class="card">
-                <a href="<%= request.getContextPath() %>/mo/positions/my" class="btn btn-secondary">返回我的职位</a>
+                <a href="<%= request.getContextPath() %>/mo/positions/my" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>&nbsp;&nbsp;Back to My Positions
+                </a>
             </div>
         <% } %>
     </div>

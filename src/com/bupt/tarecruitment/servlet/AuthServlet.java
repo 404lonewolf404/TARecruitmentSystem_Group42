@@ -11,7 +11,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 认证Servlet
@@ -19,6 +27,7 @@ import java.io.IOException;
  */
 public class AuthServlet extends HttpServlet {
     
+    private static final String ADMIN_KEY_FILE = "data/admin_register_key.txt";
     private AuthService authService;
     
     @Override
@@ -138,6 +147,23 @@ public class AuthServlet extends HttpServlet {
                 request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
                 return;
             }
+
+            // 管理员注册密钥校验
+            if (role == UserRole.ADMIN) {
+                String adminRegisterKey = request.getParameter("adminRegisterKey");
+                if (adminRegisterKey == null || adminRegisterKey.trim().isEmpty()) {
+                    request.setAttribute("errorMessage", "注册管理员需要填写密钥");
+                    request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+                    return;
+                }
+
+                String expectedKey = loadAdminRegisterKey();
+                if (expectedKey.isEmpty() || !expectedKey.equals(adminRegisterKey.trim())) {
+                    request.setAttribute("errorMessage", "管理员注册密钥错误");
+                    request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+                    return;
+                }
+            }
             
             // 调用服务层进行注册
             User user = authService.register(name, email, password, role, skills);
@@ -233,6 +259,37 @@ public class AuthServlet extends HttpServlet {
                 return "/admin/dashboard";
             default:
                 return "/auth/login";
+        }
+    }
+
+    private String getWebAppRootPath() {
+        String catalinaBase = System.getProperty("catalina.base");
+        if (catalinaBase != null && !catalinaBase.trim().isEmpty()) {
+            return catalinaBase + "/webapps/TARecruitmentSystem";
+        }
+        return "webapps/TARecruitmentSystem";
+    }
+
+    private String loadAdminRegisterKey() throws IOException {
+        File keyFile = new File(getWebAppRootPath() + "/" + ADMIN_KEY_FILE);
+        File parent = keyFile.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
+
+        // 若不存在则初始化默认密钥，便于首次使用后自行修改
+        if (!keyFile.exists()) {
+            try (BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(keyFile), StandardCharsets.UTF_8))) {
+                writer.write("CHANGE_ME_ADMIN_KEY");
+                writer.newLine();
+            }
+        }
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(keyFile), StandardCharsets.UTF_8))) {
+            String line = reader.readLine();
+            return line == null ? "" : line.trim();
         }
     }
 }

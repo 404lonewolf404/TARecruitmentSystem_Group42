@@ -7,15 +7,12 @@ import com.bupt.tarecruitment.model.Application;
 import com.bupt.tarecruitment.model.ApplicationStatus;
 import com.bupt.tarecruitment.model.Position;
 import com.bupt.tarecruitment.model.User;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * 申请服务类
- * 处理申请相关的业务逻辑
  */
 public class ApplicationService {
     
@@ -24,7 +21,6 @@ public class ApplicationService {
     private UserDAO userDAO;
     
     /**
-     * 构造函数
      */
     public ApplicationService() {
         this.applicationDAO = new ApplicationDAO();
@@ -33,45 +29,48 @@ public class ApplicationService {
     }
     
     /**
-     * 申请职位
-     * 
-     * @param taId TA的用户ID
-     * @param positionId 职位ID
-     * @param resumePath 简历文件路径（可选，如果为null则使用用户默认简历）
-     * @return 创建的申请对象
-     * @throws IllegalArgumentException 如果参数无效或已申请过
-     * @throws IOException 如果数据保存失败
+     *
      */
     public Application applyForPosition(String taId, String positionId, String resumePath) 
             throws IllegalArgumentException, IOException {
         
-        // 验证参数
         if (taId == null || taId.trim().isEmpty()) {
-            throw new IllegalArgumentException("TA ID不能为空");
+            throw new IllegalArgumentException("TA ID cannot be empty");
         }
         
         if (positionId == null || positionId.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位ID不能为空");
+            throw new IllegalArgumentException("Position ID cannot be empty");
         }
         
-        // 检查TA是否存在
         User ta = userDAO.findById(taId.trim());
         if (ta == null) {
-            throw new IllegalArgumentException("TA不存在");
+            throw new IllegalArgumentException("TA not found");
         }
         
-        // 检查职位是否存在
         Position position = positionDAO.findById(positionId.trim());
         if (position == null) {
-            throw new IllegalArgumentException("职位不存在");
+            throw new IllegalArgumentException("Position not found");
+        }
+
+        if (!position.canAcceptApplications()) {
+            if (position.isExpired()) {
+                throw new IllegalArgumentException("This position deadline has passed");
+            }
+            if (position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.CLOSED) {
+                throw new IllegalArgumentException("This position is closed");
+            }
+            throw new IllegalArgumentException("This position is not accepting applications currently");
         }
         
-        // 检查是否已申请过（重复申请检查）
         if (applicationDAO.hasApplied(taId.trim(), positionId.trim())) {
-            throw new IllegalArgumentException("您已经申请过该职位");
+            throw new IllegalArgumentException("You have already applied for this position. Please wait for the review.");
         }
         
-        // 创建新申请
+        int selectedCount = applicationDAO.countSelectedByPositionId(positionId.trim());
+        if (selectedCount >= position.getMaxPositions()) {
+            throw new IllegalArgumentException("This position is full and cannot accept more applications.");
+        }
+        
         Application application = new Application();
         application.setApplicationId(UUID.randomUUID().toString());
         application.setTaId(taId.trim());
@@ -80,104 +79,148 @@ public class ApplicationService {
         application.setAppliedAt(new Date());
         application.setResumePath(resumePath);
         
-        // 保存申请
         applicationDAO.add(application);
         
         return application;
     }
     
     /**
-     * 撤回申请
-     * 
-     * @param applicationId 申请ID
-     * @throws IllegalArgumentException 如果申请不存在
-     * @throws IOException 如果数据删除失败
+     *
      */
     public void withdrawApplication(String applicationId) 
             throws IllegalArgumentException, IOException {
         
         if (applicationId == null || applicationId.trim().isEmpty()) {
-            throw new IllegalArgumentException("申请ID不能为空");
+            throw new IllegalArgumentException("Application ID cannot be empty");
         }
         
-        // 检查申请是否存在
         Application application = applicationDAO.findById(applicationId.trim());
         if (application == null) {
-            throw new IllegalArgumentException("申请不存在");
+            throw new IllegalArgumentException("Application not found");
         }
         
-        // 删除申请
-        applicationDAO.delete(applicationId.trim());
+        if (application.getStatus() != ApplicationStatus.PENDING) {
+            String statusMsg = "";
+            switch (application.getStatus()) {
+                case SELECTED:
+                    statusMsg = "Selected applications cannot be withdrawn (contract already signed).";
+                    break;
+                case REJECTED:
+                    statusMsg = "Rejected applications cannot be withdrawn.";
+                    break;
+                case WITHDRAWN:
+                    statusMsg = "Application has already been withdrawn.";
+                    break;
+                default:
+                    statusMsg = "This application status does not allow withdrawal.";
+            }
+            throw new IllegalArgumentException(statusMsg);
+        }
+        
+        application.setStatus(ApplicationStatus.WITHDRAWN);
+        
+        List<Application> allApplications = applicationDAO.loadAll();
+        for (int i = 0; i < allApplications.size(); i++) {
+            if (allApplications.get(i).getApplicationId().equals(applicationId.trim())) {
+                allApplications.set(i, application);
+                applicationDAO.saveAll(allApplications);
+                return;
+            }
+        }
     }
     
     /**
-     * 获取TA的所有申请
-     * 
-     * @param taId TA的用户ID
-     * @return 该TA提交的所有申请列表
+     *
      */
     public List<Application> getApplicationsByTA(String taId) {
         if (taId == null || taId.trim().isEmpty()) {
-            throw new IllegalArgumentException("TA ID不能为空");
+            throw new IllegalArgumentException("TA ID cannot be empty");
         }
         
         return applicationDAO.findByTaId(taId.trim());
     }
     
     /**
-     * 获取职位的所有申请
-     * 
-     * @param positionId 职位ID
-     * @return 该职位的所有申请列表
+     *
      */
     public List<Application> getApplicationsByPosition(String positionId) {
         if (positionId == null || positionId.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位ID不能为空");
+            throw new IllegalArgumentException("Position ID cannot be empty");
         }
         
         return applicationDAO.findByPositionId(positionId.trim());
     }
     
     /**
-     * 选择申请者
-     * 将指定申请状态更新为SELECTED，同一职位的其他申请更新为REJECTED
-     * 
-     * @param applicationId 要选择的申请ID
-     * @throws IllegalArgumentException 如果申请不存在
-     * @throws IOException 如果数据更新失败
+     *
      */
     public void selectApplicant(String applicationId) 
             throws IllegalArgumentException, IOException {
         
         if (applicationId == null || applicationId.trim().isEmpty()) {
-            throw new IllegalArgumentException("申请ID不能为空");
+            throw new IllegalArgumentException("Application ID cannot be empty");
         }
-        
-        // 检查申请是否存在
-        Application selectedApplication = applicationDAO.findById(applicationId.trim());
-        if (selectedApplication == null) {
-            throw new IllegalArgumentException("申请不存在");
-        }
-        
-        // 获取同一职位的所有申请
-        List<Application> applications = applicationDAO.findByPositionId(
-                selectedApplication.getPositionId());
-        
-        // 更新申请状态
-        for (Application application : applications) {
-            if (application.getApplicationId().equals(applicationId.trim())) {
-                // 选中的申请设置为SELECTED
-                application.setStatus(ApplicationStatus.SELECTED);
-            } else {
-                // 其他申请设置为REJECTED
-                application.setStatus(ApplicationStatus.REJECTED);
+
+        String targetApplicationId = applicationId.trim();
+        List<Application> allApplications = applicationDAO.loadAll();
+
+        Application selectedApplication = null;
+        for (Application application : allApplications) {
+            if (targetApplicationId.equals(application.getApplicationId())) {
+                selectedApplication = application;
+                break;
             }
-            applicationDAO.update(application);
         }
+        if (selectedApplication == null) {
+            throw new IllegalArgumentException("Application not found");
+        }
+
+        if (selectedApplication.getStatus() != ApplicationStatus.PENDING) {
+            throw new IllegalArgumentException("Only pending applications can be selected");
+        }
+
+        String targetPositionId = selectedApplication.getPositionId();
+        Position targetPosition = positionDAO.findById(targetPositionId);
+        if (targetPosition == null) {
+            throw new IllegalArgumentException("Position not found");
+        }
+
+        int selectedCount = (int) allApplications.stream()
+            .filter(app -> targetPositionId.equals(app.getPositionId()))
+            .filter(app -> app.getStatus() == ApplicationStatus.SELECTED)
+            .count();
+        if (selectedCount >= targetPosition.getMaxPositions()) {
+            throw new IllegalArgumentException("This position has reached its maximum number of selected applicants");
+        }
+
+        // Update against full dataset to avoid overwriting applications from other positions.
+        for (Application application : allApplications) {
+            if (!targetPositionId.equals(application.getPositionId())) {
+                continue;
+            }
+            if (targetApplicationId.equals(application.getApplicationId())) {
+                application.setStatus(ApplicationStatus.SELECTED);
+            }
+        }
+
+        int newSelectedCount = selectedCount + 1;
+        if (newSelectedCount >= targetPosition.getMaxPositions()) {
+            // Position is now full, reject remaining pending applications for this position.
+            for (Application application : allApplications) {
+                if (!targetPositionId.equals(application.getPositionId())) {
+                    continue;
+                }
+                if (!targetApplicationId.equals(application.getApplicationId())
+                        && application.getStatus() == ApplicationStatus.PENDING) {
+                    application.setStatus(ApplicationStatus.REJECTED);
+                }
+            }
+        }
+
+        applicationDAO.saveAll(allApplications);
     }
     
     /**
-     * 根据ID获取申请
      */
     public Application getApplicationById(String applicationId) {
         try {
@@ -189,7 +232,6 @@ public class ApplicationService {
     }
     
     /**
-     * 获取职位的所有申请
      */
     public List<Application> getApplicationsByPositionId(String positionId) {
         try {
@@ -199,4 +241,29 @@ public class ApplicationService {
             return new java.util.ArrayList<>();
         }
     }
+    
+    /**
+     *
+     */
+    public void cleanupExpiredPositionApplications() throws IOException {
+        List<Application> allApplications = applicationDAO.loadAll();
+        boolean hasChanges = false;
+        
+        for (Application application : allApplications) {
+            if (application.getStatus() != ApplicationStatus.PENDING) {
+                continue;
+            }
+            
+            Position position = positionDAO.findById(application.getPositionId());
+            if (position != null && position.isExpired()) {
+                application.setStatus(ApplicationStatus.REJECTED);
+                hasChanges = true;
+            }
+        }
+        
+        if (hasChanges) {
+            applicationDAO.saveAll(allApplications);
+        }
+    }
+
 }

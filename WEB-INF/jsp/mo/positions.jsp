@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.bupt.tarecruitment.model.User" %>
 <%@ page import="com.bupt.tarecruitment.model.Position" %>
 <%@ page import="com.bupt.tarecruitment.model.Application" %>
@@ -9,11 +9,11 @@
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
-        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/auth/login");
         return;
     }
     
-    // 获取未读通知数量
+    // Get unread notification count
     int unreadCount = 0;
     try {
         NotificationService notificationService = new NotificationService();
@@ -26,16 +26,16 @@
     List<Position> positions = (List<Position>) request.getAttribute("positions");
     
     @SuppressWarnings("unchecked")
-    Map<String, Application> selectedApplications = (Map<String, Application>) request.getAttribute("selectedApplications");
+    Map<String, List<Application>> selectedApplicationsMap = (Map<String, List<Application>>) request.getAttribute("selectedApplicationsMap");
     
-    // 调试输出
+    // Debug output
     System.out.println("=== JSP Debug ===");
-    System.out.println("selectedApplications is null: " + (selectedApplications == null));
-    if (selectedApplications != null) {
-        System.out.println("selectedApplications size: " + selectedApplications.size());
+    System.out.println("selectedApplicationsMap is null: " + (selectedApplicationsMap == null));
+    if (selectedApplicationsMap != null) {
+        System.out.println("selectedApplicationsMap size: " + selectedApplicationsMap.size());
     }
     
-    // 创建UserDAO实例用于获取TA信息
+    // Create UserDAO instance to get TA information
     UserDAO userDAO = new UserDAO();
 %>
 <!DOCTYPE html>
@@ -43,117 +43,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的职位 - TA招聘系统</title>
+    <title>My Positions - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/positions/my" class="active">我的职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/my"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;My Positions</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/create"><i class="fas fa-plus-circle"></i>&nbsp;&nbsp;Create Position</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list"><i class="fas fa-comments"></i>&nbsp;&nbsp;Messages</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/mo/notifications">
-                    通知
+                    <i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications
                     <% if (unreadCount > 0) { %>
                         <span class="notification-badge"><%= unreadCount %></span>
                     <% } %>
                 </a>
             </li>
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
     
     <div class="container">
-        <div class="card">
-            <h2>我的职位</h2>
-            <p>管理您发布的助教职位</p>
+        <div class="page-header">
+            <h2><i class="fas fa-briefcase"></i>&nbsp;&nbsp;My Positions</h2>
+            <p>Manage and track all your posted TA positions</p>
         </div>
         
         <% if (positions == null || positions.isEmpty()) { %>
             <div class="card">
-                <p class="info-message">您还没有发布任何职位。</p>
-                <a href="<%= request.getContextPath() %>/mo/positions/create" class="btn btn-primary">创建第一个职位</a>
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Positions Yet</h3>
+                    <p>You haven't posted any TA positions yet. Create your first position to get started.</p>
+                    <a href="<%= request.getContextPath() %>/mo/positions/create" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i>&nbsp;&nbsp;Create First Position
+                    </a>
+                </div>
             </div>
         <% } else { %>
             <div class="positions-list">
                 <% for (Position position : positions) { %>
-                    <div class="position-card">
-                        <div class="position-header">
-                            <h3><%= position.getTitle() %></h3>
-                            <span class="badge badge-<%= position.getStatus().toString().toLowerCase() %>">
-                                <%= position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.OPEN ? "开放" : "关闭" %>
-                            </span>
+                    <div class="card position-card-enhanced">
+                        <div class="position-header-enhanced">
+                            <div class="position-title-section">
+                                <h3><%= position.getTitle() %></h3>
+                                <span class="badge badge-<%= position.getStatus().toString().toLowerCase() %>">
+                                    <%= position.getStatus() == com.bupt.tarecruitment.model.PositionStatus.OPEN ? "Open" : "Closed" %>
+                                </span>
+                            </div>
                         </div>
                         
-                        <div class="position-details">
-                            <p><strong>职位ID：</strong><%= position.getPositionId() %></p>
-                            <p><strong>描述：</strong><%= position.getDescription() %></p>
-                            <% if (position.getRequirements() != null && !position.getRequirements().trim().isEmpty()) { %>
-                                <p><strong>要求：</strong><%= position.getRequirements() %></p>
-                            <% } %>
-                            <p><strong>工作时长：</strong><%= position.getHours() %> 小时/周</p>
-                            <p><strong>招聘名额：</strong><%= position.getMaxPositions() %> 人</p>
+                        <div class="position-details-enhanced">
+                            <div class="detail-row">
+                                <span class="detail-label"><i class="fas fa-align-left"></i>&nbsp;&nbsp;Description:</span>
+                                <span class="detail-value"><%= position.getDescription() %></span>
+                            </div>
                             
-                            <%-- V3.2: 显示截止日期和剩余天数 --%>
+                            <div class="detail-row">
+                                <span class="detail-label"><i class="fas fa-list-check"></i>&nbsp;&nbsp;Requirements:</span>
+                                <span class="detail-value"><%= position.getRequirements() %></span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label"><i class="fas fa-clock"></i>&nbsp;&nbsp;Work Hours:</span>
+                                <span class="detail-value"><strong style="color: #2563eb; font-size: 1.1rem;"><%= position.getHours() %> hours/week</strong></span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label"><i class="fas fa-users"></i>&nbsp;&nbsp;Openings:</span>
+                                <span class="detail-value"><strong style="color: #2563eb; font-size: 1.1rem;"><%= position.getMaxPositions() %> position(s)</strong></span>
+                            </div>
+                            
                             <% if (position.getDeadline() != null) { %>
-                                <p><strong>申请截止：</strong>
-                                    <%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(position.getDeadline()) %>
-                                    <% 
-                                    int daysRemaining = position.getDaysRemaining();
-                                    if (daysRemaining > 7) { %>
-                                        <span style="color: #28a745;">(还剩 <%= daysRemaining %> 天)</span>
-                                    <% } else if (daysRemaining >= 4) { %>
-                                        <span style="color: #ffc107;">(还剩 <%= daysRemaining %> 天)</span>
-                                    <% } else if (daysRemaining > 0) { %>
-                                        <span style="color: #dc3545;">(还剩 <%= daysRemaining %> 天)</span>
-                                    <% } else if (position.isExpired()) { %>
-                                        <span style="color: #dc3545; font-weight: bold;">(已过期)</span>
-                                    <% } %>
-                                </p>
+                                <div class="detail-row">
+                                    <span class="detail-label"><i class="fas fa-calendar-alt"></i>&nbsp;&nbsp;Application Deadline:</span>
+                                    <span class="detail-value">
+                                        <strong style="font-size: 1.05rem;"><%= new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(position.getDeadline()) %></strong>
+                                        <% 
+                                        int daysRemaining = position.getDaysRemaining();
+                                        if (daysRemaining > 7) { %>
+                                            <span style="color: #10b981; font-weight: 600; margin-left: 10px;">(<%= daysRemaining %> days left)</span>
+                                        <% } else if (daysRemaining >= 4) { %>
+                                            <span style="color: #f59e0b; font-weight: 600; margin-left: 10px;">(<%= daysRemaining %> days left)</span>
+                                        <% } else if (daysRemaining > 0) { %>
+                                            <span style="color: #ef4444; font-weight: 600; margin-left: 10px;">(<%= daysRemaining %> days left - URGENT)</span>
+                                        <% } else if (position.isExpired()) { %>
+                                            <span style="color: #ef4444; font-weight: bold; margin-left: 10px;">(Expired)</span>
+                                        <% } %>
+                                    </span>
+                                </div>
                             <% } else { %>
-                                <p><strong>申请截止：</strong><span style="color: #6c757d;">无截止日期</span></p>
+                                <div class="detail-row">
+                                    <span class="detail-label"><i class="fas fa-calendar-alt"></i>&nbsp;&nbsp;Deadline:</span>
+                                    <span class="detail-value" style="color: #64748b;">No deadline set</span>
+                                </div>
                             <% } %>
                             
-                            <% 
-                            // 显示被选中的TA信息
-                            Application selectedApp = selectedApplications != null ? selectedApplications.get(position.getPositionId()) : null;
-                            if (selectedApp != null) {
-                                User selectedTA = userDAO.findById(selectedApp.getTaId());
-                                if (selectedTA != null) {
+                            <%
+                            List<Application> selectedApps = selectedApplicationsMap != null ? selectedApplicationsMap.get(position.getPositionId()) : null;
+                            if (selectedApps != null && !selectedApps.isEmpty()) {
                             %>
-                                <div style="margin-top: 15px; padding: 10px; background-color: #d4edda; border-left: 4px solid #28a745; border-radius: 4px;">
-                                    <p style="margin: 0; color: #155724;"><strong>✓ 已选中助教：</strong><%= selectedTA.getName() %></p>
-                                    <p style="margin: 5px 0 0 0; color: #155724; font-size: 0.9em;">邮箱：<%= selectedTA.getEmail() %></p>
+                                <div class="selected-ta-info">
+                                    <div class="info-header">
+                                        <i class="fas fa-check-circle"></i>&nbsp;&nbsp;Selected TA(s) (<%= selectedApps.size() %>/<%= position.getMaxPositions() %>)
+                                    </div>
+                                    <div class="info-content">
+                                        <% for (Application selectedApp : selectedApps) {
+                                               User selectedTA = userDAO.findById(selectedApp.getTaId());
+                                               if (selectedTA == null) continue;
+                                        %>
+                                            <p class="ta-name"><%= selectedTA.getName() %></p>
+                                            <p class="ta-email"><i class="fas fa-envelope"></i>&nbsp;&nbsp;<%= selectedTA.getEmail() %></p>
+                                        <% } %>
+                                    </div>
                                 </div>
-                            <% 
-                                }
-                            } else {
-                            %>
-                                <div style="margin-top: 15px; padding: 10px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
-                                    <p style="margin: 0; color: #856404;"><strong>⚠ 尚未选择助教</strong></p>
+                            <% } else { %>
+                                <div class="no-ta-info">
+                                    <div class="info-header">
+                                        <i class="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;No TA Selected
+                                    </div>
+                                    <p>Please review applications and select a TA for this position.</p>
                                 </div>
                             <% } %>
                         </div>
                         
-                        <div class="position-actions">
+                        <div class="position-actions-enhanced">
                             <a href="<%= request.getContextPath() %>/mo/applications/position?positionId=<%= position.getPositionId() %>" 
-                               class="btn btn-secondary">查看申请</a>
+                               class="btn btn-secondary">
+                                <i class="fas fa-file-alt"></i>&nbsp;&nbsp;View Applications
+                            </a>
                             
                             <a href="<%= request.getContextPath() %>/mo/positions/edit?positionId=<%= position.getPositionId() %>" 
-                               class="btn btn-primary">编辑职位</a>
+                               class="btn btn-primary">
+                                <i class="fas fa-edit"></i>&nbsp;&nbsp;Edit Position
+                            </a>
                             
                             <form method="post" action="<%= request.getContextPath() %>/mo/positions/delete" 
                                   style="display: inline;" 
-                                  onsubmit="return confirm('确定要删除此职位吗？这将同时删除所有相关申请。');">
+                                  onsubmit="return confirm('Are you sure you want to delete this position? This will also delete all related applications.');">
                                 <input type="hidden" name="positionId" value="<%= position.getPositionId() %>">
-                                <button type="submit" class="btn btn-danger">删除职位</button>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -165,3 +204,4 @@
     <script src="<%= request.getContextPath() %>/js/main.js"></script>
 </body>
 </html>
+

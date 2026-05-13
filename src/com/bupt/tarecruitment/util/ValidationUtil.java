@@ -36,10 +36,10 @@ public class ValidationUtil {
      */
     public static String getPasswordStrength(String password) {
         if (password == null || password.length() < 6) {
-            return "太弱";
+            return "Very Weak";
         }
         if (password.length() < 8) {
-            return "弱";
+            return "Weak";
         }
         
         int score = 0;
@@ -48,9 +48,9 @@ public class ValidationUtil {
         if (password.matches(".*\\d.*")) score++;
         if (password.matches(".*[!@#$%^&*].*")) score++;
         
-        if (score < 2) return "弱";
-        if (score < 3) return "中";
-        return "强";
+        if (score < 2) return "Weak";
+        if (score < 3) return "Medium";
+        return "Strong";
     }
     
     /**

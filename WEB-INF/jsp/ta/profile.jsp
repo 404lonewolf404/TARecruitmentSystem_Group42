@@ -7,11 +7,11 @@
         user = (User) session.getAttribute("user");
     }
     if (user == null) {
-        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/auth/login");
         return;
     }
     
-    // 获取未读通知数量
+    // Get unread notification count
     int unreadCount = 0;
     try {
         NotificationService notificationService = new NotificationService();
@@ -28,102 +28,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人资料 - TA招聘系统</title>
+    <title>Profile - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/ta/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
-<<<<<<< HEAD
-            <li><a href="<%= request.getContextPath() %>/ta/favorites">⭐ 我的收藏</a></li>
-=======
->>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
-            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/positions"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;Browse Positions</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/applications/my"><i class="fas fa-file-alt"></i>&nbsp;&nbsp;My Applications</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/favorites"><i class="fas fa-star"></i>&nbsp;&nbsp;Favorites</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list"><i class="fas fa-comments"></i>&nbsp;&nbsp;Messages</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/ta/notifications">
-                    通知
+                    <i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications
                     <% if (unreadCount > 0) { %>
                         <span class="notification-badge"><%= unreadCount %></span>
                     <% } %>
                 </a>
             </li>
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
     
     <div class="container">
-        <div class="form-container">
-            <h2>个人资料</h2>
-            
-            <% if (successMessage != null && !successMessage.isEmpty()) { %>
-                <div class="alert alert-success">
-                    <%= successMessage %>
-                </div>
-            <% } %>
-            
-            <% if (errorMessage != null && !errorMessage.isEmpty()) { %>
-                <div class="alert alert-error">
-                    <%= errorMessage %>
-                </div>
-            <% } %>
-            
-            <form action="<%= request.getContextPath() %>/ta/profile/update" method="post" class="profile-form" enctype="multipart/form-data">
+        <div class="page-header">
+            <h2><i class="fas fa-user-circle"></i>&nbsp;&nbsp;My Profile</h2>
+            <p>Manage your personal information, skills, and resume</p>
+        </div>
+        
+        <% if (successMessage != null && !successMessage.isEmpty()) { %>
+            <div class="success-message" style="margin-bottom: 25px;">
+                <i class="fas fa-check-circle"></i>&nbsp;&nbsp;<%= successMessage %>
+            </div>
+        <% } %>
+        
+        <% if (errorMessage != null && !errorMessage.isEmpty()) { %>
+            <div class="error-message" style="margin-bottom: 25px;">
+                <i class="fas fa-exclamation-circle"></i>&nbsp;&nbsp;<%= errorMessage %>
+            </div>
+        <% } %>
+        
+        <div class="card" style="max-width: 700px; margin: 0 auto;">
+            <form action="<%= request.getContextPath() %>/ta/profile/update" method="post" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label for="name">姓名：<span class="required">*</span></label>
+                    <label for="name"><i class="fas fa-user"></i>&nbsp;&nbsp;Full Name</label>
                     <input type="text" id="name" name="name" required 
-                           placeholder="请输入姓名"
                            value="<%= user.getName() != null ? user.getName() : "" %>">
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">邮箱：<span class="required">*</span></label>
+                    <label for="email"><i class="fas fa-envelope"></i>&nbsp;&nbsp;Email Address</label>
                     <input type="email" id="email" name="email" required 
-                           placeholder="请输入邮箱地址"
                            value="<%= user.getEmail() != null ? user.getEmail() : "" %>">
                 </div>
                 
                 <div class="form-group">
-                    <label for="role">角色：</label>
-                    <input type="text" id="role" name="role" readonly 
+                    <label><i class="fas fa-id-badge"></i>&nbsp;&nbsp;Role</label>
+                    <input type="text" readonly disabled 
                            value="<%= user.getRole() != null ? user.getRole().toString() : "" %>"
-                           style="background-color: #f5f5f5;">
-                    <small>角色信息不可修改</small>
+                           style="background-color: #f8fafc; cursor: not-allowed;">
                 </div>
                 
                 <div class="form-group">
-                    <label for="skills">技能：</label>
-                    <textarea id="skills" name="skills" rows="4" 
-                              placeholder="请输入您的技能和经验"><%= user.getSkills() != null ? user.getSkills() : "" %></textarea>
-                    <small>例如：Java编程、数据库管理、Web开发等</small>
+                    <label for="skills"><i class="fas fa-star"></i>&nbsp;&nbsp;Skills & Experience</label>
+                    <textarea id="skills" name="skills" rows="6" 
+                              placeholder="e.g., Java Programming, Database Management, Web Development"><%= user.getSkills() != null ? user.getSkills() : "" %></textarea>
                 </div>
                 
                 <div class="form-group">
-                    <label for="cv">上传简历（CV）：</label>
-                    <% if (user.getCvPath() != null && !user.getCvPath().isEmpty()) { %>
-                        <div class="cv-info">
-                            <p>当前简历：<a href="<%= request.getContextPath() %>/<%= user.getCvPath() %>" target="_blank">查看简历</a></p>
-                        </div>
-                    <% } %>
+                    <label for="cv"><i class="fas fa-file-pdf"></i>&nbsp;&nbsp;Upload Resume</label>
                     <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx">
-                    <small>支持格式：PDF、DOC、DOCX，最大5MB</small>
+                    <% if (user.getCvPath() != null && !user.getCvPath().isEmpty()) { %>
+                        <small style="color: #10b981; display: block; margin-top: 8px;">
+                            <i class="fas fa-check-circle"></i>&nbsp;&nbsp;Current resume: <a href="<%= request.getContextPath() %>/cv/download?userId=<%= user.getUserId() %>" target="_blank" style="color: #2563eb;">View</a>
+                        </small>
+                    <% } %>
                 </div>
                 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-full">保存更改</button>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-save"></i>&nbsp;&nbsp;Save Changes
+                    </button>
                 </div>
             </form>
-            
-            <div class="form-footer text-center">
-                <a href="<%= request.getContextPath() %>/ta/dashboard" class="btn btn-secondary">返回仪表板</a>
-            </div>
         </div>
     </div>
     

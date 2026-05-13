@@ -69,7 +69,7 @@ function submitFormWithValidation(formId, validationFn) {
     form.addEventListener('submit', function(e) {
         if (validationFn && !validationFn()) {
             e.preventDefault();
-            showAlert('请填写所有必填字段', 'error');
+            showAlert('Please fill in all required fields', 'error');
             return false;
         }
     });
@@ -88,13 +88,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!validateEmail(email.value)) {
                 e.preventDefault();
-                showAlert('请输入有效的邮箱地址', 'error');
+                showAlert('Please enter a valid email address', 'error');
                 return false;
             }
             
             if (!validatePassword(password.value)) {
                 e.preventDefault();
-                showAlert('密码至少需要6个字符', 'error');
+                showAlert('Password must be at least 6 characters', 'error');
                 return false;
             }
         });
@@ -112,19 +112,19 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!name.value.trim()) {
                 e.preventDefault();
-                showAlert('请输入姓名', 'error');
+                showAlert('Please enter your name', 'error');
                 return false;
             }
             
             if (!validateEmail(email.value)) {
                 e.preventDefault();
-                showAlert('请输入有效的邮箱地址', 'error');
+                showAlert('Please enter a valid email address', 'error');
                 return false;
             }
             
             if (!validatePassword(password.value)) {
                 e.preventDefault();
-                showAlert('密码至少需要6个字符', 'error');
+                showAlert('Password must be at least 6 characters', 'error');
                 return false;
             }
         });
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const deleteButtons = document.querySelectorAll('.btn-delete');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(e) {
-            if (!confirmAction('确定要删除吗？此操作无法撤销。')) {
+            if (!confirmAction('Are you sure you want to delete? This action cannot be undone.')) {
                 e.preventDefault();
                 return false;
             }
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const withdrawButtons = document.querySelectorAll('.btn-withdraw');
     withdrawButtons.forEach(button => {
         button.addEventListener('click', function(e) {
-            if (!confirmAction('确定要撤回申请吗？')) {
+            if (!confirmAction('Are you sure you want to withdraw your application?')) {
                 e.preventDefault();
                 return false;
             }
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectButtons = document.querySelectorAll('.btn-select');
     selectButtons.forEach(button => {
         button.addEventListener('click', function(e) {
-            if (!confirmAction('确定要选择此申请者吗？其他申请将被拒绝。')) {
+            if (!confirmAction('Are you sure you want to select this applicant? Other applications will be rejected.')) {
                 e.preventDefault();
                 return false;
             }
@@ -228,19 +228,19 @@ function validateField(field) {
     // Check required fields
     if (field.hasAttribute('required') && !field.value.trim()) {
         isValid = false;
-        errorMessage = '此字段为必填项';
+        errorMessage = 'This field is required';
     }
     
     // Check email format
     if (field.type === 'email' && field.value && !validateEmail(field.value)) {
         isValid = false;
-        errorMessage = '请输入有效的邮箱地址';
+        errorMessage = 'Please enter a valid email address';
     }
     
     // Check password length
     if (field.type === 'password' && field.value && !validatePassword(field.value)) {
         isValid = false;
-        errorMessage = '密码至少需要6个字符';
+        errorMessage = 'Password must be at least 6 characters';
     }
     
     // Check number fields
@@ -248,7 +248,7 @@ function validateField(field) {
         const num = parseFloat(field.value);
         if (isNaN(num) || num < 0) {
             isValid = false;
-            errorMessage = '请输入有效的数字';
+            errorMessage = 'Please enter a valid number';
         }
     }
     
@@ -374,7 +374,7 @@ function setupCharacterCounter(textareaId, maxLength) {
     
     function updateCounter() {
         const length = textarea.value.length;
-        counter.textContent = `${length}${maxLength ? '/' + maxLength : ''} 字符`;
+        counter.textContent = `${length}${maxLength ? '/' + maxLength : ''} characters`;
         
         if (maxLength && length > maxLength) {
             counter.style.color = '#e74c3c';
@@ -399,9 +399,9 @@ function scrollToElement(elementId) {
 function copyToClipboard(text) {
     if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
-            showAlert('已复制到剪贴板', 'success');
+            showAlert('Copied to clipboard', 'success');
         }).catch(() => {
-            showAlert('复制失败', 'error');
+            showAlert('Copy failed', 'error');
         });
     } else {
         // Fallback for older browsers
@@ -411,7 +411,7 @@ function copyToClipboard(text) {
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        showAlert('已复制到剪贴板', 'success');
+        showAlert('Copied to clipboard', 'success');
     }
 }
 
@@ -467,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const submitBtn = this.querySelector('button[type="submit"]');
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.textContent = '提交中...';
+                submitBtn.textContent = 'Submitting...';
             }
         });
     });
@@ -510,10 +510,10 @@ function hideLoading() {
     if (loading) loading.remove();
 }
 
-// 增强的确认对话框
+// Enhanced confirmation dialog
 function confirmActionEnhanced(message, type = 'warning') {
-    // 可以在未来替换为自定义模态框
-    return confirm(message || '确定要执行此操作吗？');
+    // Can be replaced with custom modal in the future
+    return confirm(message || 'Are you sure you want to perform this action?');
 }
 
 // 页面加载完成后的初始化

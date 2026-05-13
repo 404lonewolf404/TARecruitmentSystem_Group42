@@ -19,8 +19,9 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>消息 - TA招聘系统</title>
+    <title>Messages - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .messages-container {
             max-width: 800px;
@@ -114,19 +115,20 @@
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/ta/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
-            <li class="active"><a href="<%= request.getContextPath() %>/messages/list">消息</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/positions"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;Browse Positions</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/applications/my"><i class="fas fa-file-alt"></i>&nbsp;&nbsp;My Applications</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/favorites"><i class="fas fa-star"></i>&nbsp;&nbsp;Favorites</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list"><i class="fas fa-comments"></i>&nbsp;&nbsp;Messages</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/ta/notifications">
-                    通知
+                    <i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications
                     <% 
                         Integer unreadCount = (Integer) request.getAttribute("unreadNotificationCount");
                         if (unreadCount != null && unreadCount > 0) { 
@@ -135,19 +137,19 @@
                     <% } %>
                 </a>
             </li>
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
     
     <div class="container">
-        <h2>我的消息</h2>
+        <h2>My Messages</h2>
         
         <div class="messages-container">
             <% if (conversations == null || conversations.isEmpty()) { %>
                 <div class="empty-state">
                     <div class="empty-state-icon">💬</div>
-                    <h3>暂无消息</h3>
-                    <p>当您与MO开始对话后，消息将显示在这里</p>
+                    <h3>No messages yet</h3>
+                    <p>Messages will appear here when you start conversations with MOs</p>
                 </div>
             <% } else { %>
                 <% for (MessageService.ConversationInfo conv : conversations) { %>
@@ -158,9 +160,9 @@
                         <div class="conversation-content">
                             <div class="conversation-header">
                                 <div class="conversation-name">
-                                    <%= conv.getOtherUser() != null ? conv.getOtherUser().getName() : "未知用户" %>
+                                    <%= conv.getOtherUser() != null ? conv.getOtherUser().getName() : "Unknown User" %>
                                     <span style="color: #999; font-size: 14px; font-weight: normal;">
-                                        - <%= conv.getPosition() != null ? conv.getPosition().getTitle() : "未知职位" %>
+                                        - <%= conv.getPosition() != null ? conv.getPosition().getTitle() : "Unknown Position" %>
                                     </span>
                                 </div>
                                 <div class="conversation-time">

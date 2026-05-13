@@ -34,19 +34,19 @@ public class MessageService {
      */
     public void sendMessage(String applicationId, String senderId, String content) throws IOException {
         if (content == null || content.trim().isEmpty()) {
-            throw new IllegalArgumentException("消息内容不能为空");
+            throw new IllegalArgumentException("Message content cannot be empty");
         }
         
         // 验证申请是否存在
         Application application = applicationDAO.findById(applicationId);
         if (application == null) {
-            throw new IllegalArgumentException("申请不存在");
+            throw new IllegalArgumentException("Application not found");
         }
         
         // 获取发送者信息
         User sender = userDAO.findById(senderId);
         if (sender == null) {
-            throw new IllegalArgumentException("发送者不存在");
+            throw new IllegalArgumentException("Sender not found");
         }
         
         // 验证发送者是否有权限（必须是申请的TA或职位的MO）
@@ -55,7 +55,7 @@ public class MessageService {
             com.bupt.tarecruitment.dao.PositionDAO positionDAO = new com.bupt.tarecruitment.dao.PositionDAO();
             com.bupt.tarecruitment.model.Position position = positionDAO.findById(application.getPositionId());
             if (position == null || !position.getMoId().equals(senderId)) {
-                throw new IllegalArgumentException("您没有权限发送此消息");
+                throw new IllegalArgumentException("You do not have permission to send this message");
             }
         }
         

@@ -10,35 +10,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>申请管理 - TA招聘系统</title>
+    <title>Application Management - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/admin/dashboard">仪表板</a></li>
-<<<<<<< HEAD
-            <li><a href="<%= request.getContextPath() %>/admin/profile">个人资料</a></li>
-=======
->>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
-            <li><a href="<%= request.getContextPath() %>/admin/users">用户管理</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/positions">职位管理</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/applications">申请管理</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/workload">工作量报告</a></li>
-<<<<<<< HEAD
-            <li><a href="<%= request.getContextPath() %>/admin/notifications">通知</a></li>
-=======
->>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/users"><i class="fas fa-users"></i>&nbsp;&nbsp;User Management</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/positions"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;Position Management</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/applications"><i class="fas fa-file-alt"></i>&nbsp;&nbsp;Application Management</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/workload"><i class="fas fa-chart-bar"></i>&nbsp;&nbsp;Workload Report</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/notifications"><i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
 
     <div class="container">
-        <h1 style="text-align: center; margin-bottom: 30px;">申请管理</h1>
+        <div class="page-header">
+            <h2><i class="fas fa-file-alt"></i>&nbsp;&nbsp;Application Management</h2>
+            <p>View and manage all applications in the system</p>
+        </div>
 
         <%
             List<Application> applications = (List<Application>) request.getAttribute("applications");
@@ -46,7 +44,6 @@
             List<Position> positions = (List<Position>) request.getAttribute("positions");
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             
-            // 创建Map来快速查找
             java.util.Map<String, User> userMap = new java.util.HashMap<>();
             if (users != null) {
                 for (User u : users) {
@@ -62,59 +59,77 @@
             }
         %>
 
-        <div style="text-align: center; margin-bottom: 20px;">
-            <p>共 <%= applications != null ? applications.size() : 0 %> 个申请</p>
+        <div class="card">
+            <div class="stats-info">
+                <p style="font-size: 1.1rem; color: #64748b;">
+                    <i class="fas fa-chart-bar"></i>&nbsp;&nbsp;Total Applications: <strong style="color: #2563eb; font-size: 1.3rem;"><%= applications != null ? applications.size() : 0 %></strong>
+                </p>
+            </div>
         </div>
 
         <% if (applications != null && !applications.isEmpty()) { %>
-            <table class="data-table" style="margin: 0 auto;">
-                <thead>
-                    <tr>
-                        <th>申请人</th>
-                        <th>职位名称</th>
-                        <th>简历</th>
-                        <th>状态</th>
-                        <th>申请时间</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% for (Application app : applications) { 
-                        User applicant = userMap.get(app.getTaId());
-                        String applicantName = (applicant != null) ? applicant.getName() + " (" + applicant.getEmail() + ")" : app.getTaId();
-                        
-                        Position position = positionMap.get(app.getPositionId());
-                        String positionTitle = (position != null) ? position.getTitle() : app.getPositionId();
-                    %>
+            <div class="card">
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            <td><%= applicantName %></td>
-                            <td><%= positionTitle %></td>
-                            <td><%= app.getResumePath() != null && !app.getResumePath().isEmpty() ? "已上传" : "未上传" %></td>
-                            <td>
-                                <span class="status-badge status-<%= app.getStatus() %>">
-                                    <% 
-                                        String statusText = "";
-                                        if (app.getStatus() == ApplicationStatus.PENDING) {
-                                            statusText = "待处理";
-                                        } else if (app.getStatus() == ApplicationStatus.SELECTED) {
-                                            statusText = "已选中";
-                                        } else if (app.getStatus() == ApplicationStatus.REJECTED) {
-                                            statusText = "已拒绝";
-                                        } else if (app.getStatus() == ApplicationStatus.WITHDRAWN) {
-                                            statusText = "已撤回";
-                                        } else {
-                                            statusText = app.getStatus().toString();
-                                        }
-                                    %>
-                                    <%= statusText %>
-                                </span>
-                            </td>
-                            <td><%= app.getAppliedAt() != null ? formatter.format(app.getAppliedAt()) : "-" %></td>
+                            <th><i class="fas fa-user"></i>&nbsp;&nbsp;Applicant</th>
+                            <th><i class="fas fa-briefcase"></i>&nbsp;&nbsp;Position</th>
+                            <th><i class="fas fa-file-pdf"></i>&nbsp;&nbsp;Resume</th>
+                            <th><i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Status</th>
+                            <th><i class="fas fa-calendar"></i>&nbsp;&nbsp;Applied</th>
                         </tr>
-                    <% } %>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <% for (Application app : applications) { 
+                            User applicant = userMap.get(app.getTaId());
+                            String applicantName = (applicant != null) ? applicant.getName() + " (" + applicant.getEmail() + ")" : app.getTaId();
+                            
+                            Position position = positionMap.get(app.getPositionId());
+                            String positionTitle = (position != null) ? position.getTitle() : app.getPositionId();
+                        %>
+                            <tr>
+                                <td><strong><%= applicantName %></strong></td>
+                                <td><%= positionTitle %></td>
+                                <td>
+                                    <% if (app.getResumePath() != null && !app.getResumePath().isEmpty()) { %>
+                                        <span style="color: #10b981; font-weight: 600;"><i class="fas fa-check-circle"></i>&nbsp;&nbsp;Uploaded</span>
+                                    <% } else { %>
+                                        <span style="color: #94a3b8;">Not uploaded</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <span class="badge badge-<%= app.getStatus() %>">
+                                        <% 
+                                            String statusText = "";
+                                            if (app.getStatus() == ApplicationStatus.PENDING) {
+                                                statusText = "Pending";
+                                            } else if (app.getStatus() == ApplicationStatus.SELECTED) {
+                                                statusText = "Selected";
+                                            } else if (app.getStatus() == ApplicationStatus.REJECTED) {
+                                                statusText = "Rejected";
+                                            } else if (app.getStatus() == ApplicationStatus.WITHDRAWN) {
+                                                statusText = "Withdrawn";
+                                            } else {
+                                                statusText = app.getStatus().toString();
+                                            }
+                                        %>
+                                        <%= statusText %>
+                                    </span>
+                                </td>
+                                <td><%= app.getAppliedAt() != null ? formatter.format(app.getAppliedAt()) : "-" %></td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
         <% } else { %>
-            <p style="text-align: center; color: #666;">暂无申请数据</p>
+            <div class="card">
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Applications</h3>
+                    <p>There are no applications in the system yet.</p>
+                </div>
+            </div>
         <% } %>
     </div>
 </body>

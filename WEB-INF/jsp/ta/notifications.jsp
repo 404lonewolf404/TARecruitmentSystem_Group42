@@ -7,7 +7,7 @@
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
-        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/auth/login");
         return;
     }
     
@@ -25,212 +25,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>通知中心 - TA招聘系统</title>
+    <title>Notification Center - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
-    <style>
-        .notification-item {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .notification-item.unread {
-            background: #ecf0f1;
-            border-left: 4px solid #3498db;
-        }
-        
-        .notification-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        
-        .notification-type {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        
-        .type-selected {
-            background: #27ae60;
-            color: white;
-        }
-        
-        .type-rejected {
-            background: #e67e22;
-            color: white;
-        }
-        
-        .type-deleted {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        .notification-time {
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-        
-        .notification-message {
-            color: #2c3e50;
-            line-height: 1.8;
-            white-space: pre-line;
-            font-size: 15px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .notification-actions {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #ecf0f1;
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn-mark-read {
-            padding: 8px 16px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-        
-        .btn-mark-read:hover {
-            background: #2980b9;
-        }
-        
-        .btn-delete {
-            padding: 8px 16px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-        
-        .btn-delete:hover {
-            background: #c0392b;
-        }
-        
-        .mark-all-read-btn {
-            margin-bottom: 20px;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #95a5a6;
-        }
-        
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/ta/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
-<<<<<<< HEAD
-            <li><a href="<%= request.getContextPath() %>/ta/favorites">⭐ 我的收藏</a></li>
-=======
->>>>>>> de384c5c4bd4c5f2a574b2f75792ffc83db5658c
-            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/positions"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;Browse Positions</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/applications/my"><i class="fas fa-file-alt"></i>&nbsp;&nbsp;My Applications</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/favorites"><i class="fas fa-star"></i>&nbsp;&nbsp;Favorites</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list"><i class="fas fa-comments"></i>&nbsp;&nbsp;Messages</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/ta/notifications">
-                    通知
+                    <i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications
                     <% if (unreadCount > 0) { %>
                         <span class="notification-badge"><%= unreadCount %></span>
                     <% } %>
                 </a>
             </li>
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
     
     <div class="container">
-        <h2>📬 通知中心</h2>
+        <div class="page-header">
+            <h2><i class="fas fa-bell"></i>&nbsp;&nbsp;Notification Center</h2>
+            <p>Stay updated with your application status and system notifications</p>
+        </div>
         
         <% if (errorMessage != null && !errorMessage.isEmpty()) { %>
-            <div class="error-message"><%= errorMessage %></div>
+            <div class="error-message" style="margin-bottom: 25px;">
+                <i class="fas fa-exclamation-circle"></i>&nbsp;&nbsp;<%= errorMessage %>
+            </div>
         <% } %>
         
         <% if (unreadCount > 0) { %>
-            <form action="<%= request.getContextPath() %>/notifications/markAllRead" method="post" class="mark-all-read-btn">
-                <button type="submit" class="btn btn-secondary">全部标记为已读</button>
-            </form>
+            <div class="card" style="margin-bottom: 25px;">
+                <form action="<%= request.getContextPath() %>/notifications/markAllRead" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check-double"></i>&nbsp;&nbsp;Mark All as Read
+                    </button>
+                </form>
+            </div>
         <% } %>
         
         <% if (notifications == null || notifications.isEmpty()) { %>
-            <div class="empty-state">
-                <div class="empty-state-icon">🔔</div>
-                <p>暂无通知</p>
+            <div class="card">
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Notifications</h3>
+                    <p>You're all caught up! No new notifications.</p>
+                </div>
             </div>
         <% } else { %>
-            <% for (Notification notification : notifications) { 
-                String typeClass = "";
-                String typeName = "";
-                
-                if (notification.getType() == NotificationType.APPLICATION_SELECTED) {
-                    typeClass = "type-selected";
-                    typeName = "申请通过";
-                } else if (notification.getType() == NotificationType.APPLICATION_REJECTED) {
-                    typeClass = "type-rejected";
-                    typeName = "申请未通过";
-                } else if (notification.getType() == NotificationType.POSITION_DELETED) {
-                    typeClass = "type-deleted";
-                    typeName = "职位删除";
-                } else {
-                    typeName = notification.getType().toString();
-                }
-            %>
-                <div class="notification-item <%= notification.isRead() ? "" : "unread" %>">
-                    <div class="notification-header">
-                        <span class="notification-type <%= typeClass %>">
-                            <%= typeName %>
-                        </span>
-                        <span class="notification-time">
-                            <%= dateFormat.format(notification.getCreatedAt()) %>
-                        </span>
-                    </div>
+            <div class="notifications-list">
+                <% for (Notification notification : notifications) { 
+                    String typeClass = "";
+                    String typeIcon = "";
+                    String typeName = "";
                     
-                    <div class="notification-message"><%= notification.getMessage() %></div>
-                    
-                    <div class="notification-actions">
-                        <% if (!notification.isRead()) { %>
-                            <form action="<%= request.getContextPath() %>/notifications/markRead" method="post" style="display: inline;">
+                    if (notification.getType() == NotificationType.APPLICATION_SELECTED) {
+                        typeClass = "type-selected";
+                        typeIcon = "fas fa-check-circle";
+                        typeName = "Application Accepted";
+                    } else if (notification.getType() == NotificationType.APPLICATION_REJECTED) {
+                        typeClass = "type-rejected";
+                        typeIcon = "fas fa-times-circle";
+                        typeName = "Application Rejected";
+                    } else if (notification.getType() == NotificationType.POSITION_DELETED) {
+                        typeClass = "type-deleted";
+                        typeIcon = "fas fa-trash-alt";
+                        typeName = "Position Deleted";
+                    } else {
+                        typeIcon = "fas fa-info-circle";
+                        typeName = notification.getType().toString();
+                    }
+                %>
+                    <div class="card notification-card <%= notification.isRead() ? "read" : "unread" %>">
+                        <div class="notification-header-modern">
+                            <div class="notification-type-badge <%= typeClass %>">
+                                <i class="<%= typeIcon %>"></i>&nbsp;&nbsp;<%= typeName %>
+                            </div>
+                            <span class="notification-time-modern">
+                                <i class="fas fa-clock"></i>&nbsp;&nbsp;<%= dateFormat.format(notification.getCreatedAt()) %>
+                            </span>
+                        </div>
+                        
+                        <div class="notification-message-modern">
+                            <%= notification.getMessage() %>
+                        </div>
+                        
+                        <div class="notification-actions-modern">
+                            <% if (!notification.isRead()) { %>
+                                <form action="<%= request.getContextPath() %>/notifications/markRead" method="post" style="display: inline;">
+                                    <input type="hidden" name="notificationId" value="<%= notification.getNotificationId() %>">
+                                    <button type="submit" class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-check"></i>&nbsp;&nbsp;Mark as Read
+                                    </button>
+                                </form>
+                            <% } %>
+                            <form action="<%= request.getContextPath() %>/notifications/delete" method="post" style="display: inline;">
                                 <input type="hidden" name="notificationId" value="<%= notification.getNotificationId() %>">
-                                <button type="submit" class="btn-mark-read">标记为已读</button>
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this notification?')">
+                                    <i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete
+                                </button>
                             </form>
-                        <% } %>
-                        <form action="<%= request.getContextPath() %>/notifications/delete" method="post" style="display: inline;">
-                            <input type="hidden" name="notificationId" value="<%= notification.getNotificationId() %>">
-                            <button type="submit" class="btn-delete" onclick="return confirm('确定要删除这条通知吗？')">删除</button>
-                        </form>
+                        </div>
                     </div>
-                </div>
-            <% } %>
+                <% } %>
+            </div>
         <% } %>
     </div>
     
