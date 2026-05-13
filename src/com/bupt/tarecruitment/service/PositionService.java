@@ -10,10 +10,10 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 /**
- * 职位服务类
- * 处理职位相关的业务逻辑
  */
 public class PositionService {
     
@@ -21,7 +21,6 @@ public class PositionService {
     private ApplicationDAO applicationDAO;
     
     /**
-     * 构造函数
      */
     public PositionService() {
         this.positionDAO = new PositionDAO();
@@ -29,44 +28,32 @@ public class PositionService {
     }
     
     /**
-     * 创建新职位
      * 
-     * @param moId MO的用户ID
-     * @param title 职位标题
-     * @param description 职位描述
-     * @param requirements 职位要求
-     * @param hours 工作时长（小时/周）
-     * @param maxPositions 招聘名额
-     * @return 创建的职位对象
-     * @throws IllegalArgumentException 如果参数无效
-     * @throws IOException 如果数据保存失败
      */
     public Position createPosition(String moId, String title, String description, 
                                    String requirements, int hours, int maxPositions) 
             throws IllegalArgumentException, IOException {
         
-        // 验证必填字段
         if (moId == null || moId.trim().isEmpty()) {
-            throw new IllegalArgumentException("MO ID不能为空");
+            throw new IllegalArgumentException("MO ID cannot be empty");
         }
         
         if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位标题不能为空");
+            throw new IllegalArgumentException("Position title cannot be empty");
         }
         
         if (description == null || description.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位描述不能为空");
+            throw new IllegalArgumentException("Position description cannot be empty");
         }
         
         if (hours <= 0) {
-            throw new IllegalArgumentException("工作时长必须大于0");
+            throw new IllegalArgumentException("Work hours must be greater than 0");
         }
         
         if (maxPositions <= 0) {
-            throw new IllegalArgumentException("招聘名额必须大于0");
+            throw new IllegalArgumentException("Max positions must be greater than 0");
         }
         
-        // 创建新职位
         Position position = new Position();
         position.setPositionId(UUID.randomUUID().toString());
         position.setMoId(moId.trim());
@@ -78,40 +65,31 @@ public class PositionService {
         position.setStatus(PositionStatus.OPEN);
         position.setCreatedAt(new Date());
         
-        // 保存职位
         positionDAO.add(position);
         
         return position;
     }
     
     /**
-     * 获取MO创建的所有职位
      * 
-     * @param moId MO的用户ID
-     * @return 该MO创建的所有职位列表
      */
     public List<Position> getPositionsByMO(String moId) {
         if (moId == null || moId.trim().isEmpty()) {
-            throw new IllegalArgumentException("MO ID不能为空");
+            throw new IllegalArgumentException("MO ID cannot be empty");
         }
         
         return positionDAO.findByMoId(moId.trim());
     }
     
     /**
-     * 获取所有开放的职位
      * 
-     * @return 所有状态为OPEN的职位列表
      */
     public List<Position> getAllOpenPositions() {
         return positionDAO.findAllOpen();
     }
     
     /**
-     * 根据ID获取职位
      * 
-     * @param positionId 职位ID
-     * @return 职位对象，如果不存在则返回null
      */
     public Position getPositionById(String positionId) {
         if (positionId == null || positionId.trim().isEmpty()) {
@@ -122,80 +100,61 @@ public class PositionService {
     }
     
     /**
-     * 删除职位（级联删除相关申请）
      * 
-     * @param positionId 职位ID
-     * @throws IllegalArgumentException 如果职位不存在
-     * @throws IOException 如果数据删除失败
      */
     public void deletePosition(String positionId) throws IllegalArgumentException, IOException {
         
         if (positionId == null || positionId.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位ID不能为空");
+            throw new IllegalArgumentException("Position ID cannot be empty");
         }
         
-        // 检查职位是否存在
         Position position = positionDAO.findById(positionId.trim());
         if (position == null) {
-            throw new IllegalArgumentException("职位不存在");
+            throw new IllegalArgumentException("Position not found");
         }
         
-        // 级联删除：先删除所有相关申请
         List<Application> applications = applicationDAO.findByPositionId(positionId.trim());
         for (Application application : applications) {
             applicationDAO.delete(application.getApplicationId());
         }
         
-        // 删除职位
         positionDAO.delete(positionId.trim());
     }
 
     /**
-     * 创建带截止日期的职位
-     * V3.2 - 职位截止日期管理
      * 
-     * @param moId MO的用户ID
-     * @param title 职位标题
-     * @param description 职位描述
-     * @param requirements 职位要求
-     * @param hours 工作时长（小时/周）
-     * @param maxPositions 招聘名额
-     * @param deadline 申请截止日期（可选）
-     * @return 创建的职位对象
-     * @throws IllegalArgumentException 如果参数无效
-     * @throws IOException 如果数据保存失败
      */
     public Position createPositionWithDeadline(String moId, String title, String description, 
                                                String requirements, int hours, int maxPositions, Date deadline) 
             throws IllegalArgumentException, IOException {
         
-        // 验证必填字段
         if (moId == null || moId.trim().isEmpty()) {
-            throw new IllegalArgumentException("MO ID不能为空");
+            throw new IllegalArgumentException("MO ID cannot be empty");
         }
         
         if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位标题不能为空");
+            throw new IllegalArgumentException("Position title cannot be empty");
         }
         
         if (description == null || description.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位描述不能为空");
+            throw new IllegalArgumentException("Position description cannot be empty");
         }
         
         if (hours <= 0) {
-            throw new IllegalArgumentException("工作时长必须大于0");
+            throw new IllegalArgumentException("Work hours must be greater than 0");
         }
         
         if (maxPositions <= 0) {
-            throw new IllegalArgumentException("招聘名额必须大于0");
+            throw new IllegalArgumentException("Max positions must be greater than 0");
         }
         
-        // 验证截止日期不能早于今天
-        if (deadline != null && deadline.before(new Date())) {
-            throw new IllegalArgumentException("截止日期不能早于今天");
+        if (deadline != null) {
+            LocalDate deadlineDate = deadline.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            if (deadlineDate.isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("Deadline cannot be earlier than today");
+            }
         }
         
-        // 创建新职位
         Position position = new Position();
         position.setPositionId(UUID.randomUUID().toString());
         position.setMoId(moId.trim());
@@ -208,65 +167,67 @@ public class PositionService {
         position.setCreatedAt(new Date());
         position.setDeadline(deadline);
         
-        // 保存职位
         positionDAO.add(position);
         
         return position;
     }
     
     /**
-     * 更新职位信息
-     * V3.6 - 职位编辑功能
      * 
-     * @param positionId 职位ID
-     * @param title 职位标题
-     * @param description 职位描述
-     * @param requirements 职位要求
-     * @param hours 工作时长（小时/周）
-     * @param maxPositions 招聘名额
-     * @param deadline 申请截止日期（可选）
-     * @return 更新后的职位对象
-     * @throws IllegalArgumentException 如果参数无效或职位不存在
-     * @throws IOException 如果数据保存失败
      */
     public Position updatePosition(String positionId, String title, String description,
                                    String requirements, int hours, int maxPositions, Date deadline)
             throws IllegalArgumentException, IOException {
         
-        // 验证职位ID
         if (positionId == null || positionId.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位ID不能为空");
+            throw new IllegalArgumentException("Position ID cannot be empty");
         }
         
-        // 检查职位是否存在
         Position position = positionDAO.findById(positionId.trim());
         if (position == null) {
-            throw new IllegalArgumentException("职位不存在");
+            throw new IllegalArgumentException("Position not found");
         }
         
-        // 验证必填字段
         if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位标题不能为空");
+            throw new IllegalArgumentException("Position title cannot be empty");
         }
         
         if (description == null || description.trim().isEmpty()) {
-            throw new IllegalArgumentException("职位描述不能为空");
+            throw new IllegalArgumentException("Position description cannot be empty");
         }
         
         if (hours <= 0) {
-            throw new IllegalArgumentException("工作时长必须大于0");
+            throw new IllegalArgumentException("Work hours must be greater than 0");
         }
         
         if (maxPositions <= 0) {
-            throw new IllegalArgumentException("招聘名额必须大于0");
+            throw new IllegalArgumentException("Max positions must be greater than 0");
         }
         
-        // 验证截止日期不能早于今天
-        if (deadline != null && deadline.before(new Date())) {
-            throw new IllegalArgumentException("截止日期不能早于今天");
+        if (deadline != null) {
+            LocalDate deadlineDate = deadline.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            if (deadlineDate.isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("Deadline cannot be earlier than today");
+            }
         }
         
-        // 更新职位信息
+        int selectedCount = applicationDAO.countSelectedByPositionId(positionId.trim());
+        
+        if (maxPositions < selectedCount) {
+            throw new IllegalArgumentException(
+                "Cannot reduce max positions to " + maxPositions + " because " + selectedCount + 
+                " applications are already selected. Please cancel some selected applications first, or set max positions to at least " + selectedCount + "."
+            );
+        }
+        
+        if (selectedCount > 0 && position.getHours() != hours) {
+            throw new IllegalArgumentException(
+                "Cannot modify work hours because " + selectedCount + " applications are already selected. " +
+                "Work hours are part of the work contract and cannot be changed after applications are selected. Please cancel all selected applications first, or contact the selected TAs to negotiate."
+            );
+        }
+        
+        
         position.setTitle(title.trim());
         position.setDescription(description.trim());
         position.setRequirements(requirements != null ? requirements.trim() : "");
@@ -274,9 +235,15 @@ public class PositionService {
         position.setMaxPositions(maxPositions);
         position.setDeadline(deadline);
         
-        // 保存更新
-        positionDAO.update(position);
+        List<Position> allPositions = positionDAO.loadAll();
+        for (int i = 0; i < allPositions.size(); i++) {
+            if (allPositions.get(i).getPositionId().equals(positionId.trim())) {
+                allPositions.set(i, position);
+                positionDAO.saveAll(allPositions);
+                return position;
+            }
+        }
         
-        return position;
+        throw new IllegalArgumentException("Position not found");
     }
 }

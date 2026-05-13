@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>错误 - TA招聘系统</title>
+    <title>Error - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
 </head>
 <body>
     <div class="container">
         <div class="error-container">
             <div class="error-icon">⚠️</div>
-            <h1>出错了</h1>
+            <h1>Something Went Wrong</h1>
             
             <% 
                 String errorMessage = (String) request.getAttribute("errorMessage");
@@ -19,7 +19,7 @@
                     errorMessage = (String) request.getAttribute("error");
                 }
                 if (errorMessage == null || errorMessage.isEmpty()) {
-                    errorMessage = "发生了一个未知错误，请稍后重试。";
+                    errorMessage = "An unknown error occurred. Please try again later.";
                 }
             %>
             
@@ -32,13 +32,13 @@
                 if (statusCode != null) {
             %>
                 <div class="error-details">
-                    <p>错误代码: <%= statusCode %></p>
+                    <p>Error Code: <%= statusCode %></p>
                 </div>
             <% } %>
             
             <div class="error-actions">
-                <button onclick="history.back()" class="btn btn-secondary">返回上一页</button>
-                <a href="<%= request.getContextPath() %>/" class="btn btn-primary">返回首页</a>
+                <button onclick="history.back()" class="btn btn-secondary">Go Back</button>
+                <a href="<%= request.getContextPath() %>/" class="btn btn-primary">Go to Home</a>
             </div>
         </div>
     </div>

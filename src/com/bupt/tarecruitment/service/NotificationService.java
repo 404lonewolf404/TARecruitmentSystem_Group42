@@ -26,6 +26,16 @@ public class NotificationService {
             System.out.println("taId: " + taId);
             System.out.println("positionId: " + positionId);
             System.out.println("status: " + status);
+
+            if (taId == null || taId.trim().isEmpty() || positionId == null || positionId.trim().isEmpty() || status == null) {
+                System.out.println("Skip status notification due to invalid parameters");
+                return;
+            }
+
+            if (status != ApplicationStatus.SELECTED && status != ApplicationStatus.REJECTED) {
+                System.out.println("Skip status notification for unsupported status: " + status);
+                return;
+            }
             
             // 获取职位信息和MO信息
             PositionService positionService = new PositionService();
@@ -56,17 +66,17 @@ public class NotificationService {
                         .count();
                     
                     notification.setMessage(
-                        "🎉 恭喜！您的申请已被选中\n\n" +
-                        "职位：【" + position.getTitle() + "】（" + position.getHours() + "小时/周）\n" +
+                        "🎉 Congratulations! Your application has been selected.\n\n" +
+                        "Position: [" + position.getTitle() + "] (" + position.getHours() + " hrs/week)\n" +
                         (position.getDescription() != null && !position.getDescription().isEmpty() ? 
-                            "描述：" + position.getDescription() + "\n" : "") +
-                        "\n负责人：" + (mo != null ? mo.getName() : "未知") + "\n" +
-                        "邮箱：" + (mo != null ? mo.getEmail() : "未知") + "\n" +
-                        "\n您在" + totalApplicants + "位申请者中脱颖而出！\n\n" +
-                        "💡 请在3个工作日内联系负责人确认工作安排"
+                            "Description: " + position.getDescription() + "\n" : "") +
+                        "\nOwner: " + (mo != null ? mo.getName() : "Unknown") + "\n" +
+                        "Email: " + (mo != null ? mo.getEmail() : "Unknown") + "\n" +
+                        "\nYou were selected among " + totalApplicants + " applicants.\n\n" +
+                        "💡 Please contact the owner within 3 business days to confirm arrangements."
                     );
                 } else {
-                    notification.setMessage("🎉 恭喜！您的申请已被选中\n\n请及时联系管理人员确认相关事宜。");
+                    notification.setMessage("🎉 Congratulations! Your application has been selected.\n\nPlease contact the administrators to confirm the details.");
                 }
             } else if (status == ApplicationStatus.REJECTED) {
                 notification.setType(NotificationType.APPLICATION_REJECTED);
@@ -81,17 +91,22 @@ public class NotificationService {
                         .count();
                     
                     notification.setMessage(
-                        "📋 申请结果通知\n\n" +
-                        "职位：【" + position.getTitle() + "】（" + position.getHours() + "小时/周）\n" +
-                        "竞争：" + totalApplicants + "人申请，" + selectedCount + "人被选中\n\n" +
-                        "很遗憾，您的申请未被选中。\n\n" +
-                        "💪 继续加油，寻找其他合适的职位！"
+                        "📋 Application Result\n\n" +
+                        "Position: [" + position.getTitle() + "] (" + position.getHours() + " hrs/week)\n" +
+                        "Competition: " + totalApplicants + " applicants, " + selectedCount + " selected\n\n" +
+                        "We regret to inform you that your application was not selected.\n\n" +
+                        "💪 Keep trying and look for other suitable positions!"
                     );
                 } else {
-                    notification.setMessage("📋 很遗憾，您的申请未被选中\n\n感谢您的申请，欢迎继续关注其他职位。");
+                    notification.setMessage("📋 We regret to inform you that your application was not selected.\n\nThank you for applying — please consider other available positions.");
                 }
             }
             
+            if (notification.getType() == null || notification.getMessage() == null || notification.getMessage().trim().isEmpty()) {
+                System.out.println("Skip saving status notification due to incomplete content");
+                return;
+            }
+
             System.out.println("Saving notification: " + notification.getNotificationId());
             notificationDAO.save(notification);
             System.out.println("Notification saved successfully");
@@ -146,15 +161,15 @@ public class NotificationService {
                 String matchInfo = "";
                 
                 notification.setMessage(
-                    "📬 收到新的职位申请\n\n" +
-                    "职位：【" + position.getTitle() + "】（" + position.getHours() + "小时/周）\n" +
-                    "申请人：" + ta.getName() + "（" + ta.getEmail() + "）\n" +
-                    "技能：" + taSkills + "\n" +
-                    "\n当前申请：" + totalApplicants + "人（待审核" + pendingCount + "，已选中" + selectedCount + "）\n\n" +
-                    "💡 请前往\"我的职位\"查看详情并及时处理"
+                    "📬 New application received\n\n" +
+                    "Position: [" + position.getTitle() + "] (" + position.getHours() + " hrs/week)\n" +
+                    "Applicant: " + ta.getName() + " (" + ta.getEmail() + ")\n" +
+                    "Skills: " + taSkills + "\n" +
+                    "\nCurrent applications: " + totalApplicants + " (Pending: " + pendingCount + ", Selected: " + selectedCount + ")\n\n" +
+                    "💡 Please check \"My Positions\" for details and process the application promptly."
                 );
             } else {
-                notification.setMessage("📬 您有新的职位申请\n\n请及时查看并处理。");
+                notification.setMessage("📬 You have a new application.\n\nPlease check and process it promptly.");
             }
             
             notification.setRelatedId(positionId);
@@ -205,18 +220,18 @@ public class NotificationService {
                     .count();
                 
                 notification.setMessage(
-                    "⚠️ 申请撤回通知\n\n" +
-                    "职位：【" + position.getTitle() + "】\n" +
-                    "撤回人：" + ta.getName() + "（" + ta.getEmail() + "）\n\n" +
-                    "剩余申请：" + remainingCount + "人（待审核" + pendingCount + "，已选中" + selectedCount + "）\n\n" +
+                    "⚠️ Application Withdrawn\n\n" +
+                    "Position: [" + position.getTitle() + "]\n" +
+                    "Withdrawn by: " + ta.getName() + " (" + ta.getEmail() + ")\n\n" +
+                    "Remaining applications: " + remainingCount + " (Pending: " + pendingCount + ", Selected: " + selectedCount + ")\n\n" +
                     (remainingCount > 0 ? 
-                        "💡 请及时审核剩余申请，避免更多流失"
+                        "💡 Please review the remaining applications promptly to avoid further loss."
                         :
-                        "⚠️ 该职位已无申请人！建议调整要求或重新发布"
+                        "⚠️ There are no remaining applicants for this position. Consider adjusting requirements or reposting."
                     )
                 );
             } else {
-                notification.setMessage("⚠️ 有申请者撤回了申请\n\n请查看职位申请情况。");
+                notification.setMessage("⚠️ An applicant has withdrawn their application.\n\nPlease review the position's application status.");
             }
             
             notification.setRelatedId(positionId);
@@ -264,14 +279,14 @@ public class NotificationService {
                                     app.getStatus() == ApplicationStatus.REJECTED ? "❌" : "⏳";
                 
                 notification.setMessage(
-                    "🗑️ 职位删除通知\n\n" +
-                    "职位：【" + positionTitle + "】\n" +
-                    "您的状态：" + statusEmoji + " " + statusText + "\n" +
-                    "申请时间：" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(app.getAppliedAt()) + "\n\n" +
-                    "⚠️ 该职位已被删除，您的申请已自动取消。\n" +
+                    "🗑️ Position Deleted\n\n" +
+                    "Position: [" + positionTitle + "]\n" +
+                    "Your status: " + statusEmoji + " " + statusText + "\n" +
+                    "Applied at: " + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(app.getAppliedAt()) + "\n\n" +
+                    "⚠️ This position has been deleted and your application has been cancelled.\n" +
                     (app.getStatus() == ApplicationStatus.SELECTED ? 
-                        "\n⚠️ 您之前已被选中，但工作机会已取消。\n如有疑问请联系管理人员。\n" : "") +
-                    "\n💡 请前往\"浏览职位\"页面查看其他机会"
+                        "\n⚠️ You were previously selected, but the opportunity has been cancelled.\nPlease contact administrators if you have questions.\n" : "") +
+                    "\n💡 Please visit the \"Browse Positions\" page to explore other opportunities."
                 );
                 notification.setRelatedId(positionId);
                 notification.setCreatedAt(new java.util.Date());
@@ -290,9 +305,9 @@ public class NotificationService {
     
     private String getStatusText(ApplicationStatus status) {
         switch (status) {
-            case PENDING: return "待审核";
-            case SELECTED: return "已选中";
-            case REJECTED: return "未选中";
+            case PENDING: return "Pending";
+            case SELECTED: return "Selected";
+            case REJECTED: return "Rejected";
             default: return status.toString();
         }
     }
@@ -327,13 +342,13 @@ public class NotificationService {
                 notification.setType(NotificationType.POSITION_CLOSED);
                 
                 notification.setMessage(
-                    "🔒 职位关闭通知\n\n" +
-                    "职位：【" + positionTitle + "】\n" +
-                    "您的状态：⏳ 待审核\n" +
-                    "申请时间：" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(app.getAppliedAt()) + "\n\n" +
-                    "⚠️ 该职位已关闭，暂时不再接受新申请。\n" +
-                    "您的申请仍在系统中，如果职位重新开放，您的申请将继续有效。\n\n" +
-                    "💡 请前往\"浏览职位\"页面查看其他机会"
+                    "🔒 Position Closed\n\n" +
+                    "Position: [" + positionTitle + "]\n" +
+                    "Your status: ⏳ Pending\n" +
+                    "Applied at: " + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(app.getAppliedAt()) + "\n\n" +
+                    "⚠️ This position is closed and is temporarily not accepting new applications.\n" +
+                    "Your application remains in the system; if the position reopens, your application will still be considered.\n\n" +
+                    "💡 Please visit the \"Browse Positions\" page to explore other opportunities."
                 );
                 notification.setRelatedId(positionId);
                 notification.setCreatedAt(new java.util.Date());

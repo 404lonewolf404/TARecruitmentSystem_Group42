@@ -2,6 +2,9 @@ package com.bupt.tarecruitment.model;
 
 import java.util.Date;
 import java.util.Objects;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
 /**
  * 职位实体类
@@ -149,7 +152,9 @@ public class Position {
         if (deadline == null) {
             return false;
         }
-        return new Date().after(deadline);
+        LocalDate today = LocalDate.now();
+        LocalDate deadlineDate = deadline.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return today.isAfter(deadlineDate);
     }
     
     /**
@@ -160,11 +165,13 @@ public class Position {
         if (deadline == null) {
             return -1;
         }
-        long diff = deadline.getTime() - new Date().getTime();
-        if (diff < 0) {
+        LocalDate today = LocalDate.now();
+        LocalDate deadlineDate = deadline.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        long diffDays = ChronoUnit.DAYS.between(today, deadlineDate);
+        if (diffDays < 0) {
             return 0;
         }
-        return (int) (diff / (1000 * 60 * 60 * 24));
+        return (int) diffDays;
     }
     
     /**

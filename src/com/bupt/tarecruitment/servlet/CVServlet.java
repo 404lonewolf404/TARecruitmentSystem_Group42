@@ -23,6 +23,14 @@ public class CVServlet extends HttpServlet {
     
     private UserDAO userDAO;
     private ApplicationDAO applicationDAO;
+
+    private String getWebAppRootPath() {
+        String catalinaBase = System.getProperty("catalina.base");
+        if (catalinaBase != null && !catalinaBase.trim().isEmpty()) {
+            return catalinaBase + "/webapps/TARecruitmentSystem";
+        }
+        return "webapps/TARecruitmentSystem";
+    }
     
     @Override
     public void init() throws ServletException {
@@ -111,7 +119,7 @@ public class CVServlet extends HttpServlet {
         }
         
         // 构建完整的文件路径
-        String fullPath = "webapps/TARecruitmentSystem/" + cvPath;
+        String fullPath = getWebAppRootPath() + "/" + cvPath;
         File cvFile = new File(fullPath);
         
         if (!cvFile.exists() || !cvFile.isFile()) {
@@ -128,7 +136,8 @@ public class CVServlet extends HttpServlet {
         
         response.setContentType(mimeType);
         response.setContentLength((int) cvFile.length());
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+        // 使用inline让浏览器在新标签页中打开PDF，而不是下载
+        response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\"");
         
         // 读取文件并写入响应
         try (FileInputStream fis = new FileInputStream(cvFile);

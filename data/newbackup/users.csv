@@ -1,0 +1,7 @@
+﻿userId,name,email,password,role,skills,cvPath,createdAt
+a1111111-1111-4111-8111-111111111111,Apollo,apollo@example.com,8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92,TA,Java|DataStructures,data/cv/resume-apollo.pdf,2026-04-01T09:00:00
+b2222222-2222-4222-8222-222222222222,Athena,athena@example.com,8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92,MO,,,2026-04-01T09:05:00
+c3333333-3333-4333-8333-333333333333,Poseidon,poseidon@example.com,8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92,MO,,,2026-04-01T09:10:00
+d4444444-4444-4444-8444-444444444444,Zeus,zeus@example.com,8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92,ADMIN,,,2026-04-01T09:15:00
+e5555555-5555-4555-8555-555555555555,Artemis,artemis@example.com,8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92,TA,Python|Testing,data/cv/resume-artemis.pdf,2026-04-01T09:20:00
+f6666666-6666-4666-8666-666666666666,Hermes,hermes@example.com,8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92,TA,SQL|Communication,data/cv/resume-hermes.pdf,2026-04-01T09:25:00

@@ -20,8 +20,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 /**
- * 个人资料Servlet
- * 处理用户个人资料的查看和更新请求
+ * 逻辑说明
+ * 逻辑说明
  */
 @MultipartConfig(
     maxFileSize = 5 * 1024 * 1024,      // 5MB
@@ -30,6 +30,14 @@ import java.nio.file.StandardCopyOption;
 public class ProfileServlet extends HttpServlet {
     
     private UserDAO userDAO;
+
+    private String getWebAppRootPath() {
+        String catalinaBase = System.getProperty("catalina.base");
+        if (catalinaBase != null && !catalinaBase.trim().isEmpty()) {
+            return catalinaBase + "/webapps/TARecruitmentSystem";
+        }
+        return "webapps/TARecruitmentSystem";
+    }
     
     @Override
     public void init() throws ServletException {
@@ -43,11 +51,11 @@ public class ProfileServlet extends HttpServlet {
         
         String pathInfo = request.getPathInfo();
         
-        // 如果路径为 /profile 或 /profile/，显示个人资料页面
+        // 逻辑说明
         if (pathInfo == null || pathInfo.equals("/")) {
             handleViewProfile(request, response);
         } else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "请求的资源不存在");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Requested resource not found");
         }
     }
     
@@ -55,82 +63,82 @@ public class ProfileServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 设置请求编码为UTF-8
+        // 逻辑说明
         request.setCharacterEncoding("UTF-8");
         
         String pathInfo = request.getPathInfo();
         
-        // 如果pathInfo为null或为"/"，也处理更新请求（兼容不同的URL格式）
+        // 逻辑说明
         if (pathInfo == null || pathInfo.equals("/") || pathInfo.equals("/update")) {
             handleUpdateProfile(request, response);
         } else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "请求的资源不存在");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Requested resource not found");
         }
     }
     
     /**
-     * 处理查看个人资料请求
+     * 逻辑说明
      */
     private void handleViewProfile(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 获取当前登录用户
+        // 逻辑说明
         HttpSession session = request.getSession(false);
         if (session == null) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
         
         User currentUser = (User) session.getAttribute("user");
         if (currentUser == null) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
         
-        // 从数据库重新加载用户信息（确保是最新的）
+        // 逻辑说明
         User user = userDAO.findById(currentUser.getUserId());
         if (user == null) {
-            request.setAttribute("errorMessage", "用户不存在");
-            request.getRequestDispatcher("/error.jsp").forward(request, response);
+            request.setAttribute("errorMessage", "User not found");
+            request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
             return;
         }
         
-        // 将用户信息设置到request中，供JSP页面使用
+        // 逻辑说明
         request.setAttribute("user", user);
         
-        // 根据用户角色转发到相应的个人资料页面
+        // 逻辑说明
         String profilePage = getProfilePage(user);
         request.getRequestDispatcher(profilePage).forward(request, response);
     }
     
     /**
-     * 处理更新个人资料请求
+     * 逻辑说明
      */
     private void handleUpdateProfile(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
         try {
-            // 获取当前登录用户
+            // 逻辑说明
             HttpSession session = request.getSession(false);
             if (session == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
             User currentUser = (User) session.getAttribute("user");
             if (currentUser == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/auth/login");
                 return;
             }
             
-            // 获取表单参数
+            // 逻辑说明
             String name = request.getParameter("name");
             String email = request.getParameter("email");
             String skills = request.getParameter("skills");
             
-            // 验证必填字段不为空
+            // 逻辑说明
             if (name == null || name.trim().isEmpty()) {
-                request.setAttribute("errorMessage", "姓名不能为空");
+                request.setAttribute("errorMessage", "Name cannot be empty");
                 request.setAttribute("user", currentUser);
                 String profilePage = getProfilePage(currentUser);
                 request.getRequestDispatcher(profilePage).forward(request, response);
@@ -138,16 +146,16 @@ public class ProfileServlet extends HttpServlet {
             }
             
             if (email == null || email.trim().isEmpty()) {
-                request.setAttribute("errorMessage", "邮箱不能为空");
+                request.setAttribute("errorMessage", "Email cannot be empty");
                 request.setAttribute("user", currentUser);
                 String profilePage = getProfilePage(currentUser);
                 request.getRequestDispatcher(profilePage).forward(request, response);
                 return;
             }
             
-            // 数据验证
+            // 逻辑说明
             if (!ValidationUtil.isValidLength(name.trim(), 2, 50)) {
-                request.setAttribute("errorMessage", "姓名长度必须在2-50个字符之间");
+                request.setAttribute("errorMessage", "Name length must be between 2-50 characters");
                 request.setAttribute("user", currentUser);
                 String profilePage = getProfilePage(currentUser);
                 request.getRequestDispatcher(profilePage).forward(request, response);
@@ -155,41 +163,41 @@ public class ProfileServlet extends HttpServlet {
             }
             
             if (!ValidationUtil.isValidEmail(email.trim())) {
-                request.setAttribute("errorMessage", "请输入有效的邮箱地址");
+                request.setAttribute("errorMessage", "Please enter a valid email address");
                 request.setAttribute("user", currentUser);
                 String profilePage = getProfilePage(currentUser);
                 request.getRequestDispatcher(profilePage).forward(request, response);
                 return;
             }
             
-            // 检查邮箱是否被其他用户使用
+            // 逻辑说明
             User existingUser = userDAO.findByEmail(email.trim());
             if (existingUser != null && !existingUser.getUserId().equals(currentUser.getUserId())) {
-                request.setAttribute("errorMessage", "该邮箱已被其他用户使用");
+                request.setAttribute("errorMessage", "This email is already in use by another user");
                 request.setAttribute("user", currentUser);
                 String profilePage = getProfilePage(currentUser);
                 request.getRequestDispatcher(profilePage).forward(request, response);
                 return;
             }
             
-            // 从数据库加载完整的用户信息
+            // 逻辑说明
             User user = userDAO.findById(currentUser.getUserId());
             if (user == null) {
-                request.setAttribute("errorMessage", "用户不存在");
-                request.getRequestDispatcher("/error.jsp").forward(request, response);
+                request.setAttribute("errorMessage", "User not found");
+                request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
                 return;
             }
             
-            // 更新用户信息（XSS防护）
+            // 逻辑说明
             user.setName(ValidationUtil.escapeHtml(name.trim()));
-            user.setEmail(email.trim()); // 邮箱不需要HTML转义
+            user.setEmail(email.trim()); // 邮箱格式已在前面校验，这里直接保存
             
-            // 只有TA角色才更新技能字段
+            // 逻辑说明
             if (skills != null) {
                 user.setSkills(ValidationUtil.escapeHtml(skills.trim()));
             }
             
-            // 处理CV文件上传（仅TA角色）
+            // 逻辑说明
             if (user.getRole().toString().equals("TA")) {
                 Part cvPart = request.getPart("cv");
                 if (cvPart != null && cvPart.getSize() > 0) {
@@ -197,7 +205,7 @@ public class ProfileServlet extends HttpServlet {
                     if (cvPath != null) {
                         user.setCvPath(cvPath);
                     } else {
-                        request.setAttribute("errorMessage", "CV上传失败，请检查文件格式（支持PDF、DOC、DOCX）");
+                        request.setAttribute("errorMessage", "CV upload failed, please check file format (PDF, DOC, DOCX supported)");
                         request.setAttribute("user", currentUser);
                         String profilePage = getProfilePage(currentUser);
                         request.getRequestDispatcher(profilePage).forward(request, response);
@@ -206,25 +214,28 @@ public class ProfileServlet extends HttpServlet {
                 }
             }
             
-            // 保存更新到数据库
+            // 逻辑说明
             userDAO.update(user);
             
-            // 更新会话中的用户信息
+            // 逻辑说明
             session.setAttribute("user", user);
             
-            // 设置成功消息
-            request.setAttribute("successMessage", "个人资料更新成功");
+            // 逻辑说明
+            request.setAttribute("successMessage", "Profile updated successfully");
             request.setAttribute("user", user);
             
-            // 转发回个人资料页面
+            // 逻辑说明
             String profilePage = getProfilePage(user);
             request.getRequestDispatcher(profilePage).forward(request, response);
             
         } catch (IOException e) {
-            // 数据访问错误
-            request.setAttribute("errorMessage", "更新失败：" + e.getMessage());
+            // 逻辑说明            request.setAttribute("errorMessage", "Update failed: " + e.getMessage());
             HttpSession session = request.getSession(false);
-            User currentUser = (User) session.getAttribute("user");
+            User currentUser = session != null ? (User) session.getAttribute("user") : null;
+            if (currentUser == null) {
+                response.sendRedirect(request.getContextPath() + "/auth/login");
+                return;
+            }
             request.setAttribute("user", currentUser);
             String profilePage = getProfilePage(currentUser);
             request.getRequestDispatcher(profilePage).forward(request, response);
@@ -232,10 +243,10 @@ public class ProfileServlet extends HttpServlet {
     }
     
     /**
-     * 根据用户角色获取对应的个人资料页面
-     * 
-     * @param user 用户对象
-     * @return 个人资料页面路径
+     * 逻辑说明
+     * 逻辑说明
+     * @param user 参数
+     * @return 返回结果
      */
     private String getProfilePage(User user) {
         switch (user.getRole()) {
@@ -251,42 +262,42 @@ public class ProfileServlet extends HttpServlet {
     }
     
     /**
-     * 处理CV文件上传
-     * 
-     * @param cvPart 上传的文件Part
-     * @param userId 用户ID
-     * @return CV文件路径，失败返回null
+     * 逻辑说明
+     * 逻辑说明
+     * @param cvPart 参数
+     * @param userId 参数
+     * @return 返回结果
      */
     private String handleCVUpload(Part cvPart, String userId) {
         try {
-            // 获取文件名
+            // 逻辑说明
             String fileName = getFileName(cvPart);
             if (fileName == null || fileName.isEmpty()) {
                 return null;
             }
             
-            // 验证文件类型
+            // 逻辑说明
             String fileExtension = getFileExtension(fileName);
             if (!isValidCVFile(fileExtension)) {
                 return null;
             }
             
-            // 创建CV存储目录
-            String cvDirectory = "webapps/TARecruitmentSystem/data/cv";
+            // 保存简历文件到 data/cv 目录
+            String cvDirectory = getWebAppRootPath() + "/data/cv";
             File dir = new File(cvDirectory);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
             
-            // 生成新文件名：userId_timestamp.extension
+            // 逻辑说明
             String newFileName = userId + "_" + System.currentTimeMillis() + "." + fileExtension;
             String cvPath = cvDirectory + "/" + newFileName;
             
-            // 保存文件
+            // 逻辑说明
             Path filePath = Paths.get(cvPath);
             Files.copy(cvPart.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             
-            // 返回相对路径
+            // 逻辑说明
             return "data/cv/" + newFileName;
             
         } catch (IOException e) {
@@ -296,7 +307,7 @@ public class ProfileServlet extends HttpServlet {
     }
     
     /**
-     * 从Part中获取文件名
+     * 逻辑说明
      */
     private String getFileName(Part part) {
         String contentDisposition = part.getHeader("content-disposition");
@@ -313,7 +324,7 @@ public class ProfileServlet extends HttpServlet {
     }
     
     /**
-     * 获取文件扩展名
+     * 逻辑说明
      */
     private String getFileExtension(String fileName) {
         int lastDotIndex = fileName.lastIndexOf('.');
@@ -324,7 +335,7 @@ public class ProfileServlet extends HttpServlet {
     }
     
     /**
-     * 验证是否为有效的CV文件类型
+     * 逻辑说明
      */
     private boolean isValidCVFile(String extension) {
         return extension.equals("pdf") || 
@@ -332,3 +343,4 @@ public class ProfileServlet extends HttpServlet {
                extension.equals("docx");
     }
 }
+

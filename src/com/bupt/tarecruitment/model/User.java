@@ -3,30 +3,20 @@ package com.bupt.tarecruitment.model;
 import java.util.Date;
 import java.util.Objects;
 
-/**
- * 用户实体类
- * 表示系统中的用户（TA、MO或Admin）
- */
 public class User {
-    private String userId;        // 唯一标识符（UUID）
-    private String name;          // 用户姓名
-    private String email;         // 邮箱（唯一）
-    private String password;      // 密码（应加密存储）
-    private UserRole role;        // 角色：TA, MO, ADMIN
-    private String skills;        // TA技能（仅TA角色使用）
-    private String cvPath;        // CV文件路径（仅TA角色使用）
-    private Date createdAt;       // 创建时间
+    private String userId;
+    private String name;
+    private String email;
+    private String password;
+    private UserRole role;
+    private String skills;
+    private String cvPath;
+    private Date createdAt;
 
-    /**
-     * 默认构造函数
-     */
     public User() {
     }
 
-    /**
-     * 完整构造函数
-     */
-    public User(String userId, String name, String email, String password, 
+    public User(String userId, String name, String email, String password,
                 UserRole role, String skills, String cvPath, Date createdAt) {
         this.userId = userId;
         this.name = name;
@@ -37,8 +27,6 @@ public class User {
         this.cvPath = cvPath;
         this.createdAt = createdAt;
     }
-
-    // Getter和Setter方法
 
     public String getUserId() {
         return userId;
@@ -104,35 +92,23 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    /**
-     * equals方法 - 基于userId比较
-     */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         User user = (User) o;
-        return Objects.equals(userId, user.userId) &&
-               Objects.equals(name, user.name) &&
-               Objects.equals(email, user.email) &&
-               Objects.equals(password, user.password) &&
-               role == user.role &&
-               Objects.equals(skills, user.skills) &&
-               Objects.equals(cvPath, user.cvPath) &&
-               Objects.equals(createdAt, user.createdAt);
+        return Objects.equals(userId, user.userId);
     }
 
-    /**
-     * hashCode方法 - 基于userId生成
-     */
     @Override
     public int hashCode() {
-        return Objects.hash(userId, name, email, password, role, skills, cvPath, createdAt);
+        return Objects.hash(userId);
     }
 
-    /**
-     * toString方法 - 用于调试
-     */
     @Override
     public String toString() {
         return "User{" +

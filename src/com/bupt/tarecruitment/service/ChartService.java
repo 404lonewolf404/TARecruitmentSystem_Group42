@@ -40,6 +40,9 @@ public class ChartService {
     /**
      * 获取TA工作量分布柱状图数据（Admin视图）
      * 返回JSON格式：{ labels: [...], data: [...], colors: [...] }
+     * 
+     * 注意：计算方式为"不同职位数 × 每个职位的小时数"
+     * 即使一个TA对同一职位有多个SELECTED应用，也只计算一次该职位的小时数
      */
     public String getWorkloadChartData() {
         try {
@@ -55,10 +58,14 @@ public class ChartService {
             boolean first = true;
             for (User ta : tas) {
                 List<Application> apps = applicationDAO.findByTaId(ta.getUserId());
+                
+                // 获取所有SELECTED应用的职位ID，去重后计算总小时数
                 int totalHours = apps.stream()
                     .filter(a -> a.getStatus() == ApplicationStatus.SELECTED)
-                    .mapToInt(a -> {
-                        Position pos = positionDAO.findById(a.getPositionId());
+                    .map(Application::getPositionId)
+                    .distinct()  // 关键：去重，每个职位只计算一次
+                    .mapToInt(posId -> {
+                        Position pos = positionDAO.findById(posId);
                         return pos != null ? pos.getHours() : 0;
                     })
                     .sum();
@@ -112,7 +119,7 @@ public class ChartService {
             int withdrawn = (int) allApplications.stream()
                 .filter(a -> a.getStatus() == ApplicationStatus.WITHDRAWN).count();
             
-            return "{\"labels\":[\"待审核\",\"已选中\",\"已拒绝\",\"已撤回\"]," +
+            return "{\"labels\":[\"Pending\",\"Selected\",\"Rejected\",\"Withdrawn\"]," +
                    "\"data\":[" + pending + "," + selected + "," + rejected + "," + withdrawn + "]," +
                    "\"colors\":[\"#f39c12\",\"#27ae60\",\"#e74c3c\",\"#95a5a6\"]}";
             
@@ -175,7 +182,7 @@ public class ChartService {
             int withdrawn = (int) apps.stream()
                 .filter(a -> a.getStatus() == ApplicationStatus.WITHDRAWN).count();
             
-            return "{\"labels\":[\"待审核\",\"已选中\",\"已拒绝\",\"已撤回\"]," +
+            return "{\"labels\":[\"Pending\",\"Selected\",\"Rejected\",\"Withdrawn\"]," +
                    "\"data\":[" + pending + "," + selected + "," + rejected + "," + withdrawn + "]," +
                    "\"colors\":[\"#f39c12\",\"#27ae60\",\"#e74c3c\",\"#95a5a6\"]}";
             

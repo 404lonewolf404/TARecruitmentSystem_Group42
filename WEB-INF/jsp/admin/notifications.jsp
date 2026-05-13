@@ -6,7 +6,7 @@
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
-        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/auth/login");
         return;
     }
     
@@ -19,53 +19,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>通知中心 - TA招聘系统</title>
+    <title>Notification Center - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/admin/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/users">用户管理</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/positions">职位管理</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/applications">申请管理</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/workload">工作量报告</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/notifications" class="active">通知</a></li>
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/users"><i class="fas fa-users"></i>&nbsp;&nbsp;User Management</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/positions"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;Position Management</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/applications"><i class="fas fa-file-alt"></i>&nbsp;&nbsp;Application Management</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/workload"><i class="fas fa-chart-bar"></i>&nbsp;&nbsp;Workload Report</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/notifications"><i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
     
     <div class="container">
-        <h2>通知中心</h2>
+        <div class="page-header">
+            <h2><i class="fas fa-bell"></i>&nbsp;&nbsp;Notification Center</h2>
+            <p>System notifications and activity updates</p>
+        </div>
         
         <% if (notifications != null && !notifications.isEmpty()) { %>
-            <div class="notification-actions">
-                <form action="<%= request.getContextPath() %>/notifications/markAllRead" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-secondary">全部标记为已读</button>
+            <div class="card" style="margin-bottom: 25px;">
+                <form action="<%= request.getContextPath() %>/notifications/markAllRead" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check-double"></i>&nbsp;&nbsp;Mark All as Read
+                    </button>
                 </form>
             </div>
             
             <div class="notifications-list">
                 <% for (Notification notification : notifications) { %>
-                    <div class="notification-item <%= notification.isRead() ? "read" : "unread" %>">
-                        <div class="notification-content">
-                            <div class="notification-message"><%= notification.getMessage() %></div>
-                            <div class="notification-time"><%= sdf.format(notification.getCreatedAt()) %></div>
+                    <div class="card notification-card <%= notification.isRead() ? "read" : "unread" %>">
+                        <div class="notification-header-modern">
+                            <div class="notification-type-badge">
+                                <i class="fas fa-info-circle"></i>&nbsp;&nbsp;System Notification
+                            </div>
+                            <span class="notification-time-modern">
+                                <i class="fas fa-clock"></i>&nbsp;&nbsp;<%= sdf.format(notification.getCreatedAt()) %>
+                            </span>
                         </div>
-                        <div class="notification-actions">
+                        
+                        <div class="notification-message-modern">
+                            <%= notification.getMessage() %>
+                        </div>
+                        
+                        <div class="notification-actions-modern">
                             <% if (!notification.isRead()) { %>
                                 <form action="<%= request.getContextPath() %>/notifications/markRead" method="post" style="display: inline;">
                                     <input type="hidden" name="notificationId" value="<%= notification.getNotificationId() %>">
-                                    <button type="submit" class="btn btn-sm">标记已读</button>
+                                    <button type="submit" class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-check"></i>&nbsp;&nbsp;Mark as Read
+                                    </button>
                                 </form>
                             <% } %>
                             <form action="<%= request.getContextPath() %>/notifications/delete" method="post" style="display: inline;">
                                 <input type="hidden" name="notificationId" value="<%= notification.getNotificationId() %>">
-                                <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this notification?')">
+                                    <i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -73,7 +93,11 @@
             </div>
         <% } else { %>
             <div class="card">
-                <p>暂无通知</p>
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Notifications</h3>
+                    <p>You're all caught up! No new notifications.</p>
+                </div>
             </div>
         <% } %>
     </div>

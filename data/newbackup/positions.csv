@@ -1,0 +1,5 @@
+﻿positionId,moId,title,description,requirements,hours,maxPositions,status,createdAt,deadline
+10111111-1111-4111-8111-111111111111,b2222222-2222-4222-8222-222222222222,Data Structures TA,Support labs and weekly tutoring,Strong Java and algorithm basics,6,1,OPEN,2026-04-02T10:00:00,2026-05-30T23:59:59
+20222222-2222-4222-8222-222222222222,c3333333-3333-4333-8333-333333333333,Database Systems TA,Assist SQL lab and grading,Strong SQL and database design,5,2,OPEN,2026-04-02T10:30:00,2026-06-15T23:59:59
+30333333-3333-4333-8333-333333333333,b2222222-2222-4222-8222-222222222222,Software Testing TA,Help test assignments and reports,Understand unit testing and QA process,4,1,CLOSED,2026-04-03T09:00:00,2026-05-20T23:59:59
+40444444-4444-4444-8444-444444444444,c3333333-3333-4333-8333-333333333333,HCI Lab TA,Guide design workshop and office hour,Basic UX and communication skills,3,1,OPEN,2026-03-25T09:00:00,2026-04-01T23:59:59

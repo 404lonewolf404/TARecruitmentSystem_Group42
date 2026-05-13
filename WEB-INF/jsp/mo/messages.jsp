@@ -19,8 +19,9 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>消息 - TA招聘系统</title>
+    <title>Messages - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .messages-container {
             max-width: 800px;
@@ -114,19 +115,19 @@
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/mo/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/profile">个人资料</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/positions/my">我的职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/mo/positions/create">创建职位</a></li>
-            <li class="active"><a href="<%= request.getContextPath() %>/messages/list">消息</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/my"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;My Positions</a></li>
+            <li><a href="<%= request.getContextPath() %>/mo/positions/create"><i class="fas fa-plus-circle"></i>&nbsp;&nbsp;Create Position</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list"><i class="fas fa-comments"></i>&nbsp;&nbsp;Messages</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/mo/notifications">
-                    通知
+                    <i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications
                     <% 
                         Integer unreadCount = (Integer) request.getAttribute("unreadNotificationCount");
                         if (unreadCount != null && unreadCount > 0) { 
@@ -135,19 +136,19 @@
                     <% } %>
                 </a>
             </li>
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
     
     <div class="container">
-        <h2>我的消息</h2>
+        <h2>My Messages</h2>
         
         <div class="messages-container">
             <% if (conversations == null || conversations.isEmpty()) { %>
                 <div class="empty-state">
                     <div class="empty-state-icon">💬</div>
-                    <h3>暂无消息</h3>
-                    <p>当您与TA开始对话后，消息将显示在这里</p>
+                    <h3>No Messages</h3>
+                    <p>Messages will appear here when you start conversations with TAs</p>
                 </div>
             <% } else { %>
                 <% for (MessageService.ConversationInfo conv : conversations) { %>
@@ -158,9 +159,9 @@
                         <div class="conversation-content">
                             <div class="conversation-header">
                                 <div class="conversation-name">
-                                    <%= conv.getOtherUser() != null ? conv.getOtherUser().getName() : "未知用户" %>
+                                    <%= conv.getOtherUser() != null ? conv.getOtherUser().getName() : "Unknown User" %>
                                     <span style="color: #999; font-size: 14px; font-weight: normal;">
-                                        - <%= conv.getPosition() != null ? conv.getPosition().getTitle() : "未知职位" %>
+                                        - <%= conv.getPosition() != null ? conv.getPosition().getTitle() : "Unknown Position" %>
                                     </span>
                                 </div>
                                 <div class="conversation-time">

@@ -8,34 +8,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>职位管理 - TA招聘系统</title>
+    <title>Position Management - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/admin/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/users">用户管理</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/positions">职位管理</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/applications">申请管理</a></li>
-            <li><a href="<%= request.getContextPath() %>/admin/workload">工作量报告</a></li>
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/dashboard"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/users"><i class="fas fa-users"></i>&nbsp;&nbsp;User Management</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/positions"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;Position Management</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/applications"><i class="fas fa-file-alt"></i>&nbsp;&nbsp;Application Management</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/workload"><i class="fas fa-chart-bar"></i>&nbsp;&nbsp;Workload Report</a></li>
+            <li><a href="<%= request.getContextPath() %>/admin/notifications"><i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
 
     <div class="container">
-        <h1 style="text-align: center; margin-bottom: 30px;">职位管理</h1>
+        <div class="page-header">
+            <h2><i class="fas fa-briefcase"></i>&nbsp;&nbsp;Position Management</h2>
+            <p>View and manage all TA positions in the system</p>
+        </div>
 
         <%
             List<Position> positions = (List<Position>) request.getAttribute("positions");
             List<User> users = (List<User>) request.getAttribute("users");
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             
-            // 创建一个Map来快速查找用户
             java.util.Map<String, User> userMap = new java.util.HashMap<>();
             if (users != null) {
                 for (User u : users) {
@@ -44,48 +49,60 @@
             }
         %>
 
-        <div style="text-align: center; margin-bottom: 20px;">
-            <p>共 <%= positions != null ? positions.size() : 0 %> 个职位</p>
+        <div class="card">
+            <div class="stats-info">
+                <p style="font-size: 1.1rem; color: #64748b;">
+                    <i class="fas fa-chart-bar"></i>&nbsp;&nbsp;Total Positions: <strong style="color: #2563eb; font-size: 1.3rem;"><%= positions != null ? positions.size() : 0 %></strong>
+                </p>
+            </div>
         </div>
 
         <% if (positions != null && !positions.isEmpty()) { %>
-            <table class="data-table" style="margin: 0 auto;">
-                <thead>
-                    <tr>
-                        <th>职位名称</th>
-                        <th>描述</th>
-                        <th>工作时长</th>
-                        <th>招聘名额</th>
-                        <th>要求</th>
-                        <th>状态</th>
-                        <th>发布者</th>
-                        <th>创建时间</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% for (Position position : positions) { 
-                        User publisher = userMap.get(position.getMoId());
-                        String publisherName = (publisher != null) ? publisher.getName() + " (" + publisher.getEmail() + ")" : position.getMoId();
-                    %>
+            <div class="card">
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            <td><%= position.getTitle() %></td>
-                            <td><%= position.getDescription() != null && !position.getDescription().isEmpty() ? position.getDescription() : "-" %></td>
-                            <td><%= position.getHours() %> 小时/周</td>
-                            <td><%= position.getMaxPositions() %></td>
-                            <td><%= position.getRequirements() != null && !position.getRequirements().isEmpty() ? position.getRequirements() : "-" %></td>
-                            <td>
-                                <span class="status-badge status-<%= position.getStatus() %>">
-                                    <%= position.getStatus() != null && position.getStatus().toString().equals("OPEN") ? "开放" : "关闭" %>
-                                </span>
-                            </td>
-                            <td><%= publisherName %></td>
-                            <td><%= position.getCreatedAt() != null ? formatter.format(position.getCreatedAt()) : "-" %></td>
+                            <th><i class="fas fa-heading"></i>&nbsp;&nbsp;Title</th>
+                            <th><i class="fas fa-align-left"></i>&nbsp;&nbsp;Description</th>
+                            <th><i class="fas fa-clock"></i>&nbsp;&nbsp;Hours</th>
+                            <th><i class="fas fa-users"></i>&nbsp;&nbsp;Max</th>
+                            <th><i class="fas fa-list-check"></i>&nbsp;&nbsp;Requirements</th>
+                            <th><i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Status</th>
+                            <th><i class="fas fa-user-tie"></i>&nbsp;&nbsp;Publisher</th>
+                            <th><i class="fas fa-calendar"></i>&nbsp;&nbsp;Created</th>
                         </tr>
-                    <% } %>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <% for (Position position : positions) { 
+                            User publisher = userMap.get(position.getMoId());
+                            String publisherName = (publisher != null) ? publisher.getName() + " (" + publisher.getEmail() + ")" : position.getMoId();
+                        %>
+                            <tr>
+                                <td><strong><%= position.getTitle() %></strong></td>
+                                <td><%= position.getDescription() != null && !position.getDescription().isEmpty() ? position.getDescription() : "-" %></td>
+                                <td><%= position.getHours() %>/week</td>
+                                <td><%= position.getMaxPositions() %></td>
+                                <td><%= position.getRequirements() != null && !position.getRequirements().isEmpty() ? position.getRequirements() : "-" %></td>
+                                <td>
+                                    <span class="badge badge-<%= position.getStatus() %>">
+                                        <%= position.getStatus() != null && position.getStatus().toString().equals("OPEN") ? "Open" : "Closed" %>
+                                    </span>
+                                </td>
+                                <td><%= publisherName %></td>
+                                <td><%= position.getCreatedAt() != null ? formatter.format(position.getCreatedAt()) : "-" %></td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
         <% } else { %>
-            <p style="text-align: center; color: #666;">暂无职位数据</p>
+            <div class="card">
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Positions</h3>
+                    <p>There are no positions in the system yet.</p>
+                </div>
+            </div>
         <% } %>
     </div>
 </body>

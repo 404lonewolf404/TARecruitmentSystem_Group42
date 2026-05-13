@@ -4,7 +4,7 @@
 <%
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
-        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/auth/login");
         return;
     }
     
@@ -16,25 +16,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TA仪表板 - TA招聘系统</title>
+    <title>TA Dashboard - TA Recruitment System</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
-        <h1>TA招聘系统</h1>
+        <h1><i class="fas fa-graduation-cap"></i> TA Recruitment System</h1>
     </header>
     
     <nav>
         <ul>
-            <li><a href="<%= request.getContextPath() %>/ta/dashboard">仪表板</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/profile">个人资料</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/positions">浏览职位</a></li>
-            <li><a href="<%= request.getContextPath() %>/ta/applications/my">我的申请</a></li>
-            <li><a href="<%= request.getContextPath() %>/messages/list">💬 消息</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/dashboard" class="active"><i class="fas fa-home"></i>&nbsp;&nbsp;Dashboard</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/profile"><i class="fas fa-user"></i>&nbsp;&nbsp;Profile</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/positions"><i class="fas fa-briefcase"></i>&nbsp;&nbsp;Browse Positions</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/applications/my"><i class="fas fa-file-alt"></i>&nbsp;&nbsp;My Applications</a></li>
+            <li><a href="<%= request.getContextPath() %>/ta/favorites"><i class="fas fa-star"></i>&nbsp;&nbsp;Favorites</a></li>
+            <li><a href="<%= request.getContextPath() %>/messages/list"><i class="fas fa-comments"></i>&nbsp;&nbsp;Messages</a></li>
             <li>
                 <a href="<%= request.getContextPath() %>/ta/notifications">
-                    通知
+                    <i class="fas fa-bell"></i>&nbsp;&nbsp;Notifications
                     <% 
                         Integer unreadCount = (Integer) request.getAttribute("unreadNotificationCount");
                         if (unreadCount != null && unreadCount > 0) { 
@@ -43,74 +45,126 @@
                     <% } %>
                 </a>
             </li>
-            <li><a href="<%= request.getContextPath() %>/auth/logout">登出</a></li>
+            <li><a href="<%= request.getContextPath() %>/auth/logout"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout</a></li>
         </ul>
     </nav>
     
     <div class="container">
-        <div class="card">
-            <h2>欢迎，<%= currentUser.getName() %>！</h2>
-            <p>您已登录为助教（TA）。</p>
+        <!-- Welcome Banner -->
+        <div class="card" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; border: none;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <h2 style="color: white; font-size: 2rem; margin-bottom: 10px;">
+                        <i class="fas fa-hand-wave"></i> Welcome back, <%= currentUser.getName() %>!
+                    </h2>
+                    <p style="font-size: 1.1rem; opacity: 0.95; margin: 0;">
+                        <i class="fas fa-chalkboard-teacher"></i> Teaching Assistant Dashboard
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.9rem; opacity: 0.9;">
+                        <i class="fas fa-calendar-day"></i> <%= new java.text.SimpleDateFormat("EEEE, MMMM dd, yyyy", java.util.Locale.ENGLISH).format(new java.util.Date()) %>
+                    </div>
+                </div>
+            </div>
         </div>
         
+        <!-- Statistics Cards -->
         <% if (stats != null) { %>
         <div class="stats-container">
             <div class="stat-card total">
-                <div class="stat-number"><%= stats.get("total") %></div>
-                <div class="stat-label">我的申请</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <i class="fas fa-file-alt" style="font-size: 2.5rem; opacity: 0.9;"></i>
+                    <div class="stat-number"><%= stats.get("total") %></div>
+                </div>
+                <div class="stat-label"><i class="fas fa-list"></i> Total Applications</div>
             </div>
             <div class="stat-card pending">
-                <div class="stat-number"><%= stats.get("pending") %></div>
-                <div class="stat-label">待审核</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <i class="fas fa-clock" style="font-size: 2.5rem; opacity: 0.9;"></i>
+                    <div class="stat-number"><%= stats.get("pending") %></div>
+                </div>
+                <div class="stat-label"><i class="fas fa-hourglass-half"></i> Pending Review</div>
             </div>
             <div class="stat-card selected">
-                <div class="stat-number"><%= stats.get("selected") %></div>
-                <div class="stat-label">已选中</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <i class="fas fa-check-circle" style="font-size: 2.5rem; opacity: 0.9;"></i>
+                    <div class="stat-number"><%= stats.get("selected") %></div>
+                </div>
+                <div class="stat-label"><i class="fas fa-thumbs-up"></i> Selected</div>
             </div>
             <div class="stat-card hours">
-                <div class="stat-number"><%= stats.get("hours") %></div>
-                <div class="stat-label">当前工时</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <i class="fas fa-business-time" style="font-size: 2.5rem; opacity: 0.9;"></i>
+                    <div class="stat-number"><%= stats.get("hours") %></div>
+                </div>
+                <div class="stat-label"><i class="fas fa-calendar-week"></i> Current Hours</div>
             </div>
         </div>
         <% } %>
         
-        <!-- V3.3 图表可视化 -->
+        <!-- Chart Visualization -->
         <div class="card">
-            <h3>📊 我的申请状态分布</h3>
-            <div style="margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <i class="fas fa-chart-pie" style="font-size: 1.5rem; color: #2563eb;"></i>
+                <h3 style="margin: 0;">Application Status Distribution</h3>
+            </div>
+            <div style="margin-top: 30px; max-width: 500px; margin-left: auto; margin-right: auto; padding: 20px;">
                 <canvas id="applicationChart"></canvas>
             </div>
         </div>
         
-        <div class="dashboard">
-            <div class="dashboard-card">
-                <h3>个人资料</h3>
-                <p>查看和编辑您的个人信息和技能</p>
-                <a href="<%= request.getContextPath() %>/ta/profile" class="btn btn-primary">查看个人资料</a>
+        <!-- Quick Actions -->
+        <div class="card">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
+                <i class="fas fa-bolt" style="font-size: 1.5rem; color: #2563eb;"></i>
+                <h3 style="margin: 0;">Quick Actions</h3>
             </div>
-            
-            <div class="dashboard-card">
-                <h3>浏览职位</h3>
-                <p>查看所有可申请的助教职位</p>
-                <a href="<%= request.getContextPath() %>/ta/positions" class="btn btn-primary">浏览职位</a>
-            </div>
-            
-            <div class="dashboard-card">
-                <h3>我的申请</h3>
-                <p>查看您已提交的申请及其状态</p>
-                <a href="<%= request.getContextPath() %>/ta/applications/my" class="btn btn-primary">查看申请</a>
+            <div class="dashboard">
+                <div class="dashboard-card" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%); border: 2px solid #e2e8f0;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <i class="fas fa-user-circle" style="font-size: 3rem; color: #2563eb;"></i>
+                    </div>
+                    <h3 style="text-align: center;">My Profile</h3>
+                    <p style="text-align: center;">View and update your personal information and skills</p>
+                    <a href="<%= request.getContextPath() %>/ta/profile" class="btn btn-primary btn-full">
+                        <i class="fas fa-arrow-right"></i> View Profile
+                    </a>
+                </div>
+                
+                <div class="dashboard-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(52, 211, 153, 0.05) 100%); border: 2px solid #e2e8f0;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <i class="fas fa-search" style="font-size: 3rem; color: #10b981;"></i>
+                    </div>
+                    <h3 style="text-align: center;">Browse Positions</h3>
+                    <p style="text-align: center;">Explore available TA positions and find your perfect match</p>
+                    <a href="<%= request.getContextPath() %>/ta/positions" class="btn btn-success btn-full">
+                        <i class="fas fa-arrow-right"></i> Browse Now
+                    </a>
+                </div>
+                
+                <div class="dashboard-card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(251, 191, 36, 0.05) 100%); border: 2px solid #e2e8f0;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <i class="fas fa-clipboard-list" style="font-size: 3rem; color: #f59e0b;"></i>
+                    </div>
+                    <h3 style="text-align: center;">My Applications</h3>
+                    <p style="text-align: center;">Track your submitted applications and their current status</p>
+                    <a href="<%= request.getContextPath() %>/ta/applications/my" class="btn btn-primary btn-full">
+                        <i class="fas fa-arrow-right"></i> View Applications
+                    </a>
+                </div>
             </div>
         </div>
     </div>
     
     <script src="<%= request.getContextPath() %>/js/main.js"></script>
     <script>
-        // V3.3 - 图表可视化
+        // V3.3 - Chart Visualization
         <%
             String chartData = (String) request.getAttribute("chartData");
             if (chartData != null) {
         %>
-        // 申请状态分布环形图
+        // Application status distribution doughnut chart
         const applicationData = <%= chartData %>;
         const ctx = document.getElementById('applicationChart').getContext('2d');
         new Chart(ctx, {
