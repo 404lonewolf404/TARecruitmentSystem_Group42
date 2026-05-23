@@ -2,7 +2,14 @@ package com.bupt.tarecruitment.dao;
 
 import com.bupt.tarecruitment.model.Favorite;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,17 +21,18 @@ import java.util.stream.Collectors;
 public class FavoriteDAO implements CSVDataStore<Favorite> {
 
     private static final String DATA_FILE = "data/favorites.csv";
+    private static final String HEADER = "favoriteId,taId,positionId,createdAt";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final Object WRITE_LOCK = new Object();
 
     private List<Favorite> favorites;
 
     private String getDataFilePath() {
-        String contextPath = System.getProperty("catalina.base");
-        if (contextPath != null) {
-            return contextPath + "/webapps/TARecruitmentSystem/" + DATA_FILE;
+        String catalinaBase = System.getProperty("catalina.base");
+        if (catalinaBase != null && !catalinaBase.trim().isEmpty()) {
+            return catalinaBase + "/webapps/TARecruitmentSystem/" + DATA_FILE;
         }
-        return DATA_FILE;
+        return "webapps/TARecruitmentSystem/" + DATA_FILE;
     }
 
     public FavoriteDAO() {
@@ -32,7 +40,7 @@ public class FavoriteDAO implements CSVDataStore<Favorite> {
         try {
             this.favorites = loadAll();
         } catch (IOException e) {
-            System.err.println("加载收藏数据失败: " + e.getMessage());
+            System.err.println("Failed to load favorites: " + e.getMessage());
         }
     }
 
@@ -71,7 +79,7 @@ public class FavoriteDAO implements CSVDataStore<Favorite> {
 
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
-            writer.write("favoriteId,taId,positionId,createdAt");
+            writer.write(HEADER);
             writer.newLine();
 
             for (Favorite favorite : items) {
@@ -97,7 +105,7 @@ public class FavoriteDAO implements CSVDataStore<Favorite> {
             favorite.setCreatedAt(parseDate(parts[3].trim()));
             return favorite;
         } catch (ParseException e) {
-            System.err.println("解析收藏数据失败: " + e.getMessage());
+            System.err.println("Failed to parse favorite: " + e.getMessage());
             return null;
         }
     }
@@ -149,7 +157,7 @@ public class FavoriteDAO implements CSVDataStore<Favorite> {
         try {
             this.favorites = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时保留当前内存数据并返回查找结果。
         }
 
         return favorites.stream()
@@ -162,7 +170,7 @@ public class FavoriteDAO implements CSVDataStore<Favorite> {
         try {
             this.favorites = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时退回当前内存缓存。
         }
 
         return favorites.stream()
@@ -174,7 +182,7 @@ public class FavoriteDAO implements CSVDataStore<Favorite> {
         try {
             this.favorites = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时退回当前内存缓存。
         }
 
         return favorites.stream()
@@ -186,7 +194,7 @@ public class FavoriteDAO implements CSVDataStore<Favorite> {
         try {
             this.favorites = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时退回当前内存缓存。
         }
 
         return favorites.stream()

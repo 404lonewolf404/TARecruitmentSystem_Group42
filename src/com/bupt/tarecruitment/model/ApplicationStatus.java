@@ -1,27 +1,26 @@
 package com.bupt.tarecruitment.model;
 
 /**
- * 申请状态枚举
- * 定义申请的四种状态
+ * Status values for an application record.
  */
 public enum ApplicationStatus {
     /**
-     * 待审核 - 申请已提交，等待MO审核
+     * Waiting for review.
      */
     PENDING,
     
     /**
-     * 已选中 - MO已选择该申请者
+     * Accepted by the recruiter.
      */
     SELECTED,
     
     /**
-     * 已拒绝 - MO已拒绝该申请
+     * Rejected by the recruiter.
      */
     REJECTED,
     
     /**
-     * 已撤回 - TA已撤回该申请
+     * Withdrawn by the applicant.
      */
     WITHDRAWN
 }

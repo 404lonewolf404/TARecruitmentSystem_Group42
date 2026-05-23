@@ -130,7 +130,7 @@ public class PositionDAO implements CSVDataStore<Position> {
         try {
             this.positions = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时保留当前内存数据并返回查找结果。
         }
 
         return positions.stream()
@@ -143,7 +143,7 @@ public class PositionDAO implements CSVDataStore<Position> {
         try {
             this.positions = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时退回当前内存缓存。
         }
 
         return positions.stream()
@@ -155,7 +155,7 @@ public class PositionDAO implements CSVDataStore<Position> {
         try {
             this.positions = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时退回当前内存缓存。
         }
 
         return positions.stream()

@@ -4,25 +4,24 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * 申请实体类
- * 表示TA对特定职位的申请请求
+ * Application entity for a TA's position submission.
  */
 public class Application {
-    private String applicationId; // 唯一标识符（UUID）
-    private String taId;          // 申请者TA的userId
-    private String positionId;    // 申请的职位ID
-    private ApplicationStatus status; // 状态：PENDING, SELECTED, REJECTED, WITHDRAWN
-    private Date appliedAt;       // 申请时间
-    private String resumePath;    // 简历文件路径
+    private String applicationId; // 中文说明：申请记录主键。
+    private String taId;          // 中文说明：申请人的用户 ID。
+    private String positionId;    // 中文说明：目标岗位 ID。
+    private ApplicationStatus status; // 中文说明：当前申请状态。
+    private Date appliedAt;       // 中文说明：提交申请的时间。
+    private String resumePath;    // 中文说明：简历文件相对路径。
 
     /**
-     * 默认构造函数
+     * Creates an empty application entity.
      */
     public Application() {
     }
 
     /**
-     * 完整构造函数
+     * Creates an application entity with all fields.
      */
     public Application(String applicationId, String taId, String positionId,
                       ApplicationStatus status, Date appliedAt, String resumePath) {
@@ -34,7 +33,7 @@ public class Application {
         this.resumePath = resumePath;
     }
 
-    // Getter和Setter方法
+    // 中文说明：以下为基础访问器方法。
 
     public String getApplicationId() {
         return applicationId;
@@ -85,7 +84,7 @@ public class Application {
     }
 
     /**
-     * equals方法 - 基于所有字段比较
+     * Compares two application objects by field values.
      */
     @Override
     public boolean equals(Object o) {
@@ -101,7 +100,7 @@ public class Application {
     }
 
     /**
-     * hashCode方法 - 基于所有字段生成
+     * Returns the hash code of the application object.
      */
     @Override
     public int hashCode() {
@@ -109,7 +108,7 @@ public class Application {
     }
 
     /**
-     * toString方法 - 用于调试
+     * Returns the readable string form of the application object.
      */
     @Override
     public String toString() {

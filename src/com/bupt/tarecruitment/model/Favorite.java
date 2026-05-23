@@ -3,24 +3,23 @@ package com.bupt.tarecruitment.model;
 import java.util.Date;
 
 /**
- * 收藏模型类
- * 表示TA收藏的职位
+ * Favorite entity for bookmarked positions.
  */
 public class Favorite {
     
-    private String favoriteId;      // 收藏ID
-    private String taId;            // TA用户ID
-    private String positionId;      // 职位ID
-    private Date createdAt;         // 收藏时间
+    private String favoriteId;      // 中文说明：收藏记录主键。
+    private String taId;            // 中文说明：收藏该岗位的 TA 用户 ID。
+    private String positionId;      // 中文说明：被收藏的岗位 ID。
+    private Date createdAt;         // 中文说明：收藏创建时间。
     
     /**
-     * 默认构造函数
+     * Creates an empty favorite entity.
      */
     public Favorite() {
     }
     
     /**
-     * 完整构造函数
+     * Creates a favorite entity with all fields.
      */
     public Favorite(String favoriteId, String taId, String positionId, Date createdAt) {
         this.favoriteId = favoriteId;
@@ -29,7 +28,7 @@ public class Favorite {
         this.createdAt = createdAt;
     }
     
-    // Getters and Setters
+    // 中文说明：以下为基础访问器方法。
     
     public String getFavoriteId() {
         return favoriteId;

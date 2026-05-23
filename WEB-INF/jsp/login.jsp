@@ -316,6 +316,7 @@
             
             <div class="form-footer">
                 <p>Don't have an account? <a href="<%= request.getContextPath() %>/auth/register"><i class="fas fa-user-plus"></i> Register Now</a></p>
+                <p style="margin-top: 10px;">Forgot password? <a href="<%= request.getContextPath() %>/auth/forgot-password"><i class="fas fa-key"></i> Reset Password</a></p>
             </div>
         </div>
     </div>

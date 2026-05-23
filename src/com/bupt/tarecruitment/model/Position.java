@@ -7,29 +7,28 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
 /**
- * 职位实体类
- * 表示MO创建的助教工作岗位
+ * Position entity published by an MO user.
  */
 public class Position {
-    private String positionId;    // 唯一标识符（UUID）
-    private String moId;          // 发布者MO的userId
-    private String title;         // 职位标题
-    private String description;   // 职位描述
-    private String requirements;  // 职位要求
-    private int hours;            // 工作时长（小时/周）
-    private int maxPositions;     // 招聘名额（需要招聘的TA数量）
-    private PositionStatus status; // 状态：OPEN, CLOSED
-    private Date createdAt;       // 创建时间
-    private Date deadline;        // 申请截止日期（可选）
+    private String positionId;    // 中文说明：岗位主键。
+    private String moId;          // 中文说明：发布岗位的 MO 用户 ID。
+    private String title;         // 中文说明：岗位标题。
+    private String description;   // 中文说明：岗位描述。
+    private String requirements;  // 中文说明：岗位要求。
+    private int hours;            // 中文说明：每周工时。
+    private int maxPositions;     // 中文说明：招聘人数上限。
+    private PositionStatus status; // 中文说明：岗位开放状态。
+    private Date createdAt;       // 中文说明：岗位创建时间。
+    private Date deadline;        // 中文说明：申请截止时间。
 
     /**
-     * 默认构造函数
+     * Creates an empty position entity.
      */
     public Position() {
     }
 
     /**
-     * 完整构造函数
+     * Creates a position entity without a deadline.
      */
     public Position(String positionId, String moId, String title, String description,
                    String requirements, int hours, int maxPositions, PositionStatus status, Date createdAt) {
@@ -46,7 +45,7 @@ public class Position {
     }
     
     /**
-     * 扩展构造函数（包含截止日期）
+     * Creates a position entity with a deadline.
      */
     public Position(String positionId, String moId, String title, String description,
                    String requirements, int hours, int maxPositions, PositionStatus status, 
@@ -63,7 +62,7 @@ public class Position {
         this.deadline = deadline;
     }
 
-    // Getter和Setter方法
+    // 中文说明：以下为基础访问器方法。
 
     public String getPositionId() {
         return positionId;
@@ -146,7 +145,7 @@ public class Position {
     }
     
     /**
-     * 检查职位是否已过期
+     * Returns whether the application deadline has passed.
      */
     public boolean isExpired() {
         if (deadline == null) {
@@ -158,8 +157,9 @@ public class Position {
     }
     
     /**
-     * 获取剩余天数（如果有截止日期）
-     * @return 剩余天数，如果已过期返回0，如果没有截止日期返回-1
+     * Returns the number of days remaining before the deadline.
+     *
+     * @return operation result
      */
     public int getDaysRemaining() {
         if (deadline == null) {
@@ -175,14 +175,14 @@ public class Position {
     }
     
     /**
-     * 检查职位是否可以接受申请
+     * Returns whether the position can still receive applications.
      */
     public boolean canAcceptApplications() {
         return status == PositionStatus.OPEN && !isExpired();
     }
 
     /**
-     * equals方法 - 基于所有字段比较
+     * Compares two position objects by field values.
      */
     @Override
     public boolean equals(Object o) {
@@ -202,7 +202,7 @@ public class Position {
     }
 
     /**
-     * hashCode方法 - 基于所有字段生成
+     * Returns the hash code of the position object.
      */
     @Override
     public int hashCode() {
@@ -211,7 +211,7 @@ public class Position {
     }
 
     /**
-     * toString方法 - 用于调试
+     * Returns the readable string form of the position object.
      */
     @Override
     public String toString() {

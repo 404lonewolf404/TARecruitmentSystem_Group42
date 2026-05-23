@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * 测试Servlet - 用于诊断路由问题
+ * Lightweight servlet used to verify servlet routing in development.
  */
 public class TestServlet extends HttpServlet {
     

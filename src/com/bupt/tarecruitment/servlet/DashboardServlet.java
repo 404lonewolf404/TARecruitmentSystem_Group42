@@ -15,9 +15,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Dashboard Servlet
- * 根据用户角色显示相应的dashboard页面
- * V3.3 - 添加图表可视化支持
+ * Role-aware dashboard servlet.
  */
 public class DashboardServlet extends HttpServlet {
     
@@ -36,7 +34,7 @@ public class DashboardServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 获取当前用户
+        // 中文说明：校验当前请求是否已登录。
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/auth/login");
@@ -46,46 +44,46 @@ public class DashboardServlet extends HttpServlet {
         User user = (User) session.getAttribute("user");
         UserRole role = user.getRole();
         
-        // 获取未读通知数量
+        // 中文说明：先加载未读通知数，避免页面角标缺失。
         try {
             int unreadCount = notificationService.getUnreadCount(user.getUserId());
             request.setAttribute("unreadNotificationCount", unreadCount);
         } catch (Exception e) {
-            // 获取通知数量失败不影响主流程
+            // 中文说明：通知统计失败时降级为 0，不阻断主页加载。
             e.printStackTrace();
             request.setAttribute("unreadNotificationCount", 0);
         }
         
-        // 根据角色获取统计数据和图表数据
+        // 中文说明：按角色加载对应统计数据和图表。
         if (role == UserRole.TA) {
             Map<String, Integer> stats = statisticsService.getTAStats(user.getUserId());
             request.setAttribute("stats", stats);
-            // V3.3 - TA申请状态分布环形图数据
+            // 中文说明：TA 首页展示申请状态分布图。
             String chartData = chartService.getTAApplicationStatusData(user.getUserId());
             request.setAttribute("chartData", chartData);
         } else if (role == UserRole.MO) {
             Map<String, Integer> stats = statisticsService.getMOStats(user.getUserId());
             request.setAttribute("stats", stats);
-            // V3.3 - MO职位申请数对比图数据
+            // 中文说明：MO 首页展示岗位申请情况图。
             String chartData = chartService.getPositionApplicationsData(user.getUserId());
             request.setAttribute("chartData", chartData);
         } else if (role == UserRole.ADMIN) {
             Map<String, Object> stats = statisticsService.getAdminStats();
             request.setAttribute("stats", stats);
-            // V3.3 - Admin工作量分布柱状图和申请状态饼图数据
+            // 中文说明：管理员首页展示工时和申请状态两类图表。
             String workloadChartData = chartService.getWorkloadChartData();
             String statusChartData = chartService.getApplicationStatusData();
             request.setAttribute("workloadChartData", workloadChartData);
             request.setAttribute("statusChartData", statusChartData);
         }
         
-        // 根据角色转发到相应的dashboard页面
+        // 中文说明：根据角色转发到对应主页。
         String jspPath = getDashboardJspPath(role);
         request.getRequestDispatcher(jspPath).forward(request, response);
     }
     
     /**
-     * 根据用户角色获取对应的JSP路径
+     * Returns the dashboard JSP path for the given role.
      */
     private String getDashboardJspPath(UserRole role) {
         switch (role) {

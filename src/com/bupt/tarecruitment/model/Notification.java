@@ -3,7 +3,7 @@ package com.bupt.tarecruitment.model;
 import java.util.Date;
 
 /**
- * 通知模型类
+ * Notification entity delivered to a system user.
  */
 public class Notification {
     private String notificationId;
@@ -30,7 +30,7 @@ public class Notification {
         this.createdAt = createdAt;
     }
     
-    // Getters and Setters
+    // 中文说明：以下为基础访问器方法。
     public String getNotificationId() {
         return notificationId;
     }
