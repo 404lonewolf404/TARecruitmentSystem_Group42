@@ -5,15 +5,13 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 
 /**
- * 认证过滤器
- * 拦截所有受保护的请求，验证用户是否已登录
- * 需求：1.6, 8.1, 8.3
+ * Authentication filter for protected routes.
  */
 public class AuthFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        // 初始化过滤器（如果需要）
+        // 中文说明：认证过滤器无需额外初始化资源。
     }
 
     @Override
@@ -23,22 +21,22 @@ public class AuthFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         
-        // 获取会话（不创建新会话）
+        // 中文说明：尝试从现有会话中读取登录用户。
         HttpSession session = httpRequest.getSession(false);
         
-        // 检查会话是否存在以及会话中是否有用户信息
+        // 中文说明：未登录时统一跳转到登录页。
         if (session == null || session.getAttribute("user") == null) {
-            // 未认证用户重定向到登录页面
+            // 中文说明：拼接上下文路径，兼容不同部署目录。
             String contextPath = httpRequest.getContextPath();
             httpResponse.sendRedirect(contextPath + "/auth/login");
         } else {
-            // 用户已认证，继续处理请求
+            // 中文说明：登录状态有效时继续处理请求。
             chain.doFilter(request, response);
         }
     }
 
     @Override
     public void destroy() {
-        // 清理资源（如果需要）
+        // 中文说明：过滤器销毁时无额外清理逻辑。
     }
 }

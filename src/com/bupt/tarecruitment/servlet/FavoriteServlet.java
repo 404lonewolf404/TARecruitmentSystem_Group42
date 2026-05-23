@@ -14,8 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * 逻辑说明。
- * 逻辑说明。
+ * Handles TA favorite position pages and actions.
  */
 public class FavoriteServlet extends HttpServlet {
     
@@ -34,7 +33,7 @@ public class FavoriteServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
         
         if (pathInfo == null || pathInfo.equals("/")) {
-            // 逻辑说明。
+            // 中文说明：根路径展示收藏列表。
             handleViewFavorites(request, response);
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Resource not found");
@@ -45,7 +44,7 @@ public class FavoriteServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 逻辑说明。
+        // 中文说明：统一使用 UTF-8 处理表单提交。
         request.setCharacterEncoding("UTF-8");
         
         String pathInfo = request.getPathInfo();
@@ -69,13 +68,13 @@ public class FavoriteServlet extends HttpServlet {
     }
     
     /**
-     * 逻辑说明。
+     * Renders the TA favorite positions page.
      */
     private void handleViewFavorites(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
         try {
-            // 逻辑说明。
+            // 中文说明：只有已登录用户才能访问收藏页。
             HttpSession session = request.getSession(false);
             if (session == null) {
                 response.sendRedirect(request.getContextPath() + "/auth/login");
@@ -88,16 +87,16 @@ public class FavoriteServlet extends HttpServlet {
                 return;
             }
             
-            // 逻辑说明。
+            // 中文说明：收藏功能仅对 TA 角色开放。
             if (currentUser.getRole() != UserRole.TA) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only TAs can view favorites");
                 return;
             }
             
-            // 逻辑说明。
+            // 中文说明：读取 TA 已收藏的岗位。
             List<Position> favoritePositions = favoriteService.getFavoritePositions(currentUser.getUserId());
             
-            // 逻辑说明。
+            // 中文说明：同时加载已申请岗位，供页面标记状态。
             com.bupt.tarecruitment.service.ApplicationService applicationService = 
                 new com.bupt.tarecruitment.service.ApplicationService();
             List<com.bupt.tarecruitment.model.Application> myApplications = 
@@ -107,11 +106,11 @@ public class FavoriteServlet extends HttpServlet {
                 appliedPositionIds.add(app.getPositionId());
             }
             
-            // 逻辑说明。
+            // 中文说明：写入页面渲染所需数据。
             request.setAttribute("favoritePositions", favoritePositions);
             request.setAttribute("appliedPositionIds", appliedPositionIds);
             
-            // 逻辑说明。
+            // 中文说明：转发到 TA 收藏页 JSP。
             request.getRequestDispatcher("/WEB-INF/jsp/ta/favorites.jsp").forward(request, response);
             
         } catch (Exception e) {
@@ -121,13 +120,14 @@ public class FavoriteServlet extends HttpServlet {
     }
     
     /**
-     * 逻辑说明。
+     * Adds a position to the current TA's favorites.
      */
     private void handleAddFavorite(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
+        String returnUrl = request.getParameter("returnUrl");
         
         try {
-            // 逻辑说明。
+            // 中文说明：只有已登录用户才能添加收藏。
             HttpSession session = request.getSession(false);
             if (session == null) {
                 response.sendRedirect(request.getContextPath() + "/auth/login");
@@ -140,13 +140,13 @@ public class FavoriteServlet extends HttpServlet {
                 return;
             }
             
-            // 逻辑说明。
+            // 中文说明：收藏操作仅对 TA 角色开放。
             if (currentUser.getRole() != UserRole.TA) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only TAs can add favorites");
                 return;
             }
             
-            // 逻辑说明。
+            // 中文说明：读取目标岗位 ID。
             String positionId = request.getParameter("positionId");
             
             if (positionId == null || positionId.trim().isEmpty()) {
@@ -154,23 +154,20 @@ public class FavoriteServlet extends HttpServlet {
                 return;
             }
             
-            // 逻辑说明。
+            // 中文说明：执行收藏操作。
             favoriteService.addFavorite(currentUser.getUserId(), positionId.trim());
             
-            // 逻辑说明。
-            String returnUrl = request.getParameter("returnUrl");
+            // 中文说明：异步调用场景下直接返回 200。
             if (returnUrl == null || returnUrl.trim().isEmpty()) {
-                // 逻辑说明。
                 response.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
             
-            // 逻辑说明。
+            // 中文说明：同步页面请求则跳回来源页面。
             response.sendRedirect(getSafeReturnUrl(request, returnUrl));
             
         } catch (IllegalArgumentException e) {
-            // 逻辑说明。
-            String returnUrl = request.getParameter("returnUrl");
+            // 中文说明：无返回地址时直接返回错误状态码。
             if (returnUrl == null || returnUrl.trim().isEmpty()) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
                 return;
@@ -179,8 +176,7 @@ public class FavoriteServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
             
         } catch (IOException e) {
-            // 逻辑说明。
-            String returnUrl = request.getParameter("returnUrl");
+            // 中文说明：无返回地址时直接返回错误状态码。
             if (returnUrl == null || returnUrl.trim().isEmpty()) {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to add favorite");
                 return;
@@ -191,13 +187,14 @@ public class FavoriteServlet extends HttpServlet {
     }
     
     /**
-     * 逻辑说明。
+     * Removes a position from the current TA's favorites.
      */
     private void handleRemoveFavorite(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
+        String returnUrl = request.getParameter("returnUrl");
         
         try {
-            // 逻辑说明。
+            // 中文说明：只有已登录用户才能移除收藏。
             HttpSession session = request.getSession(false);
             if (session == null) {
                 response.sendRedirect(request.getContextPath() + "/auth/login");
@@ -210,13 +207,13 @@ public class FavoriteServlet extends HttpServlet {
                 return;
             }
             
-            // 逻辑说明。
+            // 中文说明：移除收藏仅对 TA 角色开放。
             if (currentUser.getRole() != UserRole.TA) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only TAs can remove favorites");
                 return;
             }
             
-            // 逻辑说明。
+            // 中文说明：读取目标岗位 ID。
             String positionId = request.getParameter("positionId");
             
             if (positionId == null || positionId.trim().isEmpty()) {
@@ -224,23 +221,20 @@ public class FavoriteServlet extends HttpServlet {
                 return;
             }
             
-            // 逻辑说明。
+            // 中文说明：执行取消收藏操作。
             favoriteService.removeFavorite(currentUser.getUserId(), positionId.trim());
             
-            // 逻辑说明。
-            String returnUrl = request.getParameter("returnUrl");
+            // 中文说明：异步调用场景下直接返回 200。
             if (returnUrl == null || returnUrl.trim().isEmpty()) {
-                // 逻辑说明。
                 response.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
             
-            // 逻辑说明。
+            // 中文说明：同步页面请求则跳回来源页面。
             response.sendRedirect(getSafeReturnUrl(request, returnUrl));
             
         } catch (IllegalArgumentException e) {
-            // 逻辑说明。
-            String returnUrl = request.getParameter("returnUrl");
+            // 中文说明：无返回地址时直接返回错误状态码。
             if (returnUrl == null || returnUrl.trim().isEmpty()) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
                 return;
@@ -249,7 +243,6 @@ public class FavoriteServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
             
         } catch (IOException e) {
-            String returnUrl = request.getParameter("returnUrl");
             if (returnUrl == null || returnUrl.trim().isEmpty()) {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to remove favorite");
                 return;

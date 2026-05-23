@@ -157,7 +157,7 @@ public class MessageServlet extends HttpServlet {
                 return;
             }
 
-            // Existing permission behavior retained.
+            // 中文说明：仅申请对应的 TA 或岗位所属 MO 可以查看会话。
             if (!application.getTaId().equals(currentUser.getUserId())
                     && !position.getMoId().equals(currentUser.getUserId())) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "No permission to view this conversation");

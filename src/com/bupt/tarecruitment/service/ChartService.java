@@ -3,46 +3,46 @@ package com.bupt.tarecruitment.service;
 import com.bupt.tarecruitment.dao.ApplicationDAO;
 import com.bupt.tarecruitment.dao.PositionDAO;
 import com.bupt.tarecruitment.dao.UserDAO;
-import com.bupt.tarecruitment.model.*;
+import com.bupt.tarecruitment.model.Application;
+import com.bupt.tarecruitment.model.ApplicationStatus;
+import com.bupt.tarecruitment.model.Position;
+import com.bupt.tarecruitment.model.User;
+import com.bupt.tarecruitment.model.UserRole;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 图表服务
- * V3.3 - 图表可视化功能
- * 提供各种图表数据的JSON格式输出
+ * Builds chart data payloads for dashboard pages.
  */
 public class ChartService {
-    
+
     private UserDAO userDAO;
     private PositionDAO positionDAO;
     private ApplicationDAO applicationDAO;
-    
+
     public ChartService() {
         this.userDAO = new UserDAO();
         this.positionDAO = new PositionDAO();
         this.applicationDAO = new ApplicationDAO();
     }
-    
+
     /**
-     * 转义JSON字符串
+     * Escapes a string for direct JSON string concatenation.
      */
     private String escapeJson(String str) {
-        if (str == null) return "";
+        if (str == null) {
+            return "";
+        }
         return str.replace("\\", "\\\\")
                   .replace("\"", "\\\"")
                   .replace("\n", "\\n")
                   .replace("\r", "\\r")
                   .replace("\t", "\\t");
     }
-    
+
     /**
-     * 获取TA工作量分布柱状图数据（Admin视图）
-     * 返回JSON格式：{ labels: [...], data: [...], colors: [...] }
-     * 
-     * 注意：计算方式为"不同职位数 × 每个职位的小时数"
-     * 即使一个TA对同一职位有多个SELECTED应用，也只计算一次该职位的小时数
+     * Returns workload chart data for all TAs.
      */
     public String getWorkloadChartData() {
         try {
@@ -50,66 +50,64 @@ public class ChartService {
             List<User> tas = allUsers.stream()
                 .filter(u -> u.getRole() == UserRole.TA)
                 .collect(Collectors.toList());
-            
+
             StringBuilder labels = new StringBuilder("[");
             StringBuilder data = new StringBuilder("[");
             StringBuilder colors = new StringBuilder("[");
-            
+
             boolean first = true;
             for (User ta : tas) {
                 List<Application> apps = applicationDAO.findByTaId(ta.getUserId());
-                
-                // 获取所有SELECTED应用的职位ID，去重后计算总小时数
+
+                // 中文说明：仅统计已录用岗位，并按岗位去重后累加工时。
                 int totalHours = apps.stream()
                     .filter(a -> a.getStatus() == ApplicationStatus.SELECTED)
                     .map(Application::getPositionId)
-                    .distinct()  // 关键：去重，每个职位只计算一次
+                    .distinct()
                     .mapToInt(posId -> {
                         Position pos = positionDAO.findById(posId);
                         return pos != null ? pos.getHours() : 0;
                     })
                     .sum();
-                
+
                 if (!first) {
                     labels.append(",");
                     data.append(",");
                     colors.append(",");
                 }
                 first = false;
-                
+
                 labels.append("\"").append(escapeJson(ta.getName())).append("\"");
                 data.append(totalHours);
-                
-                // 颜色编码：>30小时(红)，20-30(橙)，<20(绿)
+
+                // 中文说明：使用颜色区分工时负载水平。
                 if (totalHours > 30) {
-                    colors.append("\"#e74c3c\""); // 红色
+                    colors.append("\"#e74c3c\"");
                 } else if (totalHours >= 20) {
-                    colors.append("\"#f39c12\""); // 橙色
+                    colors.append("\"#f39c12\"");
                 } else {
-                    colors.append("\"#27ae60\""); // 绿色
+                    colors.append("\"#27ae60\"");
                 }
             }
-            
+
             labels.append("]");
             data.append("]");
             colors.append("]");
-            
+
             return "{\"labels\":" + labels + ",\"data\":" + data + ",\"colors\":" + colors + "}";
-            
         } catch (Exception e) {
             e.printStackTrace();
             return "{\"labels\":[],\"data\":[],\"colors\":[]}";
         }
     }
-    
+
     /**
-     * 获取申请状态饼图数据（Admin视图）
-     * 返回JSON格式：{ labels: [...], data: [...], colors: [...] }
+     * Returns global application status chart data.
      */
     public String getApplicationStatusData() {
         try {
             List<Application> allApplications = applicationDAO.loadAll();
-            
+
             int pending = (int) allApplications.stream()
                 .filter(a -> a.getStatus() == ApplicationStatus.PENDING).count();
             int selected = (int) allApplications.stream()
@@ -118,61 +116,57 @@ public class ChartService {
                 .filter(a -> a.getStatus() == ApplicationStatus.REJECTED).count();
             int withdrawn = (int) allApplications.stream()
                 .filter(a -> a.getStatus() == ApplicationStatus.WITHDRAWN).count();
-            
-            return "{\"labels\":[\"Pending\",\"Selected\",\"Rejected\",\"Withdrawn\"]," +
-                   "\"data\":[" + pending + "," + selected + "," + rejected + "," + withdrawn + "]," +
-                   "\"colors\":[\"#f39c12\",\"#27ae60\",\"#e74c3c\",\"#95a5a6\"]}";
-            
+
+            return "{\"labels\":[\"Pending\",\"Selected\",\"Rejected\",\"Withdrawn\"],"
+                   + "\"data\":[" + pending + "," + selected + "," + rejected + "," + withdrawn + "],"
+                   + "\"colors\":[\"#f39c12\",\"#27ae60\",\"#e74c3c\",\"#95a5a6\"]}";
         } catch (Exception e) {
             e.printStackTrace();
             return "{\"labels\":[],\"data\":[],\"colors\":[]}";
         }
     }
-    
+
     /**
-     * 获取职位申请数对比图数据（MO视图）
-     * 返回JSON格式：{ labels: [...], data: [...] }
+     * Returns application count chart data for one MO's positions.
      */
     public String getPositionApplicationsData(String moId) {
         try {
             List<Position> positions = positionDAO.findByMoId(moId);
-            
+
             StringBuilder labels = new StringBuilder("[");
             StringBuilder data = new StringBuilder("[");
-            
+
             boolean first = true;
             for (Position pos : positions) {
                 List<Application> apps = applicationDAO.findByPositionId(pos.getPositionId());
-                
+
                 if (!first) {
                     labels.append(",");
                     data.append(",");
                 }
                 first = false;
-                
+
                 labels.append("\"").append(escapeJson(pos.getTitle())).append("\"");
                 data.append(apps.size());
             }
-            
+
             labels.append("]");
             data.append("]");
-            
+
             return "{\"labels\":" + labels + ",\"data\":" + data + "}";
-            
         } catch (Exception e) {
             e.printStackTrace();
             return "{\"labels\":[],\"data\":[]}";
         }
     }
-    
+
     /**
-     * 获取申请状态分布环形图数据（TA视图）
-     * 返回JSON格式：{ labels: [...], data: [...], colors: [...] }
+     * Returns application status chart data for one TA.
      */
     public String getTAApplicationStatusData(String taId) {
         try {
             List<Application> apps = applicationDAO.findByTaId(taId);
-            
+
             int pending = (int) apps.stream()
                 .filter(a -> a.getStatus() == ApplicationStatus.PENDING).count();
             int selected = (int) apps.stream()
@@ -181,11 +175,10 @@ public class ChartService {
                 .filter(a -> a.getStatus() == ApplicationStatus.REJECTED).count();
             int withdrawn = (int) apps.stream()
                 .filter(a -> a.getStatus() == ApplicationStatus.WITHDRAWN).count();
-            
-            return "{\"labels\":[\"Pending\",\"Selected\",\"Rejected\",\"Withdrawn\"]," +
-                   "\"data\":[" + pending + "," + selected + "," + rejected + "," + withdrawn + "]," +
-                   "\"colors\":[\"#f39c12\",\"#27ae60\",\"#e74c3c\",\"#95a5a6\"]}";
-            
+
+            return "{\"labels\":[\"Pending\",\"Selected\",\"Rejected\",\"Withdrawn\"],"
+                   + "\"data\":[" + pending + "," + selected + "," + rejected + "," + withdrawn + "],"
+                   + "\"colors\":[\"#f39c12\",\"#27ae60\",\"#e74c3c\",\"#95a5a6\"]}";
         } catch (Exception e) {
             e.printStackTrace();
             return "{\"labels\":[],\"data\":[],\"colors\":[]}";

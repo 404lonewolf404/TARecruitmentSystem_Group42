@@ -1,13 +1,12 @@
 package com.bupt.tarecruitment.util;
 
 /**
- * 数据验证工具类
- * 提供各种数据验证和安全防护功能
+ * Validation helpers used by forms and services.
  */
 public class ValidationUtil {
     
     /**
-     * 严格邮箱验证
+     * Validates whether the input matches the email format.
      */
     public static boolean isValidEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
@@ -18,7 +17,7 @@ public class ValidationUtil {
     }
     
     /**
-     * 密码强度检查
+     * Validates whether the password meets the minimum strength rule.
      */
     public static boolean isStrongPassword(String password) {
         if (password == null || password.length() < 8) {
@@ -32,7 +31,7 @@ public class ValidationUtil {
     }
     
     /**
-     * 获取密码强度描述
+     * Returns a readable password strength label.
      */
     public static String getPasswordStrength(String password) {
         if (password == null || password.length() < 6) {
@@ -54,7 +53,7 @@ public class ValidationUtil {
     }
     
     /**
-     * XSS防护 - HTML转义
+     * Escapes basic HTML characters to reduce XSS risk.
      */
     public static String escapeHtml(String input) {
         if (input == null) {
@@ -69,7 +68,7 @@ public class ValidationUtil {
     }
     
     /**
-     * 验证字符串长度
+     * Validates whether a string length is within range after trimming.
      */
     public static boolean isValidLength(String str, int min, int max) {
         if (str == null) {
@@ -80,7 +79,7 @@ public class ValidationUtil {
     }
     
     /**
-     * 验证用户名格式（字母、数字、下划线，3-20字符）
+     * Validates whether the username format is allowed.
      */
     public static boolean isValidUsername(String username) {
         if (username == null) {
@@ -90,7 +89,7 @@ public class ValidationUtil {
     }
     
     /**
-     * 验证手机号格式
+     * Validates whether the phone number matches the mobile pattern.
      */
     public static boolean isValidPhone(String phone) {
         if (phone == null) {

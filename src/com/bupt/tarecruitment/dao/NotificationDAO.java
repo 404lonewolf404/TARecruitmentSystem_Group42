@@ -30,7 +30,7 @@ public class NotificationDAO {
         }
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), java.nio.charset.StandardCharsets.UTF_8))) {
-            String line = reader.readLine(); // Skip header
+            String line = reader.readLine(); // 中文说明：跳过 CSV 表头。
             while ((line = reader.readLine()) != null) {
                 String[] parts = splitCSVLine(line);
                 if (parts.length >= 7 && parts[1].equals(userId)) {
@@ -55,7 +55,7 @@ public class NotificationDAO {
         }
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), java.nio.charset.StandardCharsets.UTF_8))) {
-            String line = reader.readLine(); // Skip header
+            String line = reader.readLine(); // 中文说明：跳过 CSV 表头。
             while ((line = reader.readLine()) != null) {
                 String[] parts = splitCSVLine(line);
                 if (parts.length >= 7 && parts[0].equals(notificationId)) {
@@ -82,7 +82,7 @@ public class NotificationDAO {
         }
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), java.nio.charset.StandardCharsets.UTF_8))) {
-            String line = reader.readLine(); // Skip header
+            String line = reader.readLine(); // 中文说明：跳过 CSV 表头。
             while ((line = reader.readLine()) != null) {
                 String[] parts = splitCSVLine(line);
                 if (parts.length >= 7 && parts[1].equals(userId) && !Boolean.parseBoolean(parts[5])) {
@@ -132,7 +132,7 @@ public class NotificationDAO {
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), java.nio.charset.StandardCharsets.UTF_8))) {
                 String line = reader.readLine();
-                lines.add(line); // Header
+                lines.add(line); // 中文说明：保留表头。
 
                 while ((line = reader.readLine()) != null) {
                     String[] parts = splitCSVLine(line);
@@ -165,7 +165,7 @@ public class NotificationDAO {
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), java.nio.charset.StandardCharsets.UTF_8))) {
                 String line = reader.readLine();
-                lines.add(line); // Header
+                lines.add(line); // 中文说明：保留表头。
 
                 while ((line = reader.readLine()) != null) {
                     String[] parts = splitCSVLine(line);
@@ -195,7 +195,7 @@ public class NotificationDAO {
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), java.nio.charset.StandardCharsets.UTF_8))) {
                 String line = reader.readLine();
-                lines.add(line); // Header
+                lines.add(line); // 中文说明：保留表头。
 
                 while ((line = reader.readLine()) != null) {
                     String[] parts = splitCSVLine(line);

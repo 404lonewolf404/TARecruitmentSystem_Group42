@@ -12,58 +12,57 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * 认证服务类
- * 处理用户注册、登录、登出等认证相关的业务逻辑
+ * Authentication and account service.
  */
 public class AuthService {
-    
+
     private UserDAO userDAO;
-    
+
     /**
-     * 构造函数
+     * Creates the authentication service.
      */
     public AuthService() {
         this.userDAO = new UserDAO();
     }
-    
+
     /**
-     * 用户注册
-     * 
-     * @param name 用户姓名
-     * @param email 用户邮箱
-     * @param password 用户密码（明文）
-     * @param role 用户角色
-     * @param skills 用户技能（可选，仅TA使用）
-     * @return 注册成功的用户对象
-     * @throws IllegalArgumentException 如果邮箱已存在或参数无效
-     * @throws IOException 如果数据保存失败
+     * Registers a new user account.
+     *
+     * @param name name value
+     * @param email email value
+     * @param password password value
+     * @param role role value
+     * @param skills skills value
+     * @return operation result
+     * @throws IllegalArgumentException if operation fails
+     * @throws IOException if operation fails
      */
-    public User register(String name, String email, String password, UserRole role, String skills) 
+    public User register(String name, String email, String password, UserRole role, String skills)
             throws IllegalArgumentException, IOException {
-        
-        // 验证必填字段
+
+        // 中文说明：校验注册必要字段。
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Name cannot be empty");
         }
-        
+
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be empty");
         }
-        
+
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
-        
+
         if (role == null) {
             throw new IllegalArgumentException("Role cannot be empty");
         }
-        
-        // 检查邮箱唯一性
+
+        // 中文说明：邮箱不能重复注册。
         if (userDAO.emailExists(email)) {
             throw new IllegalArgumentException("This email is already registered");
         }
-        
-        // 创建新用户
+
+        // 中文说明：构造新用户对象并写入默认值。
         User user = new User();
         user.setUserId(UUID.randomUUID().toString());
         user.setName(name.trim());
@@ -72,100 +71,127 @@ public class AuthService {
         user.setRole(role);
         user.setSkills(skills != null ? skills.trim() : "");
         user.setCreatedAt(new Date());
-        
-        // 保存用户
+
+        // 中文说明：持久化新用户。
         userDAO.add(user);
-        
+
         return user;
     }
-    
+
     /**
-     * 用户登录
-     * 
-     * @param email 用户邮箱
-     * @param password 用户密码（明文）
-     * @return 登录成功的用户对象
-     * @throws IllegalArgumentException 如果凭证无效
+     * Authenticates a user by email and password.
+     *
+     * @param email email value
+     * @param password password value
+     * @return operation result
+     * @throws IllegalArgumentException if operation fails
      */
     public User login(String email, String password) throws IllegalArgumentException {
-        
-        // 验证参数
+
+        // 中文说明：校验登录必要字段。
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be empty");
         }
-        
+
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
-        
-        // 查找用户
+
+        // 中文说明：根据邮箱查询用户。
         User user = userDAO.findByEmail(email.trim());
-        
+
         if (user == null) {
             throw new IllegalArgumentException("Invalid email or password");
         }
-        
-        // 验证密码
+
+        // 中文说明：比较密码哈希值。
         String hashedPassword = hashPassword(password);
         if (!user.getPassword().equals(hashedPassword)) {
             throw new IllegalArgumentException("Invalid email or password");
         }
-        
+
         return user;
     }
-    
+
     /**
-     * 用户登出
-     * 
-     * @param session HTTP会话对象
+     * Resets a user's password by email.
+     *
+     * @param email email value
+     * @param newPassword newPassword value
+     * @throws IllegalArgumentException if operation fails
+     * @throws IOException if operation fails
+     */
+    public void resetPasswordByEmail(String email, String newPassword)
+            throws IllegalArgumentException, IOException {
+
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("New password cannot be empty");
+        }
+
+        User user = userDAO.findByEmail(email.trim());
+        if (user == null) {
+            throw new IllegalArgumentException("User not found");
+        }
+
+        user.setPassword(hashPassword(newPassword));
+        userDAO.update(user);
+    }
+
+    /**
+     * Logs the current user out by invalidating the session.
+     *
+     * @param session session value
      */
     public void logout(HttpSession session) {
         if (session != null) {
             session.invalidate();
         }
     }
-    
+
     /**
-     * 检查用户是否已认证
-     * 
-     * @param session HTTP会话对象
-     * @return 如果用户已认证返回true，否则返回false
+     * Returns whether the current session is authenticated.
+     *
+     * @param session session value
+     * @return operation result
      */
     public boolean isAuthenticated(HttpSession session) {
         if (session == null) {
             return false;
         }
-        
+
         User user = (User) session.getAttribute("user");
         return user != null;
     }
-    
+
     /**
-     * 获取当前登录用户
-     * 
-     * @param session HTTP会话对象
-     * @return 当前登录的用户对象，如果未登录返回null
+     * Returns the current logged-in user from the session.
+     *
+     * @param session session value
+     * @return operation result
      */
     public User getCurrentUser(HttpSession session) {
         if (session == null) {
             return null;
         }
-        
+
         return (User) session.getAttribute("user");
     }
-    
+
     /**
-     * 使用SHA-256算法对密码进行哈希
-     * 
-     * @param password 明文密码
-     * @return 哈希后的密码（十六进制字符串）
+     * Hashes a plain-text password using SHA-256.
+     *
+     * @param password password value
+     * @return operation result
      */
     private String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(password.getBytes());
-            
-            // 转换为十六进制字符串
+
+            // 中文说明：把字节数组转换为十六进制字符串。
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
@@ -174,7 +200,7 @@ public class AuthService {
                 }
                 hexString.append(hex);
             }
-            
+
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-256 algorithm is not available", e);

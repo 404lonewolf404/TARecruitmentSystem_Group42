@@ -31,7 +31,7 @@ public class NotificationServlet extends HttpServlet {
         
         User user = (User) session.getAttribute("user");
         
-        // 处理通知列表页面
+        // 中文说明：GET 请求统一展示通知列表页面。
         handleViewNotifications(request, response, user);
     }
     
@@ -77,7 +77,7 @@ public class NotificationServlet extends HttpServlet {
             request.getRequestDispatcher(jspPath).forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "获取通知失败：" + e.getMessage());
+            request.setAttribute("errorMessage", "Operation failed: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
         }
     }
@@ -89,7 +89,7 @@ public class NotificationServlet extends HttpServlet {
             if (notificationId != null) {
                 notificationDAO.markAsRead(notificationId);
             }
-            // 重定向回通知页面
+            // 中文说明：处理完成后回到当前角色的通知页。
             String role = user.getRole().toString().toLowerCase();
             response.sendRedirect(request.getContextPath() + "/" + role + "/notifications");
         } catch (Exception e) {
@@ -103,7 +103,7 @@ public class NotificationServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             notificationDAO.markAllAsRead(user.getUserId());
-            // 重定向回通知页面
+            // 中文说明：批量已读后回到当前角色的通知页。
             String role = user.getRole().toString().toLowerCase();
             response.sendRedirect(request.getContextPath() + "/" + role + "/notifications");
         } catch (Exception e) {
@@ -120,7 +120,7 @@ public class NotificationServlet extends HttpServlet {
             if (notificationId != null) {
                 notificationDAO.delete(notificationId);
             }
-            // 重定向回通知页面
+            // 中文说明：删除后回到当前角色的通知页。
             String role = user.getRole().toString().toLowerCase();
             response.sendRedirect(request.getContextPath() + "/" + role + "/notifications");
         } catch (Exception e) {
@@ -130,3 +130,4 @@ public class NotificationServlet extends HttpServlet {
         }
     }
 }
+

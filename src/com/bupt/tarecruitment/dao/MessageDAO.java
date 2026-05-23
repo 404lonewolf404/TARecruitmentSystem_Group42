@@ -129,7 +129,7 @@ public class MessageDAO implements CSVDataStore<Message> {
         try {
             this.messages = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时保留当前内存数据并返回查找结果。
         }
 
         return messages.stream()
@@ -142,7 +142,7 @@ public class MessageDAO implements CSVDataStore<Message> {
         try {
             this.messages = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时退回当前内存缓存。
         }
 
         return messages.stream()
@@ -155,7 +155,7 @@ public class MessageDAO implements CSVDataStore<Message> {
         try {
             this.messages = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时退回当前内存缓存。
         }
 
         return (int) messages.stream()

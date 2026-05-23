@@ -4,58 +4,55 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * CSV数据存储接口
- * 定义所有DAO类的通用CRUD操作
- * 
- * @param <T> 数据实体类型
+ * Generic CSV-based persistence contract.
  */
 public interface CSVDataStore<T> {
     
     /**
-     * 从CSV文件加载所有数据
-     * 
-     * @return 所有数据实体的列表
-     * @throws IOException 如果文件读取失败
+     * Loads all records from storage.
+     *
+     * @return operation result
+     * @throws IOException if operation fails
      */
     List<T> loadAll() throws IOException;
     
     /**
-     * 将所有数据保存到CSV文件
-     * 
-     * @param items 要保存的数据实体列表
-     * @throws IOException 如果文件写入失败
+     * Persists the full record list to storage.
+     *
+     * @param items items value
+     * @throws IOException if operation fails
      */
     void saveAll(List<T> items) throws IOException;
     
     /**
-     * 添加新的数据实体
-     * 
-     * @param item 要添加的数据实体
-     * @throws IOException 如果文件操作失败
+     * Appends a single record to storage.
+     *
+     * @param item item value
+     * @throws IOException if operation fails
      */
     void add(T item) throws IOException;
     
     /**
-     * 更新现有的数据实体
-     * 
-     * @param item 要更新的数据实体
-     * @throws IOException 如果文件操作失败
+     * Updates an existing record in storage.
+     *
+     * @param item item value
+     * @throws IOException if operation fails
      */
     void update(T item) throws IOException;
     
     /**
-     * 根据ID删除数据实体
-     * 
-     * @param id 要删除的实体ID
-     * @throws IOException 如果文件操作失败
+     * Deletes a record by primary key.
+     *
+     * @param id id value
+     * @throws IOException if operation fails
      */
     void delete(String id) throws IOException;
     
     /**
-     * 根据ID查找数据实体
-     * 
-     * @param id 要查找的实体ID
-     * @return 找到的数据实体，如果不存在则返回null
+     * Finds a record by primary key.
+     *
+     * @param id id value
+     * @return operation result
      */
     T findById(String id);
 }

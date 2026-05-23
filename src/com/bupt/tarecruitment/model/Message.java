@@ -3,8 +3,7 @@ package com.bupt.tarecruitment.model;
 import java.util.Date;
 
 /**
- * 消息模型
- * V3.5 - 招聘对话系统
+ * Message entity for communication inside an application thread.
  */
 public class Message {
     private String messageId;
@@ -15,7 +14,7 @@ public class Message {
     private Date sentAt;
     private boolean isRead;
     
-    // 构造函数
+    // 中文说明：默认构造方法。
     public Message() {
     }
     
@@ -30,7 +29,7 @@ public class Message {
         this.isRead = isRead;
     }
     
-    // Getters and Setters
+    // 中文说明：以下为基础访问器方法。
     public String getMessageId() {
         return messageId;
     }

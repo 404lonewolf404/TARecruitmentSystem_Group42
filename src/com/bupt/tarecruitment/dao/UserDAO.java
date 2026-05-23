@@ -129,7 +129,7 @@ public class UserDAO implements CSVDataStore<User> {
         try {
             this.users = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时保留当前内存数据并返回查找结果。
         }
 
         return users.stream()
@@ -142,7 +142,7 @@ public class UserDAO implements CSVDataStore<User> {
         try {
             this.users = loadAll();
         } catch (IOException e) {
-            // use in-memory fallback
+            // 中文说明：读取失败时保留当前内存数据并返回查找结果。
         }
 
         return users.stream()

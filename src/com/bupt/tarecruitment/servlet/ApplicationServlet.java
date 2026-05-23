@@ -23,13 +23,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 闁槒绶拠瀛樻閵?
- * 闁槒绶拠瀛樻閵?
+ * Handles TA application submission and MO application review flows.
  */
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
-    maxFileSize = 1024 * 1024 * 10,       // 10MB
-    maxRequestSize = 1024 * 1024 * 50     // 50MB
+    fileSizeThreshold = 1024 * 1024 * 2,  // 中文说明：超过 2MB 后写入磁盘临时文件。
+    maxFileSize = 1024 * 1024 * 10,       // 中文说明：单个上传文件最大 10MB。
+    maxRequestSize = 1024 * 1024 * 50     // 中文说明：整个请求最大 50MB。
 )
 public class ApplicationServlet extends HttpServlet {
     
@@ -51,7 +50,7 @@ public class ApplicationServlet extends HttpServlet {
         
         String pathInfo = request.getPathInfo();
         
-        // 闁槒绶拠瀛樻閵?
+        // 中文说明：输出路径调试信息，便于排查 servlet 映射问题。
         System.out.println("ApplicationServlet.doGet() called");
         System.out.println("Request URI: " + request.getRequestURI());
         System.out.println("Context Path: " + request.getContextPath());
@@ -63,7 +62,7 @@ public class ApplicationServlet extends HttpServlet {
             return;
         }
         
-        // 闁槒绶拠瀛樻閵?
+        // 中文说明：兼容带尾部斜杠的路径。
         if (pathInfo.endsWith("/") && pathInfo.length() > 1) {
             pathInfo = pathInfo.substring(0, pathInfo.length() - 1);
         }
@@ -75,12 +74,12 @@ public class ApplicationServlet extends HttpServlet {
                 handleShowApplyForm(request, response);
                 break;
             case "/my":
-                // 闁槒绶拠瀛樻閵?
+                // 中文说明：查看当前 TA 的申请列表。
                 System.out.println("Handling /my request");
                 handleViewMyApplications(request, response);
                 break;
             case "/position":
-                // 闁槒绶拠瀛樻閵?
+                // 中文说明：查看某个岗位的申请列表。
                 System.out.println("Handling /position request");
                 handleViewPositionApplications(request, response);
                 break;
@@ -95,7 +94,7 @@ public class ApplicationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 闁槒绶拠瀛樻閵?
+        // 中文说明：统一使用 UTF-8 处理表单提交。
         request.setCharacterEncoding("UTF-8");
         
         String pathInfo = request.getPathInfo();
@@ -107,15 +106,15 @@ public class ApplicationServlet extends HttpServlet {
         
         switch (pathInfo) {
             case "/apply":
-                // 闁槒绶拠瀛樻閵?
+                // 中文说明：处理提交岗位申请。
                 handleApplyForPosition(request, response);
                 break;
             case "/withdraw":
-                // 闁槒绶拠瀛樻閵?
+                // 中文说明：处理撤回申请。
                 handleWithdrawApplication(request, response);
                 break;
             case "/select":
-                // 闁槒绶拠瀛樻閵?
+                // 中文说明：处理 MO 录用申请人。
                 handleSelectApplicant(request, response);
                 break;
             default:
@@ -125,7 +124,7 @@ public class ApplicationServlet extends HttpServlet {
     }
     
     /**
-     * 闁槒绶拠瀛樻閵?
+     * Shows the application form for a TA.
      */
     private void handleShowApplyForm(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -143,13 +142,13 @@ public class ApplicationServlet extends HttpServlet {
             return;
         }
         
-        // 闁槒绶拠瀛樻閵?
+        // 中文说明：仅 TA 可以申请岗位。
         if (currentUser.getRole() != UserRole.TA) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only TAs can apply for positions");
             return;
         }
         
-        // 闁槒绶拠瀛樻閵?
+        // 中文说明：读取目标岗位 ID。
         String positionId = request.getParameter("positionId");
         if (positionId == null || positionId.trim().isEmpty()) {
             session.setAttribute("errorMessage", "Position ID cannot be empty");
@@ -157,7 +156,7 @@ public class ApplicationServlet extends HttpServlet {
             return;
         }
         
-        // 闁槒绶拠瀛樻閵?
+        // 中文说明：确认岗位存在。
         Position position = positionService.getPositionById(positionId.trim());
         if (position == null) {
             session.setAttribute("errorMessage", "Position not found");
@@ -165,7 +164,7 @@ public class ApplicationServlet extends HttpServlet {
             return;
         }
         
-        // 闁槒绶拠瀛樻閵?
+        // 中文说明：仅允许申请仍可接收申请的岗位。
         if (!position.canAcceptApplications()) {
             String reason = "";
             if (position.isExpired()) {
@@ -180,20 +179,18 @@ public class ApplicationServlet extends HttpServlet {
             return;
         }
         
-        // 闁槒绶拠瀛樻閵?
+        // 中文说明：写入岗位信息并转发到申请页。
         request.setAttribute("position", position);
         request.getRequestDispatcher("/WEB-INF/jsp/ta/apply-position.jsp").forward(request, response);
     }
     
     /**
-     * 闁槒绶拠瀛樻閵?
-     * 闁槒绶拠瀛樻閵?
-     * 闁槒绶拠瀛樻閵?
+     * Submits a new application for a TA.
      */
     private void handleApplyForPosition(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 闁槒绶拠瀛樻閵?
+        // 中文说明：读取当前会话。
         HttpSession session = request.getSession(false);
         
         try {
@@ -208,19 +205,18 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：仅 TA 可以提交岗位申请。
             if (currentUser.getRole() != UserRole.TA) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only TAs can apply for positions");
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：从 multipart 请求中提取岗位、简历选择和上传文件。
             String positionId = null;
             String resumeChoice = null;
             Part filePart = null;
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：遍历表单部件并提取所需值。
             for (Part part : request.getParts()) {
                 String partName = part.getName();
                 if ("positionId".equals(partName)) {
@@ -241,18 +237,18 @@ public class ApplicationServlet extends HttpServlet {
             String resumePath = null;
             
             if ("new".equals(resumeChoice)) {
-                // 闁槒绶拠瀛樻閵?
+                // 中文说明：用户选择上传新简历文件。
                 if (filePart != null && filePart.getSize() > 0) {
                     String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
                     
-                    // 闁槒绶拠瀛樻閵?
+                    // 中文说明：当前仅允许上传 PDF 简历。
                     if (!fileName.toLowerCase().endsWith(".pdf")) {
                         session.setAttribute("errorMessage", "Only PDF resume files are supported");
                         response.sendRedirect(request.getContextPath() + "/ta/positions");
                         return;
                     }
                     
-                    // 闁槒绶拠瀛樻閵?
+                    // 中文说明：为上传文件生成唯一文件名并确保目录存在。
                     String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
                     String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
                     File uploadDir = new File(uploadPath);
@@ -263,7 +259,7 @@ public class ApplicationServlet extends HttpServlet {
                     String filePath = uploadPath + File.separator + uniqueFileName;
                     filePart.write(filePath);
                     
-                    // 闁槒绶拠瀛樻閵?
+                    // 中文说明：保存相对路径到申请记录中。
                     resumePath = "uploads/" + uniqueFileName;
                 } else {
                     session.setAttribute("errorMessage", "Please select a resume file to upload");
@@ -271,7 +267,7 @@ public class ApplicationServlet extends HttpServlet {
                     return;
                 }
             } else {
-                // 闁槒绶拠瀛樻閵?
+                // 中文说明：复用用户资料里已有的简历路径。
                 resumePath = currentUser.getCvPath();
                 
                 if (resumePath == null || resumePath.trim().isEmpty()) {
@@ -281,7 +277,7 @@ public class ApplicationServlet extends HttpServlet {
                 }
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：再次确认岗位存在且仍可申请。
             Position position = positionService.getPositionById(positionId.trim());
             if (position == null) {
                 session.setAttribute("errorMessage", "Position not found");
@@ -303,10 +299,10 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：创建申请记录。
             applicationService.applyForPosition(currentUser.getUserId(), positionId.trim(), resumePath);
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：通知岗位所属 MO 有新申请。
             try {
                 if (position != null) {
                     notificationService.sendNewApplicationNotification(
@@ -316,25 +312,25 @@ public class ApplicationServlet extends HttpServlet {
                     );
                 }
             } catch (Exception e) {
-                // 闁槒绶拠瀛樻閵?
+                // 中文说明：通知失败不影响主流程。
                 e.printStackTrace();
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：写入成功提示。
             session.setAttribute("successMessage", "Application submitted successfully");
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：成功后跳到我的申请列表。
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
             
         } catch (IllegalArgumentException e) {
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：业务校验失败时回到岗位列表。
             if (session != null) {
                 session.setAttribute("errorMessage", e.getMessage());
             }
             response.sendRedirect(request.getContextPath() + "/ta/positions");
             
         } catch (IOException e) {
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：IO 失败时回到岗位列表。
             if (session != null) {
                 session.setAttribute("errorMessage", "Failed to apply for position: " + e.getMessage());
             }
@@ -343,7 +339,7 @@ public class ApplicationServlet extends HttpServlet {
     }
     
     /**
-     * 闁槒绶拠瀛樻閵?
+     * Reads a plain text value from a multipart part.
      */
     private String getValue(Part part) throws IOException {
         java.io.BufferedReader reader = new java.io.BufferedReader(
@@ -358,14 +354,13 @@ public class ApplicationServlet extends HttpServlet {
     }
     
     /**
-     * 闁槒绶拠瀛樻閵?
-     * 闁槒绶拠瀛樻閵?
+     * Withdraws an existing application.
      */
     private void handleWithdrawApplication(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
         try {
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：只有已登录用户才能撤回申请。
             HttpSession session = request.getSession(false);
             if (session == null) {
                 response.sendRedirect(request.getContextPath() + "/auth/login");
@@ -378,13 +373,13 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：撤回申请仅对 TA 角色开放。
             if (currentUser.getRole() != UserRole.TA) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only TAs can withdraw applications");
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：读取目标申请 ID。
             String applicationId = request.getParameter("applicationId");
             
             if (applicationId == null || applicationId.trim().isEmpty()) {
@@ -393,13 +388,13 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：先读取申请信息，供后续通知使用。
             Application application = applicationService.getApplicationById(applicationId.trim());
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：执行撤回操作。
             applicationService.withdrawApplication(applicationId.trim());
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：通知对应 MO 有申请被撤回。
             if (application != null) {
                 try {
                     Position position = positionService.getPositionById(application.getPositionId());
@@ -411,16 +406,16 @@ public class ApplicationServlet extends HttpServlet {
                         );
                     }
                 } catch (Exception e) {
-                    // 闁槒绶拠瀛樻閵?
+                    // 中文说明：通知失败不影响主流程。
                     e.printStackTrace();
                 }
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：返回我的申请列表。
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
             
         } catch (IllegalArgumentException e) {
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：业务校验失败时回到我的申请列表。
             HttpSession session = request.getSession(false);
             if (session != null) {
                 session.setAttribute("errorMessage", e.getMessage());
@@ -428,7 +423,7 @@ public class ApplicationServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/ta/applications/my");
             
         } catch (IOException e) {
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：IO 失败时回到我的申请列表。
             HttpSession session = request.getSession(false);
             if (session != null) {
                 session.setAttribute("errorMessage", "Failed to withdraw application: " + e.getMessage());
@@ -438,8 +433,7 @@ public class ApplicationServlet extends HttpServlet {
     }
     
     /**
-     * 闁槒绶拠瀛樻閵?
-     * 闁槒绶拠瀛樻閵?
+     * Displays the current TA's application list.
      */
     private void handleViewMyApplications(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -447,7 +441,7 @@ public class ApplicationServlet extends HttpServlet {
         try {
             System.out.println("=== handleViewMyApplications START ===");
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：检查登录状态。
             HttpSession session = request.getSession(false);
             System.out.println("Session: " + (session != null ? "exists" : "null"));
             
@@ -466,7 +460,7 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：仅 TA 可以查看自己的申请列表。
             System.out.println("User role: " + currentUser.getRole());
             if (currentUser.getRole() != UserRole.TA) {
                 System.out.println("User is not TA, sending 403");
@@ -474,23 +468,23 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：先清理已过期岗位对应的待处理申请。
             try {
                 applicationService.cleanupExpiredPositionApplications();
             } catch (IOException e) {
                 System.out.println("Warning: Failed to cleanup expired applications: " + e.getMessage());
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：加载当前 TA 的全部申请。
             System.out.println("Calling applicationService.getApplicationsByTA()");
             List<Application> applications = applicationService.getApplicationsByTA(currentUser.getUserId());
             System.out.println("Retrieved " + (applications != null ? applications.size() : "null") + " applications");
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：写入页面渲染所需数据。
             request.setAttribute("applications", applications);
             System.out.println("Set applications attribute");
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：转发到 TA 申请列表页。
             String jspPath = "/WEB-INF/jsp/ta/applications.jsp";
             System.out.println("Forwarding to: " + jspPath);
             request.getRequestDispatcher(jspPath).forward(request, response);
@@ -507,14 +501,13 @@ public class ApplicationServlet extends HttpServlet {
     }
     
     /**
-     * 闁槒绶拠瀛樻閵?
-     * 闁槒绶拠瀛樻閵?
+     * Displays all applications for one MO-owned position.
      */
     private void handleViewPositionApplications(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
         try {
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：只有已登录用户才能查看岗位申请列表。
             HttpSession session = request.getSession(false);
             if (session == null) {
                 response.sendRedirect(request.getContextPath() + "/auth/login");
@@ -527,20 +520,20 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：仅 MO 可以查看岗位申请列表。
             if (currentUser.getRole() != UserRole.MO) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only MOs can view position applications");
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：先清理已过期岗位对应的待处理申请。
             try {
                 applicationService.cleanupExpiredPositionApplications();
             } catch (IOException e) {
                 System.out.println("Warning: Failed to cleanup expired applications: " + e.getMessage());
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：读取目标岗位 ID。
             String positionId = request.getParameter("positionId");
             
             if (positionId == null || positionId.trim().isEmpty()) {
@@ -549,7 +542,7 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：确认岗位存在。
             Position position = positionService.getPositionById(positionId.trim());
             if (position == null) {
                 session.setAttribute("errorMessage", "Position not found");
@@ -557,13 +550,13 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：加载该岗位的全部申请。
             List<Application> applications = applicationService.getApplicationsByPosition(positionId.trim());
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：读取可选状态筛选条件。
             String statusFilter = request.getParameter("status");
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：按状态过滤结果列表。
             if (statusFilter != null && !statusFilter.equals("all") && !statusFilter.isEmpty()) {
                 try {
                     com.bupt.tarecruitment.model.ApplicationStatus filterStatus = 
@@ -572,16 +565,16 @@ public class ApplicationServlet extends HttpServlet {
                         .filter(app -> app.getStatus() == filterStatus)
                         .collect(java.util.stream.Collectors.toList());
                 } catch (IllegalArgumentException e) {
-                    // 闁槒绶拠瀛樻閵?
+                    // 中文说明：非法筛选值时忽略过滤条件。
                 }
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：写入页面渲染所需数据。
             request.setAttribute("position", position);
             request.setAttribute("applications", applications);
             request.setAttribute("statusFilter", statusFilter != null ? statusFilter : "all");
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：转发到 MO 申请列表页。
             request.getRequestDispatcher("/WEB-INF/jsp/mo/applications.jsp").forward(request, response);
             
         } catch (Exception e) {
@@ -591,15 +584,13 @@ public class ApplicationServlet extends HttpServlet {
     }
     
     /**
-     * 闁槒绶拠瀛樻閵?
-     * 闁槒绶拠瀛樻閵?
-     * 闁槒绶拠瀛樻閵?
+     * Selects an applicant for an MO-owned position.
      */
     private void handleSelectApplicant(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
         try {
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：只有已登录用户才能执行录用操作。
             HttpSession session = request.getSession(false);
             if (session == null) {
                 response.sendRedirect(request.getContextPath() + "/auth/login");
@@ -612,13 +603,13 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：录用操作仅对 MO 角色开放。
             if (currentUser.getRole() != UserRole.MO) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only MOs can select applicants");
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：读取申请 ID 和回跳岗位 ID。
             String applicationId = request.getParameter("applicationId");
             String positionId = request.getParameter("positionId");
             
@@ -632,10 +623,10 @@ public class ApplicationServlet extends HttpServlet {
                 return;
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：执行录用逻辑。
             applicationService.selectApplicant(applicationId.trim());
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：向该岗位所有相关申请人发送状态通知。
             try {
                 Application selectedApp = applicationService.getApplicationById(applicationId.trim());
                 if (selectedApp != null) {
@@ -649,11 +640,11 @@ public class ApplicationServlet extends HttpServlet {
                     }
                 }
             } catch (Exception e) {
-                // 闁槒绶拠瀛樻閵?
+                // 中文说明：通知失败不影响主流程。
                 e.printStackTrace();
             }
             
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：完成后回到岗位申请页或岗位列表。
             if (positionId != null && !positionId.trim().isEmpty()) {
                 response.sendRedirect(request.getContextPath() + "/mo/applications/position?positionId=" + positionId);
             } else {
@@ -661,7 +652,7 @@ public class ApplicationServlet extends HttpServlet {
             }
             
         } catch (IllegalArgumentException e) {
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：业务校验失败时回到来源页面。
             HttpSession session = request.getSession(false);
             if (session != null) {
                 session.setAttribute("errorMessage", e.getMessage());
@@ -674,7 +665,7 @@ public class ApplicationServlet extends HttpServlet {
             }
             
         } catch (IOException e) {
-            // 闁槒绶拠瀛樻閵?
+            // 中文说明：IO 失败时回到来源页面。
             HttpSession session = request.getSession(false);
             if (session != null) {
                 session.setAttribute("errorMessage", "Failed to select applicant: " + e.getMessage());

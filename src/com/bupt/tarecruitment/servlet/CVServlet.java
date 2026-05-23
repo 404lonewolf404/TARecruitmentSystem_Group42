@@ -16,8 +16,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * CV下载Servlet
- * 处理简历文件的下载请求
+ * Streams stored CV files to authorized users.
  */
 public class CVServlet extends HttpServlet {
     
@@ -43,20 +42,20 @@ public class CVServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 获取当前登录用户
+        // 中文说明：必须已登录才能访问简历文件。
         HttpSession session = request.getSession(false);
         if (session == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "请先登录");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Operation failed");
             return;
         }
         
         User currentUser = (User) session.getAttribute("user");
         if (currentUser == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "请先登录");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Operation failed");
             return;
         }
         
-        // 检查是通过userId还是applicationId下载
+        // 中文说明：支持按用户 ID 或申请 ID 两种方式定位简历。
         String userId = request.getParameter("userId");
         String applicationId = request.getParameter("applicationId");
         
@@ -64,70 +63,70 @@ public class CVServlet extends HttpServlet {
         String targetUserId = null;
         
         if (applicationId != null && !applicationId.trim().isEmpty()) {
-            // 通过applicationId下载
+            // 中文说明：按申请记录读取简历。
             Application application = applicationDAO.findById(applicationId.trim());
             if (application == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "申请不存在");
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Operation failed");
                 return;
             }
             
-            // 检查权限：只有MO可以通过applicationId下载
+            // 中文说明：只有 MO 可以通过申请视图查看 TA 简历。
             boolean isMO = currentUser.getRole().toString().equals("MO");
             if (!isMO) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "您没有权限下载此简历");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Operation failed");
                 return;
             }
             
-            // 获取申请中的简历路径
+            // 中文说明：读取申请记录上的简历路径。
             cvPath = application.getResumePath();
             targetUserId = application.getTaId();
             
             if (cvPath == null || cvPath.trim().isEmpty()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "该申请未关联简历");
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Operation failed");
                 return;
             }
             
         } else if (userId != null && !userId.trim().isEmpty()) {
-            // 通过userId下载
+            // 中文说明：按用户资料读取简历。
             User targetUser = userDAO.findById(userId.trim());
             if (targetUser == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "用户不存在");
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Operation failed");
                 return;
             }
             
-            // 检查权限：只有本人或MO可以下载简历
+            // 中文说明：本人或 MO 才能查看该简历。
             boolean isOwner = currentUser.getUserId().equals(targetUser.getUserId());
             boolean isMO = currentUser.getRole().toString().equals("MO");
             
             if (!isOwner && !isMO) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "您没有权限下载此简历");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Operation failed");
                 return;
             }
             
-            // 检查用户是否有简历
+            // 中文说明：读取用户资料中的简历路径。
             cvPath = targetUser.getCvPath();
             targetUserId = targetUser.getUserId();
             
             if (cvPath == null || cvPath.trim().isEmpty()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "该用户未上传简历");
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Operation failed");
                 return;
             }
             
         } else {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "必须提供userId或applicationId参数");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Operation failed");
             return;
         }
         
-        // 构建完整的文件路径
+        // 中文说明：拼接部署目录中的实际文件路径。
         String fullPath = getWebAppRootPath() + "/" + cvPath;
         File cvFile = new File(fullPath);
         
         if (!cvFile.exists() || !cvFile.isFile()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "简历文件不存在");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Operation failed");
             return;
         }
         
-        // 设置响应头
+        // 中文说明：推断 MIME 类型，未知时按二进制下载。
         String fileName = cvFile.getName();
         String mimeType = getServletContext().getMimeType(fileName);
         if (mimeType == null) {
@@ -136,10 +135,10 @@ public class CVServlet extends HttpServlet {
         
         response.setContentType(mimeType);
         response.setContentLength((int) cvFile.length());
-        // 使用inline让浏览器在新标签页中打开PDF，而不是下载
+        // 中文说明：以内联形式返回，便于浏览器直接预览。
         response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\"");
         
-        // 读取文件并写入响应
+        // 中文说明：把文件内容流式写入响应输出流。
         try (FileInputStream fis = new FileInputStream(cvFile);
              OutputStream os = response.getOutputStream()) {
             
@@ -154,3 +153,4 @@ public class CVServlet extends HttpServlet {
         }
     }
 }
+

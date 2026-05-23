@@ -53,6 +53,17 @@
         <div class="card" style="max-width: 600px; margin: 0 auto;">
             <% String errorMessage = (String) request.getAttribute("errorMessage"); %>
             <% String successMessage = (String) request.getAttribute("successMessage"); %>
+            <% String adminRegisterKeyPreview = (String) request.getAttribute("adminRegisterKeyPreview"); %>
+            <% String adminKeyErrorMessage = (String) session.getAttribute("adminKeyErrorMessage"); %>
+            <% String adminKeySuccessMessage = (String) session.getAttribute("adminKeySuccessMessage"); %>
+            <%
+                if (adminKeyErrorMessage != null) {
+                    session.removeAttribute("adminKeyErrorMessage");
+                }
+                if (adminKeySuccessMessage != null) {
+                    session.removeAttribute("adminKeySuccessMessage");
+                }
+            %>
             
             <% if (errorMessage != null && !errorMessage.isEmpty()) { %>
                 <div class="error-message">
@@ -85,6 +96,50 @@
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-full">
                         <i class="fas fa-save"></i>&nbsp;&nbsp;Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card" style="max-width: 600px; margin: 24px auto 0;">
+            <h3 style="margin-top: 0;">
+                <i class="fas fa-key"></i>&nbsp;&nbsp;Admin Registration Key Settings
+            </h3>
+            <p style="color: #666; margin-top: 0;">
+                Update the key required when registering new admin accounts.
+            </p>
+
+            <div class="form-group">
+                <label><i class="fas fa-eye"></i>&nbsp;&nbsp;Current Key (Visible)</label>
+                <input type="text" value="<%= adminRegisterKeyPreview != null ? adminRegisterKeyPreview : "" %>" readonly style="background-color: #f8fafc;">
+            </div>
+
+            <% if (adminKeyErrorMessage != null && !adminKeyErrorMessage.isEmpty()) { %>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>&nbsp;&nbsp;<%= adminKeyErrorMessage %>
+                </div>
+            <% } %>
+
+            <% if (adminKeySuccessMessage != null && !adminKeySuccessMessage.isEmpty()) { %>
+                <div class="success-message">
+                    <i class="fas fa-check-circle"></i>&nbsp;&nbsp;<%= adminKeySuccessMessage %>
+                </div>
+            <% } %>
+
+            <form action="<%= request.getContextPath() %>/admin/admin-key" method="post">
+                <div class="form-group">
+                    <label for="newAdminKey"><i class="fas fa-key"></i>&nbsp;&nbsp;New Key</label>
+                    <input type="password" id="newAdminKey" name="newAdminKey" minlength="8" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmNewAdminKey"><i class="fas fa-check"></i>&nbsp;&nbsp;Confirm New Key</label>
+                    <input type="password" id="confirmNewAdminKey" name="confirmNewAdminKey" minlength="8" required>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-save"></i>&nbsp;&nbsp;Update Admin Registration Key
                     </button>
                 </div>
             </form>

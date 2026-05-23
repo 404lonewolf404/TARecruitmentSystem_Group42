@@ -1,14 +1,14 @@
 package com.bupt.tarecruitment.model;
 
 /**
- * 通知类型枚举
+ * Notification categories used by the system.
  */
 public enum NotificationType {
-    APPLICATION_SELECTED,    // 申请被选中
-    APPLICATION_REJECTED,    // 申请被拒绝
-    NEW_APPLICATION,         // 新申请提交
-    APPLICATION_WITHDRAWN,   // 申请被撤回
-    POSITION_DELETED,        // 职位被删除
-    POSITION_CLOSED,         // 职位被关闭（V3.2）
-    MESSAGE                  // 新消息（V3.5）
+    APPLICATION_SELECTED,    // 中文说明：申请已被录用。
+    APPLICATION_REJECTED,    // 中文说明：申请未被录用。
+    NEW_APPLICATION,         // 中文说明：收到新的申请。
+    APPLICATION_WITHDRAWN,   // 中文说明：申请人撤回申请。
+    POSITION_DELETED,        // 中文说明：岗位已删除。
+    POSITION_CLOSED,         // 中文说明：岗位已关闭。
+    MESSAGE                  // 中文说明：收到新消息。
 }
